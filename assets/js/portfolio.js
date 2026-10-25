@@ -160,7 +160,7 @@
         }
         return '<a class="socials__item" href="' + esc(T(l.url)) + '" target="_blank" rel="noopener"' +
           ' style="--brand: ' + brandOf(l) + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
-          U.icon(l.icon, 18) + '</a>';
+          U.icon(l.icon, 24) + '</a>';
       }).join('') + '</span>';
     }
     function moreCard(m) {

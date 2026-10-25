@@ -824,11 +824,13 @@ body[data-page="work"] .works { margin-top: 0; }
    не приподнимается при наведении; нажимаются круглые значки внутри     */
 .more--group:hover, .work--group:hover { transform: none; border-color: var(--stroke); box-shadow: var(--shadow); }
 .more--group:hover .link__icon, .work--group:hover .work__cover svg { transform: none; }
-.socials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.socials { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+/* Размер — как у значков в плитках ссылок: мелкие не попасть пальцем
+   (просьба Кирилла 26.10.2026)                                        */
 .socials__item {
   display: grid; place-items: center;
-  width: 38px; height: 38px;
-  border-radius: 12px;
+  width: 46px; height: 46px;
+  border-radius: 14px;
   background: var(--brand, var(--accent));
   color: #fff;
   transition: transform .25s var(--ease), box-shadow .25s;
@@ -839,12 +841,12 @@ body[data-page="work"] .works { margin-top: 0; }
 [data-theme="dark"] .socials__item { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
 /* Ссылка-плашка с подписью (адрес сайта) — как плашки-характеристики */
 .socials__item--text {
-  width: auto; height: 34px; padding: 0 13px;
+  width: auto; height: 42px; padding: 0 16px;
   border: 1px solid var(--stroke);
   border-radius: 999px;
   background: var(--tint);
   color: var(--text-dim);
-  font-size: 13px; font-weight: 550;
+  font-size: 14px; font-weight: 550;
 }
 .socials__item--text:hover { color: var(--accent); border-color: var(--stroke-hover); box-shadow: none; }
 [data-theme="dark"] .socials__item--text { box-shadow: none; }
@@ -1257,18 +1259,39 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
 ::view-transition-new(root) { animation-duration: .25s; }
 
 /* ---------- Телефон: отклик на касание ------------------------------------ */
-/* Наведения у пальца нет, а :hover после касания «залипает» — карточка так
-   и остаётся приподнятой, значок повёрнутым. Вместо этого карточка чуть
-   вдавливается, пока на неё нажимают; серую вспышку браузера убираем.    */
+/* Наведения у пальца нет. Браузер изображает его касанием, но :hover потом
+   «залипает» — карточка так и остаётся приподнятой. Поэтому залипший :hover
+   гасим, а ту же анимацию, что на компьютере при наведении, показываем на
+   время касания: класс is-tap ставит и снимает app.js. Серую вспышку
+   браузера убираем.                                                        */
 @media (hover: none) {
-  .tile, .work, .more, .feat, .cta-btn, .tabs__item, .link__copy { -webkit-tap-highlight-color: transparent; }
-  .tile:hover, .link-wrap:hover > .tile, .work:hover, .more:hover, .feat:hover, .cta-btn:hover,
+  .tile, .link-wrap, .work, .more, .feat, .cta-btn, .tabs__item, .link__copy, .socials__item { -webkit-tap-highlight-color: transparent; }
+  .tile:hover, .link-wrap:hover > .tile, .work:hover, .more:hover, .feat:hover, .cta-btn:hover, .socials__item:hover,
   .tile:hover .link__icon, .link-wrap:hover .link__icon, .more:hover .link__icon,
-  .link-wrap:hover .link__copy, .work:hover .work__cover img { transform: none; }
-  .tile:active, .link-wrap > .tile:active, .work:active, .more:active, .feat:active, .cta-btn:active {
-    transform: scale(.97);
-    transition-duration: .12s;
+  .tile:hover .link__arrow, .more:hover .more__arrow, .tile--works:hover .tile__head svg,
+  .link-wrap:hover .link__copy, .work:hover .work__cover img, .work--more:hover .work__cover svg,
+  .feat:hover .feat__cta svg, .feat:hover .ebk__chev { transform: none; }
+
+  /* Касание — как наведение на компьютере */
+  .tile.is-tap, .link-wrap.is-tap > .tile, .feat.is-tap {
+    transform: translateY(-3px); border-color: var(--stroke-hover); box-shadow: var(--shadow-lift);
   }
+  .tile--feat.is-tap, .tile--works.is-tap { border-color: transparent; }
+  .feat.is-tap { border-color: rgba(255, 176, 0, .55); }
+  .feat.is-tap .ebk__chev { transform: translateX(5%); background: var(--ebk-mid); }
+  .feat.is-tap .feat__cta svg { transform: translateX(3px); }
+  .work.is-tap, .more.is-tap {
+    transform: translateY(-2px); border-color: var(--stroke-hover); box-shadow: var(--shadow-lift);
+  }
+  .tile.is-tap .link__icon, .link-wrap.is-tap .link__icon, .more.is-tap .link__icon { transform: scale(1.06) rotate(-4deg); }
+  .tile.is-tap .link__arrow, .more.is-tap .more__arrow { color: var(--accent); transform: translate(2px, -2px); }
+  .tile--feat.is-tap .link__arrow { color: rgba(255, 255, 255, .9); }
+  .tile--works.is-tap .tile__head svg { transform: translateX(4px); }
+  .link-wrap.is-tap .link__copy { transform: translateY(-3px); }
+  .work.is-tap .work__cover img { transform: scale(1.03); }
+  .work--more.is-tap .work__cover svg { transform: scale(1.08) rotate(-4deg); }
+  .cta-btn.is-tap { transform: translateY(-1px); box-shadow: var(--shadow-lift); }
+  .socials__item.is-tap { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
   /* размытие под плашкой «N фото» дорого обходится телефону при листании */
   .work__count { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20, 14, 10, .68); }
 }

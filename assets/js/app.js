@@ -519,6 +519,45 @@
     });
   }
 
+  /* --- Касание на телефоне ---------------------------------------------------
+     У пальца нет наведения, поэтому та же анимация, что на компьютере при
+     наведении (карточка приподнимается, значок поворачивается), включается
+     на время касания классом is-tap и сама уходит. Чуть позже касания — чтобы
+     при листании карточки не дёргались: начнёт палец листать, браузер
+     пришлёт pointercancel, и класс не появится. Стили — в style.css.      */
+  function initTap() {
+    if (!window.matchMedia || !matchMedia('(hover: none)').matches) return;
+    var SEL = '.tile, .link-wrap, .work, .more, .feat, .cta-btn, .socials__item';
+    var el = null, on = 0, off = 0, x0 = 0, y0 = 0;
+    function clear() { clearTimeout(on); clearTimeout(off); if (el) el.classList.remove('is-tap'); el = null; }
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse') return;
+      clear();
+      x0 = e.clientX; y0 = e.clientY;
+      var t = e.target.closest && e.target.closest(SEL);
+      // Почта: плитка и кнопка «скопировать» поднимаются вместе — как при наведении
+      if (t && t.parentNode.classList && t.parentNode.classList.contains('link-wrap')) t = t.parentNode;
+      // Карточка с несколькими ссылками сама не нажимается — отклик только у значков
+      if (!t || t.classList.contains('more--group') || t.classList.contains('work--group')) return;
+      el = t;
+      on = setTimeout(function () { t.classList.add('is-tap'); }, 70);
+    }, { passive: true });
+    document.addEventListener('pointerup', function () {
+      if (!el) return;
+      clearTimeout(on);
+      el.classList.add('is-tap');   // быстрое касание — анимацию всё равно видно
+      off = setTimeout(clear, 450);
+    }, { passive: true });
+    document.addEventListener('pointercancel', clear, { passive: true });
+    // Палец поехал или страница (ряд карточек) прокрутилась — это листание, не нажатие
+    document.addEventListener('pointermove', function (e) {
+      if (el && Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > 10) clear();
+    }, { passive: true });
+    document.addEventListener('scroll', function () { if (el) clear(); }, { passive: true, capture: true });
+    // Вернулись «Назад» — страница из кэша браузера не должна остаться с поднятой карточкой
+    window.addEventListener('pageshow', clear);
+  }
+
   /* --- Блок «Сейчас» -------------------------------------------------------- */
   function renderNow() {
     var n = C.now;
@@ -665,6 +704,7 @@
   renderFooter();
   renderLang();
   initCopy();
+  initTap();
 
   // Общие помощники — для assets/js/portfolio.js, чтобы не дублировать их
   window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAND,
