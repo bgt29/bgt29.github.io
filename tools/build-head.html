@@ -426,6 +426,8 @@
   }
 
   var out = JSON.stringify({
+    // false — config.js не загрузился (синтаксическая ошибка): сборка остановится
+    config: !!window.SITE_CONFIG,
     pages: pages,
     english: EN,
     portfolio: PF,

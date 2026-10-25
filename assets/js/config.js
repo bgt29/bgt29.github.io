@@ -261,6 +261,18 @@ window.SITE_CONFIG = {
             title: { ru: 'Могу снять и смонтировать видео', en: 'I can film and edit a video for you' },
             sub: { ru: 'Рилсы и ролики — напишите мне в Telegram',
                    en: 'Reels and short videos — message me on Telegram' } },
+          /* Соцсети компании ведёт Кирилл (его просьба 25.10.2026). Вместо
+             одного url — links: карточка с круглыми значками, каждый ведёт
+             в свою соцсеть. Пустой url — значка нет. Адреса дал Кирилл. */
+          { icon: 'megaphone',
+            title: { ru: 'Веду соцсети «Онлайн-Сервис»', en: 'I run Online-Service’s social media' },
+            sub: { ru: 'Рилсы и посты для компании', en: 'Reels and posts for the company · in Russian' },
+            links: [
+              { icon: 'vk',        label: { ru: 'ВКонтакте', en: 'VK' },  url: 'https://vk.com/onlinewebservice' },
+              { icon: 'youtube',   label: 'YouTube',   url: 'https://www.youtube.com/@On-lineService' },
+              { icon: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/onlineservice99/' },
+              { icon: 'telegram',  label: 'Telegram',  url: 'https://t.me/onlinesdigital' },
+            ] },
           { icon: 'youtube', url: 'https://www.youtube.com/@багет29',
             title: { ru: 'Мой YouTube-канал', en: 'My YouTube channel' },
             sub: { ru: 'Кирюха Багет', en: 'Kiryukha Baget · in Russian' } },
@@ -274,11 +286,25 @@ window.SITE_CONFIG = {
                work: { ru: 'Сделано в команде «Онлайн-Сервис»',
                        en: 'Made with the Online-Service team' },
                url: 'https://www.on-lineservice.ru/' },
-        more: { icon: 'telegram', url: 'https://t.me/Baget_PC', offer: true,
-                title: { ru: 'Могу разработать сайт для вашего проекта',
-                         en: 'I can build a website for your project' },
-                sub: { ru: 'Напишите мне в Telegram — обсудим задачу',
-                       en: 'Message me on Telegram to discuss it' } } },
+        more: [
+          /* «разработать или доработать» — он ведёт и дорабатывает сайты
+             компании (25.10.2026) */
+          { icon: 'telegram', url: 'https://t.me/Baget_PC', offer: true,
+            title: { ru: 'Могу разработать или доработать сайт',
+                     en: 'I can build or improve your website' },
+            sub: { ru: 'Новый сайт, доработки и поддержка — напишите мне в Telegram',
+                   en: 'A new site, improvements and support — message me on Telegram' } },
+          /* Сайты компании, которые он ведёт: публикации и мелкие доработки.
+             Ссылки без icon — плашками с подписью (адреса дал Кирилл) */
+          { icon: 'browser',
+            title: { ru: 'Веду сайты «Онлайн-Сервис»', en: 'I run Online-Service’s websites' },
+            sub: { ru: 'Публикую новости и делаю доработки', en: 'Publishing news and making improvements · in Russian' },
+            links: [
+              { label: 'on-lineservice.ru', url: 'https://www.on-lineservice.ru/' },
+              { label: 'os-24.ru',          url: 'https://os-24.ru/' },
+              { label: 'dmitrygulenok.ru',  url: 'https://dmitrygulenok.ru/' },
+            ] },
+        ] },
       { id: 'ai',    name: { ru: 'Внедрение ИИ', en: 'AI integration' },
         org: { text: { ru: 'Делаю сам и в команде «Онлайн-Сервис»',
                        en: 'Built on my own and with the Online-Service team' },
@@ -498,6 +524,19 @@ window.SITE_CONFIG = {
         specs: ['Битрикс24', { ru: 'Интернет-магазин', en: 'Online store' },
                 { ru: 'Каталог с фильтрами', en: 'Catalogue with filters' },
                 { ru: 'Адаптив под телефоны', en: 'Mobile-friendly' }] },
+
+      /* Новости на втором сайте компании — делал сам (сказал Кирилл 25.10.2026).
+         Скриншоты — мои, со статьёй без чужих кадров (у одной обложка — эфир ТВ) */
+      { id: 'os24-news',
+        url: 'https://os-24.ru/news/',
+        category: 'sites',
+        date: '',
+        title: { ru: 'Раздел новостей для «Онлайн-Сервис»', en: 'News section for Online-Service' },
+        text: { ru: 'Отдельная страница новостей на втором сайте компании, os-24.ru: лента карточек с обложкой, датой и кнопкой «Читать», страница статьи и переход между страницами ленты.\nНовости и статьи на сайтах компании публикую тоже я.',
+                en: 'A separate news page on the company’s second website, os-24.ru: a feed of cards with a cover, date and a “Read” button, an article page and paging through the feed.\nI also publish the news and articles on the company’s websites.' },
+        specs: ['1С-Битрикс', { ru: 'Лента и страница статьи', en: 'Feed and article page' },
+                { ru: 'Адаптив под телефоны', en: 'Mobile-friendly' },
+                { ru: 'Публикация статей', en: 'Publishing articles' }] },
     ],
   },
 

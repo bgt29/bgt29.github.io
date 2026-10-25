@@ -160,7 +160,10 @@ p, ul { margin: 0; }
 .panel__cap--gap { display: block; margin: 20px 0 10px; }
 .panel__level { font-size: 13px; font-weight: 600; color: var(--accent); }
 
-/* Ползунок яркости */
+/* Ползунок яркости. --thumb — размер кружка: от него же отступы у точек
+   под ползунком, иначе крайние точки не совпадают с крайними положениями
+   кружка (он ходит не от края до края, а на полкружка внутри)          */
+.bright, .bright__dots { --thumb: 21px; }   /* точки — соседи ползунка, а не его дети */
 .bright { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: var(--text-faint); }
 .bright svg { flex: none; }
 
@@ -174,14 +177,16 @@ p, ul { margin: 0; }
 }
 .bright__input::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
-  width: 17px; height: 17px; border-radius: 50%;
+  box-sizing: border-box;
+  width: var(--thumb); height: var(--thumb); border-radius: 50%;
   background: var(--accent);
   border: 2px solid var(--card);
   box-shadow: 0 1px 5px rgba(0, 0, 0, .35);
   cursor: pointer;
 }
 .bright__input::-moz-range-thumb {
-  width: 15px; height: 15px; border-radius: 50%;
+  box-sizing: border-box;
+  width: var(--thumb); height: var(--thumb); border-radius: 50%;
   background: var(--accent);
   border: 2px solid var(--card);
   box-shadow: 0 1px 5px rgba(0, 0, 0, .35);
@@ -189,7 +194,11 @@ p, ul { margin: 0; }
 }
 .bright__input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-.bright__dots { display: flex; justify-content: space-between; margin: 8px 26px 0; }
+/* 27px — значок 16 + зазор 10 + рамка ползунка 1; 2.5px — полточки */
+.bright__dots {
+  display: flex; justify-content: space-between;
+  margin: 8px 27px 0; padding: 0 calc(var(--thumb) / 2 - 2.5px);
+}
 .bright__dot {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--stroke-hover);
@@ -810,6 +819,35 @@ body[data-page="work"] .works { margin-top: 0; }
 .more__sub { margin-top: 3px; color: var(--text-faint); font-size: 13px; }
 .more__arrow { flex: none; color: var(--text-faint); transition: transform .3s var(--ease), color .3s; }
 .more:hover .more__arrow { color: var(--accent); transform: translate(2px, -2px); }
+
+/* Карточка с несколькими ссылками (соцсети компании): сама не нажимается —
+   не приподнимается при наведении; нажимаются круглые значки внутри     */
+.more--group:hover, .work--group:hover { transform: none; border-color: var(--stroke); box-shadow: var(--shadow); }
+.more--group:hover .link__icon, .work--group:hover .work__cover svg { transform: none; }
+.socials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.socials__item {
+  display: grid; place-items: center;
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: var(--brand, var(--accent));
+  color: #fff;
+  transition: transform .25s var(--ease), box-shadow .25s;
+  -webkit-tap-highlight-color: transparent;
+}
+.socials__item:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.socials__item:active { transform: scale(.94); }
+[data-theme="dark"] .socials__item { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+/* Ссылка-плашка с подписью (адрес сайта) — как плашки-характеристики */
+.socials__item--text {
+  width: auto; height: 34px; padding: 0 13px;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: var(--tint);
+  color: var(--text-dim);
+  font-size: 13px; font-weight: 550;
+}
+.socials__item--text:hover { color: var(--accent); border-color: var(--stroke-hover); box-shadow: none; }
+[data-theme="dark"] .socials__item--text { box-shadow: none; }
 .shelf .more { margin-top: 0; }
 /* Несколько плашек подряд (фотосессия + Instagram) — с небольшим зазором */
 .more + .more, .shelf .more + .more { margin-top: 10px; }

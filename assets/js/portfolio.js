@@ -57,7 +57,10 @@
     cats.forEach(function (c) {
       catName[c.id] = T(c.name);
       // more — одна ссылка или список: «Могу устроить фотосессию» + Instagram
-      catMore[c.id] = [].concat(c.more || []).filter(function (m) { return m && T(m.url); });
+      // Ссылка — url или набор links (соцсети компании); пустые не показываем
+      catMore[c.id] = [].concat(c.more || []).filter(function (m) {
+        return m && (T(m.url) || (m.links || []).some(function (l) { return T(l.url); }));
+      });
       catOrg[c.id] = c.org && T(c.org.text) ? c.org : null;
     });
 
@@ -144,8 +147,34 @@
        Карточка — последней в ряду и на странице раздела: значок соцсети на
        месте обложки. Плашка — на странице работы и в пустом разделе.        */
     function brandOf(m) { return (U.brand || {})[m.icon] || 'var(--accent)'; }
+    /* Несколько ссылок в одной карточке (links: [{ icon, url, label }]) —
+       например, все соцсети компании. Сама карточка тогда не ссылка:
+       нажимаются круглые значки внутри.                                  */
+    function socials(m) {
+      return '<span class="socials">' + m.links.filter(function (l) { return T(l.url); }).map(function (l) {
+        var label = T(l.label) || l.icon;
+        // Без значка — плашка с подписью (адрес сайта)
+        if (!l.icon) {
+          return '<a class="socials__item socials__item--text" href="' + esc(T(l.url)) + '" target="_blank" rel="noopener">' +
+            esc(label) + '</a>';
+        }
+        return '<a class="socials__item" href="' + esc(T(l.url)) + '" target="_blank" rel="noopener"' +
+          ' style="--brand: ' + brandOf(l) + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
+          U.icon(l.icon, 18) + '</a>';
+      }).join('') + '</span>';
+    }
     function moreCard(m) {
       var sub = T(m.sub);
+      if (m.links) {
+        return '<div class="work work--more work--group fade">' +
+          '<span class="work__cover" style="--brand: ' + brandOf(m) + '">' + U.icon(m.icon, 46) + '</span>' +
+          '<span class="work__body">' +
+            '<span class="work__title">' + esc(typo(T(m.title))) + '</span>' +
+            (sub ? '<span class="work__sub">' + esc(typo(sub)) + '</span>' : '') +
+            socials(m) +
+          '</span>' +
+        '</div>';
+      }
       return '<a class="work work--more fade" href="' + esc(T(m.url)) + '" target="_blank" rel="noopener">' +
         '<span class="work__cover" style="--brand: ' + brandOf(m) + '">' + U.icon(m.icon, 46) + '</span>' +
         '<span class="work__body">' +
@@ -156,6 +185,16 @@
     }
     function moreBanner(m) {
       var sub = T(m.sub);
+      if (m.links) {
+        return '<div class="more more--group">' +
+          '<span class="link__icon" style="--brand: ' + brandOf(m) + '">' + U.icon(m.icon, 24) + '</span>' +
+          '<span class="more__text">' +
+            '<span class="more__title">' + esc(typo(T(m.title))) + '</span>' +
+            (sub ? '<span class="more__sub">' + esc(typo(sub)) + '</span>' : '') +
+            socials(m) +
+          '</span>' +
+        '</div>';
+      }
       return '<a class="more" href="' + esc(T(m.url)) + '" target="_blank" rel="noopener">' +
         '<span class="link__icon" style="--brand: ' + brandOf(m) + '">' + U.icon(m.icon, 24) + '</span>' +
         '<span class="more__text">' +

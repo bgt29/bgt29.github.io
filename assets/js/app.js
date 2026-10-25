@@ -78,6 +78,8 @@
     copy: '<rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5.5 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v.5"/>',
     check: '<path d="M4 12.5 9.5 18 20 7"/>',
     out: '<path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/>',
+    browser: '<rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M3 9.5h18M6.5 7h.01M9 7h.01"/>',
+    megaphone: '<path d="M4 10v4h3l6 4.5v-13L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>',
     bug: '<rect x="8" y="6" width="8" height="14" rx="4"/><path d="M12 11v9M8 13H4.5M19.5 13H16M8 17.5 5 19.5M16 17.5l3 2M8 9.5 5 7.5M16 9.5l3-2M10 6.5 9 4M14 6.5 15 4"/>'
   };
 
@@ -379,7 +381,7 @@
     var covers = items.map(function (w) { return (photos[w.id] || [])[0]; }).filter(Boolean).slice(0, 3);
     // Пустой раздел со ссылкой «Больше — в …» (more) тоже виден: в нём эта ссылка
     var cats = (P.categories || []).filter(function (c) {
-      var more = [].concat((c && c.more) || []).some(function (m) { return m && T(m.url); });
+      var more = [].concat((c && c.more) || []).some(function (m) { return m && (T(m.url) || m.links); });
       return c && c.id && (P.showEmpty === true || more ||
         items.some(function (w) { return w.category === c.id; }));
     });

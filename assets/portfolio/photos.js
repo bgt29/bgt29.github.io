@@ -99,6 +99,11 @@ window.SITE_PHOTOS = {
     {"src":"/assets/portfolio/nizhny-novgorod/17-dscf2151.jpg","w":1067,"h":1600,"thumb":"/assets/portfolio/nizhny-novgorod/17-dscf2151-s.jpg","tw":427,"th":640},
     {"src":"/assets/portfolio/nizhny-novgorod/18-dscf2134.jpg","w":1031,"h":1600,"thumb":"/assets/portfolio/nizhny-novgorod/18-dscf2134-s.jpg","tw":412,"th":640}
   ],
+  "os24-news": [
+    {"src":"/assets/portfolio/os24-news/1.jpg","w":1200,"h":900,"thumb":"/assets/portfolio/os24-news/1-s.jpg","tw":640,"th":480},
+    {"src":"/assets/portfolio/os24-news/2.jpg","w":1200,"h":900,"thumb":"/assets/portfolio/os24-news/2-s.jpg","tw":640,"th":480},
+    {"src":"/assets/portfolio/os24-news/3.jpg","w":1600,"h":1000,"thumb":"/assets/portfolio/os24-news/3-s.jpg","tw":640,"th":400}
+  ],
   "ryzen-5-7500f-rtx-3080": [
     {"src":"/assets/portfolio/ryzen-5-7500f-rtx-3080/1.jpg","w":800,"h":600,"thumb":"/assets/portfolio/ryzen-5-7500f-rtx-3080/1-s.jpg","tw":640,"th":480},
     {"src":"/assets/portfolio/ryzen-5-7500f-rtx-3080/2.jpg","w":800,"h":600,"thumb":"/assets/portfolio/ryzen-5-7500f-rtx-3080/2-s.jpg","tw":640,"th":480},
