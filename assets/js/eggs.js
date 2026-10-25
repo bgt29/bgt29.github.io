@@ -174,12 +174,74 @@
     // Клик по экрану терминала — фокус в строку ввода
     out.addEventListener('click', function () { if (!getSelection().toString()) input.focus(); });
 
+    drag(term.querySelector('.term__bar'));
+    window.addEventListener('resize', place);
+    if (window.visualViewport) {
+      visualViewport.addEventListener('resize', place);
+      visualViewport.addEventListener('scroll', place);
+    }
+
     print(UI.welcome, 'is-dim');
+  }
+
+  /* Окно перетаскивается за верхнюю полосу — мышью и пальцем. Двойной
+     щелчок по полосе возвращает его на место. Пока страница открыта, окно
+     помнит, где его оставили; уйти за край экрана не даёт place().      */
+  var pos = null;   // { x, y } — левый верхний угол; null — на своём месте внизу
+
+  function place() {
+    if (!term || term.hidden) return;
+    var vv = window.visualViewport;
+    var vw = vv ? vv.width : innerWidth, vh = vv ? vv.height : innerHeight;
+    var ox = vv ? vv.offsetLeft : 0, oy = vv ? vv.offsetTop : 0;
+    // Клавиатура на телефоне съедает пол-экрана — окно ужимается, строка ввода видна
+    term.style.maxHeight = Math.max(160, vh - 16) + 'px';
+    if (!pos) return;
+    pos.x = Math.max(ox + 8, Math.min(pos.x, ox + vw - term.offsetWidth - 8));
+    pos.y = Math.max(oy + 8, Math.min(pos.y, oy + vh - term.offsetHeight - 8));
+    term.style.left = pos.x + 'px';
+    term.style.top = pos.y + 'px';
+    term.style.right = term.style.bottom = 'auto';
+    term.style.margin = '0';
+  }
+
+  function drag(bar) {
+    var dx = 0, dy = 0, id = null;
+    bar.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || e.target.closest('button')) return;
+      var r = term.getBoundingClientRect();
+      pos = { x: r.left, y: r.top };
+      dx = e.clientX - r.left; dy = e.clientY - r.top;
+      id = e.pointerId;
+      bar.setPointerCapture(id);
+      term.classList.add('is-drag');
+      place();
+      e.preventDefault();
+    });
+    bar.addEventListener('pointermove', function (e) {
+      if (e.pointerId !== id) return;
+      pos.x = e.clientX - dx; pos.y = e.clientY - dy;
+      place();
+    });
+    function stop(e) {
+      if (e.pointerId !== id) return;
+      id = null;
+      term.classList.remove('is-drag');
+    }
+    bar.addEventListener('pointerup', stop);
+    bar.addEventListener('pointercancel', stop);
+    bar.addEventListener('dblclick', function (e) {
+      if (e.target.closest('button')) return;
+      pos = null;
+      term.style.left = term.style.top = term.style.right = term.style.bottom = term.style.margin = '';
+      place();
+    });
   }
 
   function openTerminal() {
     if (!term) build();
     term.hidden = false;
+    place();
     setTimeout(function () { input.focus(); }, 30);
   }
   function closeTerminal() { if (term) term.hidden = true; }

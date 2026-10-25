@@ -661,9 +661,13 @@ p, ul { margin: 0; }
 .works__empty { text-align: center; color: var(--text-faint); }
 
 /* Страницы раздела и работы начинаются с пути, а не с большой шапки.
-   Отступ сверху — чтобы путь не залез под кнопки в правом углу.      */
+   Путь стоит в одну строку с кнопками справа и на их высоте — слева
+   сверху не пусто (просьба Кирилла 25.10.2026). От кнопок его отделяет
+   отступ справа у самого пути.                                         */
 body[data-page="category"] .page,
-body[data-page="work"] .page { padding-top: clamp(68px, 10vh, 88px); }
+body[data-page="work"] .page { padding-top: 44px; }
+body[data-page="category"] .crumbs,
+body[data-page="work"] .crumbs { min-height: 38px; }
 /* Работу читают, а не листают плитками — колонка поуже, строки короче */
 body[data-page="work"] .page { max-width: 860px; }
 body[data-page="category"] .works,
@@ -857,8 +861,13 @@ a.org:hover { color: var(--accent); }
 .crumbs a:hover { color: var(--accent); }
 .crumbs__me { display: inline-flex; align-items: center; gap: 8px; }
 .crumbs__me img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-/* На узком экране от имени остаётся аватар — путь влезает в одну строку */
-@media (max-width: 420px) { .crumbs__me span { display: none; } }
+/* На узком экране от имени остаётся аватар — путь влезает в одну строку.
+   Самый длинный («› Портфолио › Собранные ПК») — 251px; на телефоне в 360px
+   рядом с кнопками ему остаётся 240: чуть плотнее и мельче — и влезает.  */
+@media (max-width: 420px) {
+  .crumbs__me span { display: none; }
+  .crumbs { gap: 6px; padding-right: 92px; font-size: 13.5px; }
+}
 
 .pagehead { margin: 22px 0 22px; }
 .pagehead__title { font-size: clamp(26px, 7vw, 32px); text-wrap: balance; }
@@ -1106,9 +1115,12 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
 .egg-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 
 /* 2. Терминал — в цветах знака EBK KVN: тёмный, жёлтый курсор */
+/* Окно плавающее: тянется за верхнюю полосу (eggs.js ставит left/top).
+   По центру — через left/right и margin, без transform: иначе в начале
+   перетаскивания окно прыгало бы на половину своей ширины.            */
 .term {
-  position: fixed; z-index: 40; left: 50%; bottom: 24px;
-  transform: translateX(-50%);
+  position: fixed; z-index: 40; left: 0; right: 0; bottom: 24px;
+  margin: 0 auto;
   display: flex; flex-direction: column;
   width: min(640px, calc(100% - 24px)); height: min(440px, 70vh);
   overflow: hidden;
@@ -1121,13 +1133,18 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
   animation: termIn .25s var(--ease);
 }
 .term[hidden] { display: none; }
-@keyframes termIn { from { opacity: 0; transform: translate(-50%, 16px); } }
+@keyframes termIn { from { opacity: 0; transform: translateY(16px); } }
 .term__bar {
   display: flex; align-items: center; gap: 10px;
   padding: 9px 12px;
   background: #1a1714;
   border-bottom: 1px solid rgba(255, 255, 255, .06);
+  /* за полосу окно тянут — и мышью, и пальцем (страница при этом не едет) */
+  cursor: grab; touch-action: none;
+  -webkit-user-select: none; user-select: none;
 }
+.term.is-drag .term__bar { cursor: grabbing; }
+.term.is-drag { box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .8); }
 .term__dots { display: flex; gap: 6px; }
 .term__dots i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
 .term__dots i:nth-child(2) { background: #febc2e; }
@@ -1159,7 +1176,8 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
   color: inherit; font: inherit; caret-color: #ffb000;
 }
 @media (max-width: 640px) {
-  .term { bottom: 0; width: 100%; height: 62vh; border-radius: 16px 16px 0 0; }
+  /* и на телефоне окно, а не шторка снизу: его можно утащить в сторону */
+  .term { bottom: max(12px, env(safe-area-inset-bottom)); height: min(62vh, 520px); }
   .term__in { font-size: 16px; }   /* мельче — и телефон сам приближает страницу */
 }
 
@@ -1174,6 +1192,34 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
    выключаем совсем. Иначе при перерисовке скриптом карточки на миг
    прятались бы и проявлялись заново: «показались, пропали, проявились».   */
 .page[data-static] .fade { opacity: 1; transform: none; transition: none; }
+
+/* ---------- Плавные переходы между страницами ----------------------------- */
+/* Сайт — отдельные страницы: «Ссылки → Портфолио», раздел, работа. Раньше
+   кадр сменялся рывком; теперь браузер коротко перетекает от одной к другой,
+   а кнопки справа и вкладки стоят на месте. Где браузер этого не умеет —
+   переход как раньше, ничего не ломается.                                  */
+@view-transition { navigation: auto; }
+.tools { view-transition-name: tools; }
+.tabs { view-transition-name: tabs; }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: .25s; }
+
+/* ---------- Телефон: отклик на касание ------------------------------------ */
+/* Наведения у пальца нет, а :hover после касания «залипает» — карточка так
+   и остаётся приподнятой, значок повёрнутым. Вместо этого карточка чуть
+   вдавливается, пока на неё нажимают; серую вспышку браузера убираем.    */
+@media (hover: none) {
+  .tile, .work, .more, .feat, .cta-btn, .tabs__item, .link__copy { -webkit-tap-highlight-color: transparent; }
+  .tile:hover, .link-wrap:hover > .tile, .work:hover, .more:hover, .feat:hover, .cta-btn:hover,
+  .tile:hover .link__icon, .link-wrap:hover .link__icon, .more:hover .link__icon,
+  .link-wrap:hover .link__copy, .work:hover .work__cover img { transform: none; }
+  .tile:active, .link-wrap > .tile:active, .work:active, .more:active, .feat:active, .cta-btn:active {
+    transform: scale(.97);
+    transition-duration: .12s;
+  }
+  /* размытие под плашкой «N фото» дорого обходится телефону при листании */
+  .work__count { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(20, 14, 10, .68); }
+}
 
 /* ---------- Средняя ширина ------------------------------------------------- */
 /* Узкая плитка с именем переносила русские плашки на вторую строку, а
@@ -1203,6 +1249,9 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
 @media (max-width: 640px) {
   .page { padding: 22px 14px 0; }
   .tools { top: 26px; right: 14px; }
+  /* путь — на высоте кнопок, как и на компьютере */
+  body[data-page="category"] .page,
+  body[data-page="work"] .page { padding-top: 26px; }
   .top { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
   .intro { min-height: 0; padding: 22px; border-radius: 26px; }
   .avatar { width: 112px; height: 112px; }
@@ -1242,6 +1291,7 @@ html.rgb .avatar:has(img)::after { filter: blur(14px); opacity: .55; }
     transition-duration: .01ms !important;
   }
   .fade { opacity: 1; transform: none; }
+  @view-transition { navigation: none; }
 }
 
 @media print {
