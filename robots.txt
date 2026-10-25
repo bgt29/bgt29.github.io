@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+# служебное: заготовки сборки, инструкция и админка
+Disallow: /tools/
+Disallow: /README.md
+Disallow: /admin/
+
+Sitemap: https://kirillbuldakov.ru/sitemap.xml

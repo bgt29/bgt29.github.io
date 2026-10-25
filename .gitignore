@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.vscode/
+.idea/
+
+# Оригиналы фото портфолио — тяжёлые и с данными телефона (место съёмки).
+# На сайт идут только ужатые копии из assets/portfolio, их делает сборка.
+portfolio-src/

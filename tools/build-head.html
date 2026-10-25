@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Сборка заголовка</title>
+  <!--
+    Служебная страница для tools/build.ps1, на сайте не используется.
+
+    Боты мессенджеров и поисковики читают HTML как есть и скрипты не выполняют,
+    поэтому заголовок, описание и теги превью нельзя дописывать из app.js —
+    их надо вшить в HTML заранее. Эта страница читает config.js, собирает
+    готовые блоки для каждой страницы сайта на каждом языке и отдаёт их сборке
+    строкой JSON. Всё, что не ASCII, экранировано, чтобы кириллица не побилась
+    на пути через консоль.
+  -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/portfolio/photos.js"></script>
+</head>
+<body>
+<script>
+(function () {
+  var C = window.SITE_CONFIG || {};
+  var m = C.meta || {}, h = C.hero || {}, P = C.portfolio || {};
+  var PHOTOS = window.SITE_PHOTOS || {};
+  var EN = !!(C.english && C.english.enabled !== false);
+  var WORKS = (P.enabled === false ? [] : (P.items || [])).filter(function (w) { return w && w.id; });
+  var CATS = (P.categories || []).filter(function (c) { return c && c.id; });
+  var catIds = CATS.map(function (c) { return c.id; });
+  // На сайт идут работы из известных разделов; свежие первыми — как на странице
+  var KNOWN = WORKS.filter(function (w) { return catIds.indexOf(w.category) >= 0; })
+    .map(function (w, i) { return { w: w, i: i }; })
+    .sort(function (a, b) {
+      var da = String(a.w.date || ''), db = String(b.w.date || '');
+      return da !== db ? (da < db ? 1 : -1) : a.i - b.i;
+    })
+    .map(function (x) { return x.w; });
+  // Портфолио есть, когда есть работы — или когда включён показ пустого
+  var SOON = P.enabled !== false && P.showEmpty === true && KNOWN.length === 0;
+  var PF = KNOWN.length > 0 || SOON;
+  var LANGS = EN ? ['ru', 'en'] : ['ru'];
+  // Адрес страницы на языке: английская — та же, только под /en/
+  function at(lang, p) { return (lang === 'en' ? '/en' : '') + p; }
+  var warn = [];
+  if (SOON) {
+    warn.push('портфолио показано без работ (portfolio.showEmpty). Перед публикацией ' +
+              'добавь работы или поставь showEmpty: false. Пока страница закрыта от поиска');
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // Текст на нужном языке из пары { ru, en } — так же, как assets/js/i18n.js
+  function tr(v, lang) {
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      var s = v[lang];
+      return s != null && s !== '' ? s : (v.ru != null ? v.ru : '');
+    }
+    return v == null ? '' : v;
+  }
+
+  var base = String(m.url || '').trim().replace(/\/+$/, '');
+  // Пути от корня: та же разметка лежит и в /en/, относительный путь увёл бы мимо
+  function abs(p) {
+    if (!p) return '';
+    if (/^https?:\/\//.test(p)) return p;
+    return (base || '') + '/' + String(p).replace(/^\/+/, '');
+  }
+
+  if (!base) {
+    warn.push('meta.url пустой: превью в мессенджерах и адреса для поиска ' +
+              'заработают только после публикации и заполнения адреса');
+  }
+
+  /* --- Забытые переводы ----------------------------------------------------
+     Пара { ru } без en или русская строка там, где гость читает текст.
+     На английской странице на этом месте окажется русский.               */
+  if (EN) {
+    var CYR = /[а-яё]/i;
+    var TEXT_KEYS = /^(title|description|bio|role|status|group|handle|cta|text|accentTitle|customLabel)$/;
+    (function walk(v, path, key) {
+      if (v && typeof v === 'object' && !Array.isArray(v) && 'ru' in v) {
+        if (!v.en) warn.push('нет английского текста: ' + path + ' («' + v.ru + '»)');
+        return;
+      }
+      if (typeof v === 'string') {
+        if (TEXT_KEYS.test(key) && CYR.test(v)) warn.push('текст только на русском: ' + path + ' («' + v + '»)');
+        return;
+      }
+      if (Array.isArray(v)) { v.forEach(function (x, i) { walk(x, path + '[' + i + ']', key); }); return; }
+      if (v && typeof v === 'object') {
+        Object.keys(v).forEach(function (k) {
+          // Ники, адреса и выключенные блоки на странице не видны
+          if (k === 'aliases' || k === 'url' || k === 'redirectTo') return;
+          if (v[k] && v[k].enabled === false) return;
+          walk(v[k], path ? path + '.' + k : k, k);
+        });
+      }
+    })(C, '', '');
+  }
+
+  /* --- Проверка портфолио ---------------------------------------------------- */
+  CATS.forEach(function (c) {
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(c.id)) warn.push('портфолио: раздел «' + c.id + '» — id только латиницей, цифрами и дефисом');
+  });
+  WORKS.forEach(function (w) {
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(w.id)) {
+      warn.push('портфолио: id «' + w.id + '» — только латиница, цифры и дефис');
+    }
+    if (!(PHOTOS[w.id] || []).length) {
+      warn.push('портфолио: у работы «' + w.id + '» нет фото — положи их в portfolio-src\\' + w.id);
+    }
+    if (catIds.indexOf(w.category) < 0) {
+      warn.push('портфолио: у работы «' + w.id + '» раздел «' + (w.category || '') +
+                '», такого нет в portfolio.categories — на сайт она не попала');
+    }
+  });
+  Object.keys(PHOTOS).forEach(function (id) {
+    if (!WORKS.some(function (w) { return w.id === id; })) {
+      warn.push('портфолио: фото в portfolio-src\\' + id + ' есть, а работы с id «' + id + '» в конфиге нет');
+    }
+  });
+
+  // Ссылки, по которым поисковик склеит соцсети в одну карточку.
+  // Приглашения в закрытые каналы и внутренние переходники (/avito) — нет.
+  var same = [];
+  (C.links || []).forEach(function (l) {
+    var u = String(tr(l.url, 'ru') || '');
+    if (/^https?:\/\//.test(u) && !/t\.me\/\+/.test(u)) same.push(u);
+  });
+
+  // Все имена человека: оба написания имени и ника, формы ника на площадках
+  function names(lang) {
+    var out = [], own = tr(h.name, lang);
+    var all = [tr(h.name, 'ru'), tr(h.name, 'en'), h.nameLatin,
+               tr(h.nick, lang), tr(h.nick, 'ru'), tr(h.nick, 'en')].concat(h.aliases || []);
+    all.forEach(function (n) {
+      n = String(n || '').trim();
+      if (n && n !== own && out.indexOf(n) < 0) out.push(n);
+    });
+    return out;
+  }
+
+  function fullName(lang) {
+    var name = tr(h.name, lang), pat = tr(h.patronymic, lang);
+    var parts = String(name).trim().split(/\s+/);
+    return pat && parts.length === 2 ? parts[0] + ' ' + pat + ' ' + parts[1] : name;
+  }
+
+  function person(lang, desc, page) {
+    var name = tr(h.name, lang);
+    var p = { '@type': 'Person' };
+    if (base) p['@id'] = base + '/#person';
+    p.name = name;
+    // Имя и фамилия отдельно: тогда совпадёт и «Кирилл Булдаков», и «Булдаков Кирилл»
+    var parts = String(name).trim().split(/\s+/);
+    if (parts.length === 2) { p.givenName = parts[0]; p.familyName = parts[1]; }
+    // Отчество — отдельным полем, так его понимают поисковики
+    var pat = tr(h.patronymic, lang);
+    if (pat) p.additionalName = pat;
+    var alt = names(lang);
+    if (alt.length) p.alternateName = alt.length === 1 ? alt[0] : alt;
+    if (desc) p.description = desc;
+    if (page) p.url = page;
+    if (base && h.avatar) p.image = abs(h.avatar);
+    if (same.length) p.sameAs = same;
+    return p;
+  }
+
+  /* Картинка превью. Стандартную og.jpg сборка рисует на двух языках —
+     у английской версии своя, og-en.jpg, с именем латиницей.            */
+  function ogImage(lang) {
+    var p = String(m.image || '');
+    if (lang === 'en' && EN && /(^|\/)og\.jpg$/.test(p)) p = p.replace(/og\.jpg$/, 'og-en.jpg');
+    return abs(p);
+  }
+
+  function clip(s, n) {
+    s = String(s || '').replace(/\s+/g, ' ').trim();
+    return s.length <= n ? s : s.slice(0, n - 1).replace(/[\s,.;:—-]+\S*$/, '') + '…';
+  }
+  function inCat(id) { return KNOWN.filter(function (w) { return w.category === id; }); }
+  function catName(id, lang) {
+    var c = CATS.filter(function (x) { return x.id === id; })[0];
+    return c ? tr(c.name, lang) : id;
+  }
+  function workPath(w) { return '/portfolio/' + w.category + '/' + w.id + '/'; }
+
+  // Работа для разметки поиска: название, текст, фото, раздел, дата
+  function creative(w, lang, withAuthor) {
+    var cw = { '@type': 'CreativeWork', name: tr(w.title, lang) };
+    var text = String(tr(w.text, lang) || '').replace(/\n+/g, ' ');
+    if (text) cw.description = text;
+    cw.genre = catName(w.category, lang);
+    if (w.date) cw.dateCreated = String(w.date);
+    var ph = PHOTOS[w.id] || [];
+    if (ph.length) cw.image = ph.map(function (x) { return abs(x.src); });
+    if (base) cw.url = base + at(lang, workPath(w));
+    if (withAuthor) cw.author = person(lang, '', base ? base + at(lang, '/') : '');
+    return cw;
+  }
+
+  // «Хлебные крошки» для поиска: Имя › Портфолио › Раздел › Работа
+  function crumbsLd(lang, trail) {
+    if (!base) return null;
+    return { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+             itemListElement: trail.map(function (t, i) {
+               return { '@type': 'ListItem', position: i + 1, name: t[0], item: base + at(lang, t[1]) };
+             }) };
+  }
+
+  /* --- Заголовок страницы ------------------------------------------------------
+     pg: { kind: home | portfolio | category | work, path, cat, work }        */
+  function head(pg, lang) {
+    var other = lang === 'en' ? 'ru' : 'en';
+    var name = tr(h.name, lang);
+    var pfName = tr(P.title, lang) || (lang === 'en' ? 'Portfolio' : 'Портфолио');
+    var page = base ? base + at(lang, pg.path) : '';
+    var title, desc, ld, ogType = 'website', image = ogImage(lang), imgW = 1200, imgH = 630;
+    var trail = [[name, '/'], [pfName, '/portfolio/']];
+
+    if (pg.kind === 'home') {
+      title = tr(m.title, lang) || name || (lang === 'en' ? 'Personal page' : 'Личная страница');
+      desc = tr(m.description, lang) || String(tr(h.bio, lang)).replace(/\n/g, ' ');
+      ogType = 'profile';
+      // «Страница профиля» — так Google и Яндекс понимают, что сайт целиком о человеке
+      ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: title,
+             inLanguage: lang, mainEntity: person(lang, desc, page) };
+    }
+    else if (pg.kind === 'portfolio') {
+      title = pfName + ' — ' + name;
+      desc = tr(P.description, lang);
+      // «Подборка работ» с автором — тем же человеком, что на главной
+      ld = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, inLanguage: lang,
+             author: person(lang, '', base ? base + at(lang, '/') : ''),
+             hasPart: KNOWN.map(function (w) { return creative(w, lang, false); }) };
+    }
+    else if (pg.kind === 'category') {
+      var list = inCat(pg.cat), cn = catName(pg.cat, lang);
+      var cat = CATS.filter(function (c) { return c.id === pg.cat; })[0] || {};
+      title = cn + ' — ' + pfName + ' — ' + name;
+      // Своё описание раздела или перечень его работ — у каждой страницы разное
+      desc = tr(cat.description, lang) ||
+             clip(cn + ': ' + list.map(function (w) { return tr(w.title, lang); }).join(', ') + '.', 160);
+      ld = [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, inLanguage: lang,
+              hasPart: list.map(function (w) { return creative(w, lang, false); }) },
+            crumbsLd(lang, trail.concat([[cn, '/portfolio/' + pg.cat + '/']]))];
+    }
+    else {
+      var w = pg.work, ph = PHOTOS[w.id] || [];
+      title = tr(w.title, lang) + ' — ' + name;
+      desc = clip(tr(w.text, lang), 160) || tr(w.title, lang);
+      ogType = 'article';
+      // Превью ссылки на работу — её обложка, а не общая картинка сайта
+      if (ph.length) { image = abs(ph[0].src); imgW = ph[0].w; imgH = ph[0].h; }
+      var cw = creative(w, lang, true);
+      cw['@context'] = 'https://schema.org';
+      cw.inLanguage = lang;
+      ld = [cw, crumbsLd(lang, trail.concat([[catName(w.category, lang), '/portfolio/' + w.category + '/'],
+                                             [tr(w.title, lang), workPath(w)]]))];
+    }
+    if (!Array.isArray(ld) && page) ld.url = page;
+    if (Array.isArray(ld)) ld = ld.filter(Boolean);
+    if (!desc) warn.push('нет описания: ' + at(lang, pg.path));
+
+    var L = [];
+    L.push('<title>' + esc(title) + '</title>');
+    L.push('<meta name="description" content="' + esc(desc) + '">');
+    // Портфолио без работ показываем гостям, но не поисковикам
+    if (pg.kind === 'portfolio' && SOON) L.push('<meta name="robots" content="noindex, follow">');
+    if (page) L.push('<link rel="canonical" href="' + esc(page) + '">');
+
+    // Две версии одной страницы: поисковик покажет человеку ту, что на его языке
+    if (base && EN) {
+      L.push('<link rel="alternate" hreflang="ru" href="' + esc(base + at('ru', pg.path)) + '">');
+      L.push('<link rel="alternate" hreflang="en" href="' + esc(base + at('en', pg.path)) + '">');
+      L.push('<link rel="alternate" hreflang="x-default" href="' + esc(base + at('ru', pg.path)) + '">');
+    }
+
+    // Иконки: .ico для старых браузеров и Яндекса, SVG для остальных
+    L.push('<link rel="icon" href="/favicon.ico" sizes="32x32">');
+    L.push('<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">');
+    L.push('<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">');
+
+    // Превью ссылки в Telegram, VK, WhatsApp и прочих
+    L.push('<meta property="og:type" content="' + ogType + '">');
+    L.push('<meta property="og:locale" content="' + (lang === 'en' ? 'en_US' : 'ru_RU') + '">');
+    if (EN) L.push('<meta property="og:locale:alternate" content="' + (other === 'en' ? 'en_US' : 'ru_RU') + '">');
+    L.push('<meta property="og:title" content="' + esc(title) + '">');
+    L.push('<meta property="og:description" content="' + esc(desc) + '">');
+    if (page) L.push('<meta property="og:url" content="' + esc(page) + '">');
+    if (image) {
+      L.push('<meta property="og:image" content="' + esc(image) + '">');
+      L.push('<meta property="og:image:width" content="' + imgW + '">');
+      L.push('<meta property="og:image:height" content="' + imgH + '">');
+      L.push('<meta property="og:image:alt" content="' + esc(title) + '">');
+    }
+    L.push('<meta name="twitter:card" content="' + (image ? 'summary_large_image' : 'summary') + '">');
+    L.push('<meta name="twitter:title" content="' + esc(title) + '">');
+    L.push('<meta name="twitter:description" content="' + esc(desc) + '">');
+    if (image) L.push('<meta name="twitter:image" content="' + esc(image) + '">');
+
+    L.push('<script type="application/ld+json">' +
+           JSON.stringify(ld).replace(/</g, '\\u003c') + '<\/script>');
+    return L.join('\n  ');
+  }
+
+  /* Кнопка языка в готовом HTML: ведёт на ту же страницу на другом языке.
+     По этой ссылке поисковики и находят вторую версию.                   */
+  function toggle(path, lang) {
+    if (!EN) return '<a class="lang-toggle" data-bind="lang-switch" hidden></a>';
+    return lang === 'en'
+      ? '<a class="lang-toggle" href="' + at('ru', path) + '" hreflang="ru" lang="ru" title="Русская версия" ' +
+        'aria-label="Русская версия" data-bind="lang-switch">RU</a>'
+      : '<a class="lang-toggle" href="' + at('en', path) + '" hreflang="en" lang="en" title="English version" ' +
+        'aria-label="English version" data-bind="lang-switch">EN</a>';
+  }
+
+  /* --- Все страницы сайта --------------------------------------------------------
+     Разметка у всех одна — index.html; body — пометка, какая это страница. */
+  var site = [{ kind: 'home', path: '/', body: '' }];
+  if (PF) {
+    site.push({ kind: 'portfolio', path: '/portfolio/', body: ' data-page="portfolio"' });
+    CATS.forEach(function (c) {
+      if (!inCat(c.id).length) return;   // раздел без работ не показываем
+      site.push({ kind: 'category', cat: c.id, path: '/portfolio/' + c.id + '/',
+                  body: ' data-page="category" data-cat="' + c.id + '"' });
+    });
+    KNOWN.forEach(function (w) {
+      site.push({ kind: 'work', work: w, path: workPath(w),
+                  body: ' data-page="work" data-cat="' + w.category + '" data-work="' + w.id + '"' });
+    });
+  }
+  var pages = [];
+  site.forEach(function (pg) {
+    LANGS.forEach(function (lang) {
+      pages.push({ kind: pg.kind, lang: lang, path: at(lang, pg.path), body: pg.body,
+                   head: head(pg, lang), toggle: toggle(pg.path, lang),
+                   index: !(pg.kind === 'portfolio' && SOON) });   // false — не в карту сайта
+    });
+  });
+
+  /* llms.txt — короткая справка о человеке для нейросетей (стандарт llmstxt.org).
+     Повторяет то, что и так видно на странице, только простым текстом.      */
+  var nameRu = tr(h.name, 'ru'), descRu = tr(m.description, 'ru') || String(tr(h.bio, 'ru')).replace(/\n/g, ' ');
+  var altRu = names('ru');
+  var md = [];
+  md.push('# ' + (nameRu || tr(m.title, 'ru')) + (h.nick ? ' (' + tr(h.nick, 'ru') + ')' : ''));
+  md.push('');
+  if (descRu) { md.push('> ' + descRu); md.push(''); }
+  if (fullName('ru') !== nameRu) md.push('Полное имя: ' + fullName('ru'));
+  if (altRu.length) md.push('Также известен как: ' + altRu.join(', '));
+  if (fullName('ru') !== nameRu || altRu.length) md.push('');
+  if (base) {
+    md.push('Сайт: ' + base + '/');
+    if (EN) md.push('English version: ' + base + at('en', '/'));
+    md.push('');
+  }
+
+  var pr = C.projects || {};
+  var prItems = (pr.enabled === false ? [] : (pr.items || [])).filter(function (p) { return p && tr(p.url, 'ru'); });
+  if (prItems.length) {
+    md.push('## ' + (tr(pr.title, 'ru') || 'Проекты'));
+    prItems.forEach(function (p) {
+      var u = tr(p.url, 'ru'), hd = tr(p.handle, 'ru');
+      md.push('- [' + (tr(p.title, 'ru') || u) + '](' + u + ')' + (hd ? ': ' + hd : ''));
+    });
+    md.push('');
+  }
+
+  (C.links || []).forEach(function (l) {
+    var u = String(tr(l.url, 'ru') || '');
+    if (l.group && !u) {
+      if (md[md.length - 1] !== '') md.push('');   // заголовок отделён пустой строкой
+      md.push('## ' + tr(l.group, 'ru'));
+      return;
+    }
+    if (/^mailto:/i.test(u)) { md.push('- ' + tr(l.label, 'ru') + ': ' + u.replace(/^mailto:/i, '').split('?')[0]); return; }
+    // Переходник /avito: наружу отдаём стабильный адрес на сайте, если он известен
+    if (!/^https?:\/\//.test(u)) u = base ? base + '/' + u.replace(/^\/+/, '') : (l.redirectTo || u);
+    var hd = tr(l.handle, 'ru');
+    md.push('- [' + (tr(l.label, 'ru') || u) + '](' + u + ')' + (hd ? ': ' + hd : ''));
+  });
+
+  // Портфолио — по разделам, со ссылками прямо на страницы работ
+  if (PF) {
+    var pfRu = tr(P.title, 'ru') || 'Портфолио';
+    CATS.forEach(function (c) {
+      var ws = inCat(c.id);
+      if (!ws.length) return;
+      md.push('');
+      md.push('## ' + pfRu + ': ' + tr(c.name, 'ru'));
+      ws.forEach(function (w) {
+        md.push('- [' + tr(w.title, 'ru') + '](' + (base || '') + workPath(w) + ')' + (w.date ? ': ' + w.date : ''));
+      });
+    });
+  }
+
+  // Короткая английская справка — для тех, кто спрашивает нейросеть по-английски
+  if (EN) {
+    var nameEn = tr(h.name, 'en'), descEn = tr(m.description, 'en');
+    md.push('');
+    md.push('## English');
+    md.push('');
+    if (descEn) { md.push('> ' + descEn); md.push(''); }
+    if (fullName('en') !== nameEn) md.push('Full name: ' + fullName('en'));
+    if (nameEn && nameEn !== nameRu) md.push('Name in Russian: ' + nameRu);
+    if (base) md.push('English version of the page: ' + base + at('en', '/'));
+  }
+
+  // Иконка вкладки: буква имени в фирменном градиенте — как аватар без фото
+  var acc = ((C.appearance || {}).accents || [])[0] || {};
+  var c1 = acc.accent || '#d9744f', c2 = acc.accent2 || '#e8a04b';
+  var letter = (String(nameRu || '·').trim().charAt(0) || '·').toUpperCase();
+  function icon(rx) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="' + esc(c2) + '"/><stop offset="1" stop-color="' + esc(c1) + '"/>' +
+      '</linearGradient></defs>' +
+      '<rect width="64" height="64" rx="' + rx + '" fill="url(#g)"/>' +
+      '<text x="32" y="44.5" text-anchor="middle" fill="#fff" font-size="36" font-weight="700" ' +
+      'font-family="Segoe UI, -apple-system, Roboto, Arial, sans-serif">' + esc(letter) + '</text></svg>';
+  }
+
+  var out = JSON.stringify({
+    pages: pages,
+    english: EN,
+    portfolio: PF,
+    iconRound: icon(15),
+    iconSquare: icon(0),
+    llms: md.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n',
+    base: base,
+    warn: warn
+  });
+  out = out.replace(/[\u007f-￿]/g, function (c) {
+    return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+  });
+  document.body.textContent = out;
+})();
+</script>
+</body>
+</html>
