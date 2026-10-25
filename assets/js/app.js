@@ -44,11 +44,13 @@
     ru: { page: 'Личная страница', links: 'Мои ссылки', now: 'Сейчас',
           copy: 'Скопировать адрес', copied: 'Адрес скопирован', copyByHand: 'Скопируй адрес:',
           policy: 'Конфиденциальность и куки',
+          bug: 'Нашли ошибку? Напишите мне', bugDraft: 'Нашёл ошибку на странице ',
           tabLinks: 'Ссылки', tabWorks: 'Портфолио', tabs: 'Разделы сайта',
           other: { code: 'EN', lang: 'en', title: 'English version' } },
     en: { page: 'Personal page', links: 'My links', now: 'Now',
           copy: 'Copy address', copied: 'Address copied', copyByHand: 'Copy the address:',
           policy: 'Privacy & cookies',
+          bug: 'Found a bug? Let me know', bugDraft: 'Found a bug on the page ',
           tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections',
           other: { code: 'RU', lang: 'ru', title: 'Русская версия' } }
   }[LANG];
@@ -75,7 +77,8 @@
     arrow: '<path d="M5 12h13M12.5 6l6 6-6 6"/>',
     copy: '<rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5.5 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v.5"/>',
     check: '<path d="M4 12.5 9.5 18 20 7"/>',
-    out: '<path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/>'
+    out: '<path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/>',
+    bug: '<rect x="8" y="6" width="8" height="14" rx="4"/><path d="M12 11v9M8 13H4.5M19.5 13H16M8 17.5 5 19.5M16 17.5l3 2M8 9.5 5 7.5M16 9.5l3-2M10 6.5 9 4M14 6.5 15 4"/>'
   };
 
   function icon(name, size, cls) {
@@ -537,6 +540,18 @@
     var url = T(f.url);
     if (url && line) {
       line = '<a class="footer__main" href="' + esc(url) + '" target="_blank" rel="noopener me">' + line + '</a>';
+    }
+    // «Нашли ошибку?» — с готовым началом сообщения и адресом этой страницы.
+    // Адрес — от meta.url, а не от location: сборка вшивает подвал в HTML
+    // на своём компьютере, и там был бы адрес локального сервера
+    var bug = T(f.bugUrl);
+    if (bug) {
+      var page = (T((C.meta || {}).url) || location.origin).replace(/\/+$/, '') + location.pathname;
+      var draft = UI.bugDraft + page + ' — ';
+      if (/^https:\/\/t\.me\//i.test(bug)) bug += (bug.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(draft);
+      else if (/^mailto:/i.test(bug)) bug += '?subject=' + encodeURIComponent(UI.bug) + '&body=' + encodeURIComponent(draft);
+      line = '<a class="footer__bug" href="' + esc(bug) + '" target="_blank" rel="noopener">' +
+        icon('bug', 15) + esc(UI.bug) + '</a>' + line;
     }
     // Счётчик включён (любой из двух) — рядом ссылка на политику: она должна быть под рукой
     if ((C.analytics || {}).metrika || (C.analytics || {}).goatcounter) {

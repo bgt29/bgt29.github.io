@@ -1003,6 +1003,20 @@ a.org:hover { color: var(--accent); }
 }
 .footer__main:hover { text-decoration-color: currentColor; }
 .footer__policy { display: block; width: fit-content; margin: 6px auto 0; }
+/* «Нашли ошибку?» — небольшая кнопка над строкой с именем */
+.footer__bug {
+  display: flex; align-items: center; gap: 7px;
+  width: fit-content; margin: 0 auto 16px;
+  padding: 8px 14px;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+  color: var(--text-dim);
+  font-size: 13px; font-weight: 550;
+  transition: color .25s, border-color .25s;
+}
+.footer__bug:hover { border-color: var(--stroke-hover); }
+.footer__bug svg { flex: none; }
 
 /* ---------- Уведомление о куки ------------------------------------------ */
 /* Появляется, только когда в config.js вписан номер Метрики (analytics.metrika) */
