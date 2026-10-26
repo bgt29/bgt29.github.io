@@ -558,6 +558,18 @@
     window.addEventListener('pageshow', clear);
   }
 
+  /* --- Без перетаскивания ----------------------------------------------------
+     Браузер даёт схватить мышью ссылку или картинку и тащить её полупрозрачную
+     копию — на сайте-визитке это выглядит как поломка (просьба Кирилла
+     26.10.2026). Chrome и Safari отключает CSS (-webkit-user-drag в style.css),
+     Firefox — только так. Выделение и копирование текста не трогаем.      */
+  function initNoDrag() {
+    document.addEventListener('dragstart', function (e) {
+      var t = e.target;
+      if (t && t.closest && t.closest('a, img, svg')) e.preventDefault();
+    });
+  }
+
   /* --- Блок «Сейчас» -------------------------------------------------------- */
   function renderNow() {
     var n = C.now;
@@ -705,6 +717,7 @@
   renderLang();
   initCopy();
   initTap();
+  initNoDrag();
 
   // Общие помощники — для assets/js/portfolio.js, чтобы не дублировать их
   window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAND,

@@ -530,10 +530,10 @@ window.SITE_CONFIG = {
       { id: 'os24-news',
         url: 'https://os-24.ru/news/',
         category: 'sites',
-        date: '',
+        date: '2026-08',   // делал 06–11.08.2026
         title: { ru: 'Раздел новостей для «Онлайн-Сервис»', en: 'News section for Online-Service' },
-        text: { ru: 'Отдельная страница новостей на втором сайте компании, os-24.ru: лента карточек с обложкой, датой и кнопкой «Читать», страница статьи и переход между страницами ленты.\nНовости и статьи на сайтах компании публикую тоже я.',
-                en: 'A separate news page on the company’s second website, os-24.ru: a feed of cards with a cover, date and a “Read” button, an article page and paging through the feed.\nI also publish the news and articles on the company’s websites.' },
+        text: { ru: 'Отдельная страница новостей на втором сайте компании, os-24.ru: вкладки «Главная / Новости» в шапке, лента карточек с обложкой, датой и кнопкой «Читать», страница статьи и переход между страницами ленты.\nНовости и статьи на сайтах компании публикую тоже я.',
+                en: 'A separate news page on the company’s second website, os-24.ru: “Home / News” tabs in the header, a feed of cards with a cover, date and a “Read” button, an article page and paging through the feed.\nI also publish the news and articles on the company’s websites.' },
         specs: ['1С-Битрикс', { ru: 'Лента и страница статьи', en: 'Feed and article page' },
                 { ru: 'Адаптив под телефоны', en: 'Mobile-friendly' },
                 { ru: 'Публикация статей', en: 'Publishing articles' }] },
