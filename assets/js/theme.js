@@ -126,7 +126,8 @@
     var grey = !rgb || Math.max(rgb[0], rgb[1], rgb[2]) - Math.min(rgb[0], rgb[1], rgb[2]) < 12;
     turn = grey ? 0 : hue(ac.accent) - BASE_HUE;
     var dist = Math.abs(((turn % 360) + 540) % 360 - 180);   // 0 — тот же тон, 180 — противоположный
-    calm = 1 - .4 * dist / 180;
+    // На светлых уровнях оттенок приглушаем меньше: там он и так еле виден
+    calm = 1 - (dark ? .4 : .12) * dist / 180;
 
     // Тёмная или светлая — от этого зависят иконка кнопки и пара мелочей в CSS
     root.dataset.theme = dark ? 'dark' : 'light';
