@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Страница не найдена</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  <!-- Та же палитра, что на главной: подхватывает выбор гостя -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script>
+    // Хостинг отдаёт этот файл на любой несуществующий адрес. Внутри /en/ —
+    // значит, гость пришёл с английской версии, и отвечаем ему по-английски
+    if (location.pathname.indexOf('/en/') === 0) document.documentElement.lang = 'en';
+  </script>
+
+  <style>
+    .nf {
+      position: relative; z-index: 1;
+      flex: 1;
+      display: grid; place-content: center; justify-items: center;
+      gap: 16px; padding: 24px; text-align: center;
+    }
+    .nf__code {
+      font-size: clamp(64px, 16vw, 108px); font-weight: 650; line-height: 1;
+      letter-spacing: -.04em;
+      background: linear-gradient(145deg, var(--accent-2), var(--accent));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .nf__text { color: var(--text-dim); max-width: 32ch; }
+    .nf__home {
+      display: inline-flex; align-items: center; gap: 9px;
+      margin-top: 6px; padding: 12px 22px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      font-size: 15px; font-weight: 550;
+      transition: transform .28s var(--ease), border-color .28s, box-shadow .28s;
+    }
+    .nf__home:hover {
+      transform: translateY(-2px);
+      border-color: var(--stroke-hover);
+      box-shadow: var(--shadow-lift);
+    }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <main class="nf">
+    <div class="nf__code">404</div>
+    <p class="nf__text">Такой страницы нет. Возможно, ссылка устарела.</p>
+    <a class="nf__home" href="/">Вернуться на главную</a>
+  </main>
+
+  <script>
+    if (document.documentElement.lang === 'en') {
+      document.title = 'Page not found';
+      document.querySelector('.nf__text').textContent = 'There’s no such page. The link may be outdated.';
+      var home = document.querySelector('.nf__home');
+      home.textContent = 'Back to home';
+      home.href = '/en/';
+    }
+  </script>
+  <!-- Счётчик без куки: в статистике видно, по каким битым ссылкам приходят -->
+  <script src="/assets/js/count.js"></script>
+
+</body>
+</html>

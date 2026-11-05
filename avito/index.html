@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex">
+  <title>Открываю профиль на Авито…</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  <!-- Адрес берётся из config.js: правится в одном месте -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script>
+    (function () {
+      var links = (window.SITE_CONFIG || {}).links || [];
+      var target = '';
+      for (var i = 0; i < links.length; i++) {
+        if (links[i].icon === 'avito') { target = links[i].redirectTo || ''; break; }
+      }
+      window.__avito = target;
+      if (/^https?:\/\//.test(target)) location.replace(target);
+    })();
+  </script>
+
+  <style>
+    .go {
+      position: relative; z-index: 1;
+      flex: 1;
+      display: grid; place-content: center; justify-items: center;
+      gap: 14px; padding: 24px; text-align: center;
+    }
+    .go__text { color: var(--text-dim); max-width: 34ch; }
+    .go__link {
+      display: inline-flex; align-items: center; gap: 9px;
+      margin-top: 6px; padding: 12px 22px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      font-size: 15px; font-weight: 550;
+      word-break: break-all;
+      transition: transform .28s var(--ease), border-color .28s, box-shadow .28s;
+    }
+    .go__link:hover {
+      transform: translateY(-2px);
+      border-color: var(--stroke-hover);
+      box-shadow: var(--shadow-lift);
+    }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <main class="go">
+    <p class="go__text">Открываю профиль на Авито…</p>
+    <a class="go__link" id="fallback" href="https://www.avito.ru">Перейти вручную</a>
+  </main>
+
+  <script>
+    // Если переброс не сработал (например, отключены скрипты выше по цепочке)
+    var t = window.__avito;
+    if (/^https?:\/\//.test(t)) document.getElementById('fallback').href = t;
+
+    // Переходник общий для обеих версий сайта — язык берём из браузера гостя
+    if (!/^ru\b/i.test(navigator.language || 'ru')) {
+      document.documentElement.lang = 'en';
+      document.title = 'Opening the Avito profile…';
+      document.querySelector('.go__text').textContent = 'Opening the Avito profile…';
+      document.getElementById('fallback').textContent = 'Open it manually';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <!-- Служебная страница: в поиске она не нужна, а ссылки с неё учитываются -->
+  <meta name="robots" content="noindex, follow">
+  <title>Конфиденциальность и куки</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+
+  <script>
+    // Одна страница на оба языка: /privacy/?lang=en — английский текст.
+    // Отдельный адрес ей не нужен — в поиск она всё равно не идёт.
+    if (/[?&]lang=en\b/.test(location.search)) document.documentElement.lang = 'en';
+  </script>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/i18n.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <script>
+    // Сразу, до отрисовки: какие тексты показывать — про Метрику и про счётчик без куки
+    var A = (window.SITE_CONFIG || {}).analytics || {};
+    document.documentElement.setAttribute('data-metrika', A.metrika ? 'on' : 'off');
+    document.documentElement.setAttribute('data-goat', A.goatcounter ? 'on' : 'off');
+    if (window.SITE_LANG === 'en') document.title = 'Privacy & cookies';
+  </script>
+
+  <style>
+    .doc { padding-top: clamp(40px, 8vh, 72px); }
+    .doc__back {
+      display: inline-flex; align-items: center; gap: 7px;
+      color: var(--text-dim); font-size: 14.5px; font-weight: 550;
+      transition: color .25s;
+    }
+    .doc__back:hover { color: var(--accent); }
+    /* «Конфиденциальность» — одно длинное слово: на узком телефоне шрифт
+       мельче, а если и так не влезет — перенос, но не сдвиг страницы вбок */
+    .doc h1 {
+      margin: 22px 0 6px; font-size: clamp(20px, 6.4vw, 32px);
+      hyphens: auto; overflow-wrap: anywhere;
+    }
+    .doc__date { color: var(--text-faint); font-size: 13.5px; }
+    .doc h2 {
+      margin: 30px 0 8px;
+      font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .09em;
+      color: var(--text-faint);
+    }
+    .doc p, .doc li { color: var(--text-dim); font-size: 15.5px; }
+    .doc p + p { margin-top: 10px; }
+    .doc ul { padding-left: 20px; }
+    .doc li + li { margin-top: 4px; }
+    .doc b { color: var(--text); font-weight: 600; }
+    .doc a:not(.doc__back):not(.cookie__btn) {
+      color: var(--accent); text-decoration: underline; text-underline-offset: 3px;
+    }
+    .doc code { font-size: .92em; }
+
+    /* Карточка «решение о куки» — те же кнопки, что в уведомлении */
+    .choice {
+      margin-top: 14px; padding: 16px 18px;
+      border: 1px solid var(--stroke); border-radius: 20px;
+      background: var(--card); box-shadow: var(--shadow);
+    }
+    .choice__now { color: var(--text-dim); font-size: 15px; }
+    .choice__now b[data-state="yes"] { color: var(--accent); }
+    .choice .cookie__actions { margin-top: 12px; }
+    .choice + p { margin-top: 12px; }
+
+    /* Счётчика нет — показываем короткую правду, а не политику «на вырост» */
+    [data-metrika="off"] .when-on, [data-metrika="on"] .when-off { display: none; }
+    [data-goat="off"] .when-goat, [data-goat="on"] .when-nogoat { display: none; }
+    /* Текст на языке страницы */
+    html[lang="en"] .l-ru, html[lang="ru"] .l-en { display: none; }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <main class="page doc" data-consent-page>
+    <a class="doc__back" href="/">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H6M11.5 6l-6 6 6 6"/></svg>
+      <span class="l-ru">На главную</span><span class="l-en">Back to home</span>
+    </a>
+
+    <!-- ===================== Русский ===================== -->
+    <div class="l-ru">
+      <h1>Конфиденциальность и куки</h1>
+      <!-- Поменял текст ниже — обнови дату (и в английском блоке тоже) -->
+      <p class="doc__date">Редакция от 25 октября 2026 года</p>
+
+      <div class="when-off">
+        <h2>Коротко</h2>
+        <p class="when-nogoat">Сайт не собирает о вас никаких данных: здесь нет регистрации, форм,
+           счётчиков посещений и куки.</p>
+        <p class="when-goat">Здесь нет регистрации, форм и куки. Есть только простой счётчик
+           посещений, который не узнаёт посетителей, — о нём ниже.</p>
+        <p>Выбранная тема оформления хранится только в вашем браузере
+           и никуда не отправляется.</p>
+      </div>
+
+      <div class="when-on">
+        <h2>Кто отвечает за данные</h2>
+        <p><b data-bind="owner">Владелец сайта</b> — автор этой страницы.
+           Почта для связи: <a data-bind="owner-mail" href="#">указана на главной</a>.</p>
+
+        <h2>Что собирается</h2>
+        <p>На сайте нет регистрации и форм — сами вы ничего не вводите.
+           Если вы согласились на куки, сервис <b>Яндекс.Метрика</b> собирает:</p>
+        <ul>
+          <li>IP-адрес и примерный город по нему;</li>
+          <li>тип устройства, браузер, язык и размер экрана;</li>
+          <li>откуда вы пришли, какие страницы открыли и по каким ссылкам перешли;</li>
+          <li>время и длительность визита.</li>
+        </ul>
+        <p>Запись действий на странице (Вебвизор) выключена.</p>
+
+        <h2>Зачем</h2>
+        <p>Чтобы видеть, сколько людей заходит и какие ссылки им полезны.
+           Данные не продаются и не используются для рекламы. Отчёты видит
+           только владелец сайта, и в них нет имён.</p>
+
+        <h2>Куки</h2>
+        <p>Метрика записывает в браузер куки с именами, начинающимися
+           на <code>_ym</code>. Их обрабатывает ООО «Яндекс» по своей
+           <a href="https://yandex.ru/legal/confidential/" target="_blank" rel="noopener">политике
+           конфиденциальности</a>. Без вашего согласия счётчик не подключается
+           и куки не ставятся.</p>
+
+        <h2>Ваше решение</h2>
+        <div class="choice">
+          <p class="choice__now">Сейчас: <b data-bind="consent-state">счётчик выключен</b></p>
+          <div class="cookie__actions">
+            <button class="cookie__btn cookie__btn--main" type="button" data-consent="yes">Разрешить</button>
+            <button class="cookie__btn" type="button" data-consent="no">Запретить</button>
+          </div>
+        </div>
+        <p>Если запретить после согласия, куки Метрики на этом сайте будут удалены.</p>
+
+        <h2>Ваши права</h2>
+        <p>Вы можете отозвать согласие кнопкой выше, запросить сведения о том,
+           что о вас известно, или попросить удалить данные — напишите на
+           <a data-bind="owner-mail" href="#">почту</a>. Ответ — в течение
+           10 рабочих дней.</p>
+      </div>
+
+      <div class="when-goat">
+        <h2>Счётчик без куки</h2>
+        <p>Чтобы видеть, сколько людей заходит, даже если они не дали согласия
+           на куки, работает сервис <b>GoatCounter</b>. Он не ставит куки и ничего
+           не сохраняет в вашем браузере, а IP-адрес и данные браузера не хранит —
+           сразу превращает их в общие цифры:</p>
+        <ul>
+          <li>сколько было просмотров и какие страницы открыты;</li>
+          <li>с какого сайта пришли и по каким ссылкам отсюда перешли;</li>
+          <li>браузер, система, размер экрана и страна.</li>
+        </ul>
+        <p>Узнать по этим цифрам конкретного человека нельзя. Сервис работает
+           на серверах за пределами России, подробнее — в его
+           <a href="https://www.goatcounter.com/help/privacy" target="_blank" rel="noopener">политике
+           конфиденциальности</a>.</p>
+      </div>
+    </div>
+
+    <!-- ===================== English ===================== -->
+    <div class="l-en">
+      <h1>Privacy &amp; cookies</h1>
+      <p class="doc__date">Last updated October 25, 2026</p>
+
+      <div class="when-off">
+        <h2>In short</h2>
+        <p class="when-nogoat">This site collects no data about you: there is no sign-up, no forms,
+           no visitor counter and no cookies.</p>
+        <p class="when-goat">There is no sign-up, no forms and no cookies here. There is only
+           a simple visit counter that doesn’t recognise visitors — see below.</p>
+        <p>Your theme choice is stored only in your browser and is never
+           sent anywhere.</p>
+      </div>
+
+      <div class="when-on">
+        <h2>Who is responsible</h2>
+        <p><b data-bind="owner">The site owner</b>, the author of this page.
+           Contact email: <a data-bind="owner-mail" href="#">see the home page</a>.</p>
+
+        <h2>What is collected</h2>
+        <p>There is no sign-up and no forms here — you don’t enter anything.
+           If you accept cookies, <b>Yandex Metrica</b> collects:</p>
+        <ul>
+          <li>IP address and the approximate city based on it;</li>
+          <li>device type, browser, language and screen size;</li>
+          <li>where you came from, which pages you opened and which links you followed;</li>
+          <li>time and length of the visit.</li>
+        </ul>
+        <p>Session recording (Webvisor) is turned off.</p>
+
+        <h2>Why</h2>
+        <p>To see how many people visit and which links they find useful.
+           The data is not sold or used for advertising. Only the site owner
+           sees the reports, and they contain no names.</p>
+
+        <h2>Cookies</h2>
+        <p>Metrica stores cookies whose names start with <code>_ym</code>.
+           They are processed by Yandex LLC under its
+           <a href="https://yandex.com/legal/confidential/" target="_blank" rel="noopener">privacy
+           policy</a>. Without your consent the counter is not loaded and no
+           cookies are set.</p>
+
+        <h2>Your choice</h2>
+        <div class="choice">
+          <p class="choice__now">Now: <b data-bind="consent-state">counter is off</b></p>
+          <div class="cookie__actions">
+            <button class="cookie__btn cookie__btn--main" type="button" data-consent="yes">Allow</button>
+            <button class="cookie__btn" type="button" data-consent="no">Deny</button>
+          </div>
+        </div>
+        <p>If you deny after accepting, Metrica cookies on this site are deleted.</p>
+
+        <h2>Your rights</h2>
+        <p>You can withdraw consent with the button above, ask what is known
+           about you, or ask to delete the data — write to the
+           <a data-bind="owner-mail" href="#">email</a>. You will get an answer
+           within 10 business days.</p>
+      </div>
+
+      <div class="when-goat">
+        <h2>Cookie-free counter</h2>
+        <p>To see how many people visit, even those who haven’t accepted cookies,
+           the site uses <b>GoatCounter</b>. It sets no cookies and stores nothing
+           in your browser; it doesn’t keep your IP address or browser details but
+           turns them straight into overall numbers:</p>
+        <ul>
+          <li>how many views there were and which pages were opened;</li>
+          <li>which site you came from and which links you followed from here;</li>
+          <li>browser, operating system, screen size and country.</li>
+        </ul>
+        <p>These numbers can’t identify any particular person. The service runs
+           on servers outside Russia; see its
+           <a href="https://www.goatcounter.com/help/privacy" target="_blank" rel="noopener">privacy
+           policy</a> for details.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer" data-bind="footer"></footer>
+
+  <script>
+  /* Имя, почта и подвал — из config.js, чтобы не расходились с главной */
+  (function () {
+    var C = window.SITE_CONFIG || {}, h = C.hero || {}, f = C.footer || {};
+    var T = window.SITE_T, EN = window.SITE_LANG === 'en';
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // «На главную» — на версию своего языка
+    document.querySelector('.doc__back').href = EN && window.SITE_HAS_EN ? '/en/' : '/';
+
+    // Полное имя: с отчеством, если оно указано
+    var name = T(h.name), pat = T(h.patronymic);
+    var parts = String(name).trim().split(/\s+/);
+    var owner = pat && parts.length === 2 ? parts[0] + ' ' + pat + ' ' + parts[1] : name;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-bind="owner"]'), function (el) {
+      if (owner) el.textContent = owner;
+    });
+
+    var mail = '';
+    (C.links || []).forEach(function (l) {
+      var u = String(T(l.url));
+      if (!mail && /^mailto:/i.test(u)) mail = u.replace(/^mailto:/i, '').split('?')[0];
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-bind="owner-mail"]'), function (a) {
+      if (!mail) return;
+      a.href = 'mailto:' + mail;
+      a.textContent = mail;
+    });
+
+    var text = T(f.text) || name;
+    var year = f.showYear === false ? '' : ' · ' + new Date().getFullYear();
+    var line = esc(text ? text + year : year.replace(/^ · /, ''));
+    var url = T(f.url);
+    if (url && line) {
+      line = '<a class="footer__main" href="' + esc(url) + '" target="_blank" rel="noopener me">' + line + '</a>';
+    }
+    var foot = document.querySelector('[data-bind="footer"]');
+    if (foot) foot.innerHTML = line;
+  })();
+  </script>
+  <script src="/assets/js/consent.js"></script>
+  <script src="/assets/js/count.js"></script>
+</body>
+</html>

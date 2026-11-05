@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <!-- Служебная страница: не для поиска, адрес наружу не уходит -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <!-- Строгие правила: скрипты только свои, сеть — только к GitHub. Ключ доступа
+       живёт на этой странице, и чужому коду сюда хода нет. unsafe-eval — для
+       проверки конфига перед сохранением (выполняется только сам config.js). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+  <title>Админка</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <!-- Только ради темы оформления, как на сайте -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/theme.js"></script>
+  <style>
+    .adm { padding-top: clamp(32px, 6vh, 56px); padding-bottom: 48px; max-width: 860px; }
+    .adm h1 { margin: 18px 0 4px; font-size: clamp(26px, 7vw, 32px); }
+    .adm h2 { margin: 0 0 12px; font-size: 17px; }
+    .adm__lead { color: var(--text-dim); font-size: 15px; }
+    .adm__back { color: var(--text-dim); font-size: 14.5px; font-weight: 550; }
+    .adm__back:hover { color: var(--accent); }
+    .adm__card {
+      margin-top: 18px; padding: 20px;
+      border: 1px solid var(--stroke); border-radius: 22px;
+      background: var(--card); box-shadow: var(--shadow);
+    }
+    .adm label { display: block; margin: 14px 0 6px; font-size: 14px; font-weight: 600; }
+    .adm label:first-of-type { margin-top: 0; }
+    .adm input[type=text], .adm input[type=password], .adm textarea {
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--stroke); border-radius: 12px;
+      background: var(--bg); color: var(--text);
+      font: inherit; font-size: 15px;
+    }
+    .adm input:focus, .adm textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .adm textarea {
+      min-height: 420px; resize: vertical;
+      font-family: ui-monospace, Consolas, monospace; font-size: 13px; line-height: 1.5;
+      white-space: pre; tab-size: 2;
+    }
+    .adm__hint { margin-top: 6px; color: var(--text-faint); font-size: 13px; }
+    .adm__check { display: flex !important; align-items: center; gap: 8px; font-weight: 500 !important; }
+    .adm__row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .adm button {
+      padding: 10px 18px; border: 1px solid var(--stroke); border-radius: 999px;
+      background: var(--card); color: var(--text); font: inherit; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+    }
+    .adm button:hover { border-color: var(--stroke-hover); }
+    .adm button.is-main { border-color: transparent; background: linear-gradient(145deg, var(--accent-2), var(--accent)); color: #fff; }
+    .adm button:disabled { opacity: .5; cursor: default; }
+    .adm details { margin-top: 14px; color: var(--text-dim); font-size: 14px; }
+    .adm details summary { cursor: pointer; color: var(--text); font-weight: 600; }
+    .adm details ol { margin: 8px 0 0; padding-left: 20px; }
+    .adm details li + li { margin-top: 4px; }
+    .adm a.adm__link { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    .adm__status { margin-top: 16px; min-height: 1.4em; font-size: 15px; color: var(--text-dim); white-space: pre-line; }
+    .adm__status[data-kind="err"] { color: #d9534f; }
+    .adm__status[data-kind="ok"] { color: #4f9d5d; }
+    .adm__diff {
+      margin-top: 14px; padding: 12px 14px; max-height: 360px; overflow: auto;
+      border-radius: 12px; background: var(--bg);
+      font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; line-height: 1.55; white-space: pre;
+    }
+    .adm__diff .is-del { color: #d9534f; }
+    .adm__diff .is-add { color: #4f9d5d; }
+    .adm__top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  </style>
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <main class="page adm">
+    <div class="adm__top">
+      <a class="adm__back" href="/">← На сайт</a>
+      <button id="logout" type="button" hidden>Выйти</button>
+    </div>
+    <h1>Админка</h1>
+    <p class="adm__lead">Правка ссылок и текстов сайта прямо отсюда — без компьютера со сборкой.</p>
+
+    <!-- Вход -->
+    <section class="adm__card" id="login-box">
+      <h2>Вход</h2>
+      <form id="login" autocomplete="off">
+        <label for="token">Ключ доступа GitHub</label>
+        <input id="token" type="password" spellcheck="false" placeholder="github_pat_…">
+        <label for="repo">Репозиторий сайта</label>
+        <input id="repo" type="text" spellcheck="false" value="bgt29/bgt29.github.io">
+        <label for="branch">Ветка</label>
+        <input id="branch" type="text" spellcheck="false" value="main">
+        <label class="adm__check"><input id="remember" type="checkbox"> Запомнить на этом устройстве</label>
+        <p class="adm__hint">Без галочки ключ забудется, когда закроете вкладку. Ставьте её только на своём телефоне или компьютере.</p>
+        <div class="adm__row"><button class="is-main" type="submit">Войти</button></div>
+      </form>
+      <details>
+        <summary>Где взять ключ</summary>
+        <ol>
+          <li>GitHub → фото профиля → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token.</li>
+          <li>Expiration — 90 дней (потом сделаете новый).</li>
+          <li>Repository access → <b>Only select repositories</b> → репозиторий сайта.</li>
+          <li>Permissions → Repository permissions → <b>Contents: Read and write</b>. Больше ничего не включайте.</li>
+          <li>Generate token, скопируйте и вставьте сюда. GitHub показывает его один раз.</li>
+        </ol>
+      </details>
+    </section>
+
+    <!-- Правка -->
+    <div id="editor" hidden>
+      <section class="adm__card">
+        <h2>Быстрые правки</h2>
+        <label for="q-avito">Ссылка на профиль Авито</label>
+        <input id="q-avito" type="text" spellcheck="false">
+        <p class="adm__hint">Авито иногда меняет адрес профиля — сюда новый, сайт и переходник /avito подхватят его сами.</p>
+        <label for="q-goat">Код GoatCounter</label>
+        <input id="q-goat" type="text" spellcheck="false" placeholder="например, kirill">
+        <label for="q-metrika">Номер счётчика Яндекс Метрики</label>
+        <input id="q-metrika" type="text" spellcheck="false" inputmode="numeric">
+      </section>
+
+      <section class="adm__card">
+        <h2>Весь конфиг</h2>
+        <p class="adm__hint" style="margin-top:0">Файл assets/js/config.js целиком: ссылки, тексты, портфолио. Быстрые правки выше пишут сюда же.</p>
+        <textarea id="code" spellcheck="false" aria-label="config.js"></textarea>
+        <label for="msg">Подпись к правке (необязательно)</label>
+        <input id="msg" type="text" placeholder="Например: новая ссылка на Авито">
+        <div class="adm__row">
+          <button id="check" type="button">Проверить и показать изменения</button>
+          <button id="save" class="is-main" type="button" disabled>Сохранить на сайт</button>
+          <button id="reset" type="button">Отменить правки</button>
+        </div>
+        <div id="diff" class="adm__diff" hidden></div>
+        <p class="adm__hint">Сайт обновится через 1–2 минуты после сохранения. Фото, видео, заголовки для поиска и превью ссылок меняются только сборкой на компьютере — перед ней сделайте <b>git pull</b>, чтобы забрать правки отсюда.</p>
+      </section>
+    </div>
+
+    <p class="adm__status" id="status" role="status" aria-live="polite"></p>
+  </main>
+
+  <script src="/assets/js/admin.js"></script>
+</body>
+</html>
