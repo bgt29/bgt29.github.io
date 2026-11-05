@@ -76,7 +76,8 @@
       .map(function (x) { return x.w; });
 
     function inCat(id) { return items.filter(function (w) { return w.category === id; }); }
-    function photosOf(w) { return PHOTOS[w.id] || []; }
+    // Английская версия картинок (с переведённым текстом) — в папке <id>-en
+    function photosOf(w) { return (LANG === 'en' && PHOTOS[w.id + '-en']) || PHOTOS[w.id] || []; }
     // Видео — в том же списке, что и фото: у него обложка-кадр и поле video
     function isVideo(p) { return !!(p && p.video); }
     var CAMERA_ICON = '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor"' +

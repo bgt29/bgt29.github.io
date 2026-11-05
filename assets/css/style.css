@@ -1006,7 +1006,8 @@ a.org:hover { color: var(--accent); }
   margin: 20px auto 0;
   overflow: hidden;
   border-radius: 24px;
-  background: #120d0a;
+  /* нейтральный тёмный: фото и картинки любого цвета на нём не спорят с темой */
+  background: #111317;
 }
 .gallery__track {
   display: flex;

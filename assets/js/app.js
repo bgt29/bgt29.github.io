@@ -292,7 +292,9 @@
       return String(b.date || '').localeCompare(String(a.date || ''));
     });
     var photos = window.SITE_PHOTOS || {};
-    var covers = items.map(function (w) { return (photos[w.id] || [])[0]; }).filter(Boolean).slice(0, 3);
+    var covers = items.map(function (w) {
+      return ((LANG === 'en' && photos[w.id + '-en']) || photos[w.id] || [])[0];
+    }).filter(Boolean).slice(0, 3);
     // Пустой раздел со ссылкой «Больше — в …» (more) тоже виден: в нём эта ссылка
     var cats = (P.categories || []).filter(function (c) {
       var more = [].concat((c && c.more) || []).some(function (m) { return m && (T(m.url) || m.links); });

@@ -73,7 +73,15 @@ window.SITE_PHOTOS = {
   ],
   "meat-shop-ai": [
     {"src":"/assets/portfolio/meat-shop-ai/1.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/1-s.jpg","tw":480,"th":640},
-    {"src":"/assets/portfolio/meat-shop-ai/2.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/2-s.jpg","tw":480,"th":640}
+    {"src":"/assets/portfolio/meat-shop-ai/2.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/2-s.jpg","tw":480,"th":640},
+    {"src":"/assets/portfolio/meat-shop-ai/3.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/3-s.jpg","tw":480,"th":640},
+    {"src":"/assets/portfolio/meat-shop-ai/4.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/4-s.jpg","tw":480,"th":640}
+  ],
+  "meat-shop-ai-en": [
+    {"src":"/assets/portfolio/meat-shop-ai-en/1.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai-en/1-s.jpg","tw":480,"th":640},
+    {"src":"/assets/portfolio/meat-shop-ai-en/2.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai-en/2-s.jpg","tw":480,"th":640},
+    {"src":"/assets/portfolio/meat-shop-ai-en/3.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai-en/3-s.jpg","tw":480,"th":640},
+    {"src":"/assets/portfolio/meat-shop-ai-en/4.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai-en/4-s.jpg","tw":480,"th":640}
   ],
   "mirumir": [
     {"src":"/assets/portfolio/mirumir/1.jpg","w":1440,"h":900,"thumb":"/assets/portfolio/mirumir/1-s.jpg","tw":640,"th":400},
