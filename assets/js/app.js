@@ -27,7 +27,7 @@
      data-cat="pc", у работы — data-cat и data-work="имя".                  */
   var B = document.body;
   var PAGE = B.getAttribute('data-page') || 'home';
-  if (!/^(portfolio|category|work)$/.test(PAGE)) PAGE = 'home';
+  if (!/^(portfolio|category|work|reviews)$/.test(PAGE)) PAGE = 'home';
   var CAT = B.getAttribute('data-cat') || '', WORK = B.getAttribute('data-work') || '';
 
   // Адрес этой страницы на нужном языке: английская — та же, только под /en/
@@ -36,6 +36,7 @@
     if (page === 'portfolio') p = '/portfolio/';
     else if (page === 'category') p = '/portfolio/' + CAT + '/';
     else if (page === 'work') p = '/portfolio/' + CAT + '/' + WORK + '/';
+    else if (page === 'reviews') p = '/reviews/';
     return (lang === 'en' ? '/en' : '') + p;
   }
 
@@ -45,7 +46,8 @@
           copy: 'Скопировать адрес', copied: 'Адрес скопирован', copyByHand: 'Скопируй адрес:',
           policy: 'Конфиденциальность и куки',
           bug: 'Нашли ошибку? Напишите мне', bugDraft: 'Нашёл ошибку на странице ',
-          reviews: 'Отзывы', reviewsAll: 'Все отзывы', reviewsCount: function (n) {
+          reviews: 'Отзывы', reviewsAll: 'Все отзывы', reviewsMore: 'Все отзывы', path: 'Где вы на сайте',
+          reviewCase: 'К работе', reviewProjects: 'Проекты', reviewsCount: function (n) {
             var k = n % 10, h = n % 100;
             return n + (k === 1 && h !== 11 ? ' отзыв' : k >= 2 && k <= 4 && (h < 12 || h > 14) ? ' отзыва' : ' отзывов');
           },
@@ -55,7 +57,8 @@
           copy: 'Copy address', copied: 'Address copied', copyByHand: 'Copy the address:',
           policy: 'Privacy & cookies',
           bug: 'Found a bug? Let me know', bugDraft: 'Found a bug on the page ',
-          reviews: 'Reviews', reviewsAll: 'All reviews', reviewsCount: function (n) { return n + (n === 1 ? ' review' : ' reviews'); },
+          reviews: 'Reviews', reviewsAll: 'All reviews', reviewsMore: 'All reviews', path: 'You are here',
+          reviewCase: 'See the work', reviewProjects: 'Projects', reviewsCount: function (n) { return n + (n === 1 ? ' review' : ' reviews'); },
           tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections',
           other: { code: 'RU', lang: 'ru', title: 'Русская версия' } }
   }[LANG];
@@ -64,6 +67,7 @@
   // включён показ пустого (showEmpty), — иначе и вкладки нет
   var P = C.portfolio || {};
   var HAS_WORKS = P.enabled !== false && ((P.items || []).length > 0 || P.showEmpty === true);
+  var HAS_REVIEWS = !!(C.reviews && C.reviews.enabled !== false && (C.reviews.items || []).length);
 
   /* Пути к файлам из конфига — от корня сайта. Английская версия лежит
      в папке /en/, и путь «assets/…» оттуда вёл бы в /en/assets/ — мимо.  */
@@ -594,11 +598,30 @@
     '<path d="M12 2.6l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.3l-5.9 3.2 1.3-6.5L2.5 9.4l6.6-.8z"/></svg>';
   function stars(n) { return '<span class="stars" aria-hidden="true">' + new Array((n || 5) + 1).join(STAR) + '</span>'; }
 
+  /* Главная — оценка, несколько отзывов (home: true) и кнопка на вкладку
+     «Отзывы» (/reviews/). Там — оценка и все отзывы по группам, в конце —
+     отзывы к работам портфолио со ссылкой на работу.                     */
+  function reviewCard(i, link) {
+    var meta = [T(i.what), month(i.date)].filter(Boolean).join(' · ');
+    return '<figure class="rev fade">' + stars(5) +
+      // Длинный отзыв (к работе) — по абзацам
+      '<blockquote class="rev__text">' + String(T(i.quote) || '').split(/\n+/).filter(function (x) { return x.trim(); })
+        .map(function (x) { return '<p>' + esc(typo(x.trim())) + '</p>'; }).join('') + '</blockquote>' +
+      '<figcaption class="rev__who"><span class="rev__name">' + esc(T(i.name)) + '</span>' +
+        (meta ? '<span class="rev__meta">' + esc(meta) + '</span>' : '') +
+        (link ? '<a class="rev__link" href="' + esc(link) + '">' + esc(UI.reviewCase) + icon('arrow', 15) + '</a>' : '') +
+      '</figcaption>' +
+    '</figure>';
+  }
+
   function renderReviews() {
     var R = C.reviews;
     var box = document.querySelector('[data-section="reviews"]');
     if (!box || !R || R.enabled === false || !(R.items || []).length) return;
+    var full = PAGE === 'reviews';
+    var pre = LANG === 'en' ? '/en' : '';
     var r = R.rating || {}, url = T(r.url);
+    var title = T(R.title) || UI.reviews;
     var head = r.score
       ? '<div class="rating fade">' +
           '<div class="rating__score">' +
@@ -613,17 +636,44 @@
             esc(T(R.all) || UI.reviewsAll) + icon('out', 16) + '</a>' : '') +
         '</div>'
       : '';
-    var cards = R.items.map(function (i) {
-      var meta = [T(i.what), month(i.date)].filter(Boolean).join(' · ');
-      return '<figure class="rev fade">' + stars(5) +
-        '<blockquote class="rev__text">' + esc(typo(T(i.quote))) + '</blockquote>' +
-        '<figcaption class="rev__who"><span class="rev__name">' + esc(T(i.name)) + '</span>' +
-          (meta ? '<span class="rev__meta">' + esc(meta) + '</span>' : '') + '</figcaption>' +
-      '</figure>';
-    }).join('');
-    box.innerHTML = '<h2 class="links__group fade">' + esc(T(R.title) || UI.reviews) + '</h2>' +
-      head + '<div class="revs">' + cards + '</div>';
+
+    if (!full) {
+      var some = R.items.filter(function (i) { return i.home; });
+      if (!some.length) some = R.items.slice(0, 3);
+      box.innerHTML = '<h2 class="links__group fade">' + esc(title) + '</h2>' + head +
+        '<div class="revs">' + some.map(function (i) { return reviewCard(i); }).join('') + '</div>' +
+        '<a class="cta-btn reviews__more fade" href="' + pre + '/reviews/">' +
+          esc(UI.reviewsMore + ' ' + countAll(R)) + icon('arrow', 16) + '</a>';
+      box.hidden = false;
+      return;
+    }
+
+    // Страница отзывов: группы по порядку из конфига, потом отзывы к работам
+    var groups = R.groups || {};
+    var html = '';
+    Object.keys(groups).forEach(function (g) {
+      if (g === 'projects') return;
+      var list = R.items.filter(function (i) { return (i.group || 'build') === g; });
+      if (!list.length) return;
+      html += '<h2 class="links__group fade">' + esc(T(groups[g])) + '</h2>' +
+        '<div class="revs">' + list.map(function (i) { return reviewCard(i); }).join('') + '</div>';
+    });
+    var works = ((C.portfolio || {}).items || []).filter(function (w) { return w && w.review && T(w.review.text); });
+    if (works.length) {
+      html += '<h2 class="links__group fade">' + esc(T(groups.projects) || UI.reviewProjects) + '</h2>' +
+        '<div class="revs revs--wide">' + works.map(function (w) {
+          var rv = w.review;
+          return reviewCard({ name: rv.name, quote: rv.text, what: { ru: T(w.title), en: T(w.title) } },
+                            pre + '/portfolio/' + w.category + '/' + w.id + '/');
+        }).join('') + '</div>';
+    }
+    box.innerHTML = head + html;
     box.hidden = false;
+  }
+  // Сколько отзывов всего на странице: с Авито и к работам
+  function countAll(R) {
+    var n = R.items.length + ((C.portfolio || {}).items || []).filter(function (w) { return w && w.review; }).length;
+    return '(' + n + ')';
   }
 
   /* --- Блок «Сейчас» -------------------------------------------------------- */
@@ -688,21 +738,24 @@
     a.textContent = o.code;
   }
 
-  /* --- Вкладки «Ссылки | Портфолио» -------------------------------------------
+  /* --- Вкладки «Ссылки | Портфолио | Отзывы» ----------------------------------
      Выглядят как вкладки, но это две отдельные страницы со своими адресами:
      портфолио можно отправить ссылкой отдельно, и поиск видит его целиком.  */
   function renderTabs() {
     var nav = slot('tabs');
     if (!nav) return;
     // На странице раздела и работы вместо вкладок — путь «Портфолио › ПК»
-    if (!HAS_WORKS || PAGE === 'category' || PAGE === 'work') { nav.hidden = true; nav.innerHTML = ''; return; }
+    if (!(HAS_WORKS || HAS_REVIEWS) || PAGE === 'category' || PAGE === 'work') { nav.hidden = true; nav.innerHTML = ''; return; }
     var tab = function (key, label) {
       var on = key === PAGE;
       return '<a class="tabs__item' + (on ? ' is-on' : '') + '" href="' + pathFor(LANG, key) + '"' +
         (on ? ' aria-current="page"' : '') + '>' + esc(label) + '</a>';
     };
     nav.setAttribute('aria-label', UI.tabs);
-    nav.innerHTML = tab('home', UI.tabLinks) + tab('portfolio', T(P.title) || UI.tabWorks);
+    nav.innerHTML = tab('home', UI.tabLinks) +
+      (HAS_WORKS ? tab('portfolio', T(P.title) || UI.tabWorks) : '') +
+      (HAS_REVIEWS ? tab('reviews', UI.reviews) : '');
+    nav.style.setProperty('--tabs', nav.children.length);
     nav.hidden = false;
   }
 
@@ -710,8 +763,8 @@
      в копии от сборки они могли остаться — убираем, а не прячем: поисковик
      не должен видеть на этой странице чужие ссылки.                     */
   function clearHomeBlocks() {
-    var list = ['[data-section="projects"]', '[data-bind="links"]', '[data-section="now"]',
-                '[data-section="reviews"]'];
+    var list = ['[data-section="projects"]', '[data-bind="links"]', '[data-section="now"]'];
+    if (PAGE !== 'reviews') list.push('[data-section="reviews"]');
     /* На страницах раздела и работы большая шапка не нужна: заголовок
        страницы — название раздела или работы, а кто автор, видно в пути
        над ним (маленький аватар и имя).                                 */
@@ -758,7 +811,7 @@
   }
 
   /* --- Старт ---------------------------------------------------------------- */
-  if (PAGE === 'home' || PAGE === 'portfolio') renderHero();
+  if (PAGE === 'home' || PAGE === 'portfolio' || PAGE === 'reviews') renderHero();
   renderTabs();
   if (PAGE === 'home') {
     // У портфолио заголовок свой — его вписывает сборка
@@ -770,6 +823,7 @@
     renderReviews();
   } else {
     clearHomeBlocks();
+    if (PAGE === 'reviews') renderReviews();
   }
   renderFooter();
   renderLang();

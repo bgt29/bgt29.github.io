@@ -20,6 +20,7 @@
     var P = C.portfolio || {};
     var T = window.SITE_T;
     var U = window.SITE_UTIL;
+    if (U.page === 'reviews') return;   // страница отзывов — без работ
     var esc = U.esc, typo = U.typo;
     var LANG = window.SITE_LANG;
     var PHOTOS = window.SITE_PHOTOS || {};
