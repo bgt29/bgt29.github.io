@@ -380,13 +380,12 @@ p, ul { margin: 0; }
   font-size: 40px; font-weight: 600;
   color: #fff;
   background: linear-gradient(145deg, var(--accent-2), var(--accent));
-  /* Белое кольцо и ореол — цвет ореола подбирается по фото, см. tuneAvatarGlow
-     в app.js. Смещения нет: со сдвигом свечение собиралось внизу, и Кирилл
-     заметил, что оно неровное (25.10.2026) — теперь одинаково по кругу.    */
+  /* Кольцо и ореол. Ореол — цвета акцента: выбрал в панели другой цвет —
+     свечение меняется вместе с ним. Без смещения — ровно по кругу.       */
   box-shadow:
     0 0 0 5px var(--card),
     0 0 0 6px var(--stroke),
-    0 0 30px -4px var(--avatar-glow, var(--accent));
+    0 0 30px -4px color-mix(in srgb, var(--accent) 85%, transparent);
   overflow: hidden;
   transition: box-shadow .5s var(--ease);
 }

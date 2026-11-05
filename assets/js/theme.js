@@ -12,7 +12,8 @@
   'use strict';
 
   /* Уровни яркости. Каждый цвет задан как [тон, насыщенность, светлота].
-     Тона тёплые — от 20 до 36 градусов, чтобы гамма не уезжала в синеву.   */
+     Тона здесь — для терракотового акцента (тёплые, 20–36°). С другим
+     акцентом вся гамма поворачивается вслед за ним — см. tone() ниже.     */
   /* glow — сила фоновых пятен. Чем светлее уровень, тем слабее: на почти белом
      фоне цветная подсветка забивает всё и вид получается выцветшим.         */
   var LEVELS = [
@@ -98,6 +99,20 @@
     return list[Math.max(0, Math.min(list.length - 1, state.accent))] || list[0];
   }
 
+  /* --- Гамма под акцент ------------------------------------------------------
+     Фон, плитки, текст и обводки — того же оттенка, что акцент: с синим
+     акцентом сайт становится холодным графитовым, с зелёным — зеленоватым,
+     и цвет не выглядит чужим на тёплом коричневом. Тон всех цветов уровня
+     поворачивается на столько, на сколько акцент отличается от терракоты
+     (её тон ~16°). Чем дальше от тёплых тонов, тем спокойнее насыщенность:
+     иначе светлая тема с синим акцентом выходила бы голубой, а не белой.   */
+  var BASE_HUE = 16;
+  var turn = 0, calm = 1;
+  function tone(c) {
+    var h = ((c[0] + turn) % 360 + 360) % 360;
+    return [Math.round(h), Math.round(c[1] * calm * 10) / 10, c[2]];
+  }
+
   /* --- Применение --------------------------------------------------------- */
   function apply() {
     var root = document.documentElement;
@@ -106,21 +121,33 @@
     var ac = currentAccent();
     var dark = lv.dark;
 
+    // Насколько повернуть гамму: серый акцент (без тона) — оставить тёплую
+    var rgb = hexToRgb(ac.accent);
+    var grey = !rgb || Math.max(rgb[0], rgb[1], rgb[2]) - Math.min(rgb[0], rgb[1], rgb[2]) < 12;
+    turn = grey ? 0 : hue(ac.accent) - BASE_HUE;
+    var dist = Math.abs(((turn % 360) + 540) % 360 - 180);   // 0 — тот же тон, 180 — противоположный
+    calm = 1 - .4 * dist / 180;
+
     // Тёмная или светлая — от этого зависят иконка кнопки и пара мелочей в CSS
     root.dataset.theme = dark ? 'dark' : 'light';
 
-    s.setProperty('--bg', hsl(lv.bg));
-    s.setProperty('--card', hsl(lv.card));
-    s.setProperty('--card-hover', hsl(lv.card, dark ? 4 : 1));
-    s.setProperty('--text', hsl(lv.text));
-    s.setProperty('--text-dim', hsl(lv.dim));
-    s.setProperty('--text-faint', hsl(lv.faint));
+    s.setProperty('--bg', hsl(tone(lv.bg)));
+    s.setProperty('--card', hsl(tone(lv.card)));
+    s.setProperty('--card-hover', hsl(tone(lv.card), dark ? 4 : 1));
+    s.setProperty('--text', hsl(tone(lv.text)));
+    s.setProperty('--text-dim', hsl(tone(lv.dim)));
+    s.setProperty('--text-faint', hsl(tone(lv.faint)));
 
-    s.setProperty('--stroke', dark ? 'rgba(255, 226, 200, .10)' : 'rgba(122, 84, 60, .14)');
-    s.setProperty('--shadow', dark ? '0 2px 4px rgba(0, 0, 0, .2)'
-                                   : '0 2px 4px rgba(122, 84, 60, .05)');
+    // Обводки и тени — того же тона (у терракоты это прежние тёплые значения)
+    var t = tone([BASE_HUE + 8, 100, 0])[0], sc = Math.round(34 * calm);
+    var ink = function (l, a) { return 'hsla(' + t + ', ' + sc + '%, ' + l + '%, ' + a + ')'; };
+    s.setProperty('--stroke', dark ? 'hsla(' + t + ', ' + Math.round(100 * calm) + '%, 89%, .10)' : ink(36, .14));
+    s.setProperty('--shadow', dark ? '0 2px 4px rgba(0, 0, 0, .2)' : '0 2px 4px ' + ink(36, .05));
     s.setProperty('--shadow-lift', dark ? '0 12px 28px -10px rgba(0, 0, 0, .5)'
-                                        : '0 12px 28px -10px rgba(122, 84, 60, .26)');
+                                        : '0 12px 28px -10px ' + ink(36, .26));
+    s.setProperty('--tile-shadow', dark
+      ? '0 1px 0 rgba(255, 255, 255, .04) inset, 0 16px 32px -20px rgba(0, 0, 0, .65)'
+      : '0 1px 0 rgba(255, 255, 255, .8) inset, 0 14px 30px -22px hsla(' + (t - 4) + ', ' + Math.round(60 * calm) + '%, 20%, .45)');
 
     s.setProperty('--accent', ac.accent);
     s.setProperty('--accent-2', ac.accent2 || ac.accent);

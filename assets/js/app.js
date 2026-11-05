@@ -185,90 +185,6 @@
        примениться до отрисовки. Здесь тему больше не трогаем.               */
   }
 
-  /* --- Свечение под аватаром ------------------------------------------------
-     Ореол подбирается по самому фото: считаем его средний цвет, подмешиваем
-     акцент палитры и удерживаем итог в тёплом секторе. Так свечение
-     перекликается со снимком, но не выбивается из оформления сайта.        */
-  var avatarTone = null;   // средний цвет фото, считается один раз
-
-  function averageColor(img) {
-    var n = 24;
-    var canvas = document.createElement('canvas');
-    canvas.width = n; canvas.height = n;
-    var ctx = canvas.getContext && canvas.getContext('2d');
-    if (!ctx) return null;
-
-    var data;
-    try {
-      ctx.drawImage(img, 0, 0, n, n);
-      data = ctx.getImageData(0, 0, n, n).data;
-    } catch (e) {
-      return null;   // фото с чужого домена — читать пиксели браузер не даст
-    }
-
-    var r = 0, g = 0, b = 0, sum = 0;
-    for (var i = 0; i < data.length; i += 4) {
-      if (data[i + 3] < 128) continue;
-      var mx = Math.max(data[i], data[i + 1], data[i + 2]);
-      var mn = Math.min(data[i], data[i + 1], data[i + 2]);
-      // цветные и светлые точки весят больше, иначе тёмный фон съест весь тон
-      var w = (mx - mn) / 255 * 2 + mx / 255 + 0.15;
-      r += data[i] * w; g += data[i + 1] * w; b += data[i + 2] * w; sum += w;
-    }
-    return sum ? [r / sum, g / sum, b / sum] : null;
-  }
-
-  function hexToRgb(s) {
-    s = String(s).trim().replace('#', '');
-    if (s.length === 3) s = s[0] + s[0] + s[1] + s[1] + s[2] + s[2];
-    if (!/^[0-9a-f]{6}$/i.test(s)) return null;
-    return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)];
-  }
-
-  function rgbToHsl(r, g, b) {
-    r /= 255; g /= 255; b /= 255;
-    var mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-    var l = (mx + mn) / 2, h = 0, s = 0;
-    if (mx !== mn) {
-      var d = mx - mn;
-      s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn);
-      if (mx === r) h = (g - b) / d + (g < b ? 6 : 0);
-      else if (mx === g) h = (b - r) / d + 2;
-      else h = (r - g) / d + 4;
-      h *= 60;
-    }
-    return [h, s, l];
-  }
-
-  /* Тёплый сектор: от красноватого до янтарного. Холодный тон подтягиваем
-     к ближайшему краю, а не выкидываем — так остаётся связь с фото.       */
-  function toWarm(h) {
-    var lo = 8, hi = 55;
-    if (h >= lo && h <= hi) return h;
-    var dLo = Math.min(Math.abs(h - lo), 360 - Math.abs(h - lo));
-    var dHi = Math.min(Math.abs(h - hi), 360 - Math.abs(h - hi));
-    return dLo < dHi ? lo : hi;
-  }
-
-  function tuneAvatarGlow() {
-    var root = document.documentElement;
-    if (!avatarTone) { root.style.removeProperty('--avatar-glow'); return; }
-
-    var accent = hexToRgb(getComputedStyle(root).getPropertyValue('--accent'));
-    if (!accent) return;
-
-    var mixed = [0, 1, 2].map(function (i) {
-      return avatarTone[i] * 0.45 + accent[i] * 0.55;
-    });
-
-    var hsl = rgbToHsl(mixed[0], mixed[1], mixed[2]);
-    var h = Math.round(toWarm(hsl[0]));
-    var s = Math.round(Math.min(0.85, Math.max(0.45, hsl[1])) * 100);
-    var l = Math.round((root.dataset.theme === 'dark' ? 0.6 : 0.56) * 100);
-
-    root.style.setProperty('--avatar-glow', 'hsl(' + h + ', ' + s + '%, ' + l + '%)');
-  }
-
   /* --- Шапка --------------------------------------------------------------- */
   function initials(name) {
     var parts = String(name || '').trim().split(/\s+/).slice(0, 2);
@@ -293,18 +209,7 @@
     var box = slot('avatar');
     var img = box && box.querySelector('img');
     if (img) {
-      img.addEventListener('error', function () {
-        box.textContent = initials(name);
-        avatarTone = null;
-        tuneAvatarGlow();
-      });
-
-      var onReady = function () {
-        avatarTone = averageColor(img);
-        tuneAvatarGlow();
-      };
-      if (img.complete && img.naturalWidth) onReady();
-      else img.addEventListener('load', onReady);
+      img.addEventListener('error', function () { box.textContent = initials(name); });
     }
     fill('status', esc(T(h.status)));
     /* Имя и фамилия — всегда отдельными строками. Иначе короткое имя на одном
@@ -838,8 +743,4 @@
   // Портфолио рисуется отдельным файлом — появление общее
   if (PAGE !== 'home' && window.SITE_RENDER_WORKS) window.SITE_RENDER_WORKS();
   initFade();
-
-  /* Панель оформления меняет акцент, а ореол под аватаром считается от него.
-     Отдаём пересчёт наружу, чтобы panel.js и theme.js могли его дёрнуть.    */
-  window.SITE_ON_THEME = tuneAvatarGlow;
 })();
