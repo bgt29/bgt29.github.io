@@ -76,12 +76,20 @@
 
   var state = { level: null, accent: 0, custom: null, touched: false };
 
+  /* Выбранный акцент запоминается и номером, и цветом. Список в конфиге может
+     поменяться (новый цвет по умолчанию встал первым) — тогда по цвету гость
+     получит свой прежний, а не тот, что теперь стоит под его номером.      */
   try {
     var raw = localStorage.getItem('appearance');
     if (raw) {
       var saved = JSON.parse(raw);
       if (typeof saved.level === 'number') state.level = saved.level;
       if (typeof saved.accent === 'number') state.accent = saved.accent;
+      if (typeof saved.accentHex === 'string') {
+        var at = accents().map(function (a) { return String(a.accent).toLowerCase(); })
+          .indexOf(saved.accentHex.toLowerCase());
+        if (at >= 0) state.accent = at;
+      }
       if (typeof saved.custom === 'string') state.custom = saved.custom;
       state.touched = true;
     }
@@ -168,7 +176,8 @@
   function save() {
     try {
       localStorage.setItem('appearance', JSON.stringify({
-        level: state.level, accent: state.accent, custom: state.custom
+        level: state.level, accent: state.accent, custom: state.custom,
+        accentHex: (accents()[state.accent] || {}).accent || ''
       }));
     } catch (e) {}
     state.touched = true;

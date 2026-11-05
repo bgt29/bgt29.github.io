@@ -572,17 +572,21 @@ window.SITE_CONFIG = {
     enabled: true,
     title: { ru: 'Яркость темы', en: 'Brightness' },
     accentTitle: { ru: 'Акцентный цвет', en: 'Accent color' },
+    baseLabel: { ru: 'Базовый цвет', en: 'Default color' },
     customLabel: { ru: 'Другое', en: 'Custom' },
 
-    /* Первый в списке — родной цвет сайта, он же по умолчанию.
-       accent — основной, accent2 — второй цвет градиентов.                  */
+    /* Первый в списке — родной цвет сайта, он же по умолчанию (с 05.11.2026 —
+       синий, решил Кирилл; до этого была терракота). В панели он — отдельная
+       кнопка «Базовый цвет» над списком. От него же иконка вкладки и картинка
+       превью ссылки. Остальные — по радуге: от красного к фиолетовому.
+       accent — основной, accent2 — второй цвет градиентов.                 */
     accents: [
-      { name: { ru: 'Терракота',  en: 'Terracotta' }, accent: '#d9744f', accent2: '#e8a04b' },
+      { name: { ru: 'Синий',      en: 'Blue' },       accent: '#5486d8', accent2: '#79aae8' },
       { name: { ru: 'Красный',    en: 'Red' },        accent: '#e0574f', accent2: '#f08a63' },
+      { name: { ru: 'Терракота',  en: 'Terracotta' }, accent: '#d9744f', accent2: '#e8a04b' },
       { name: { ru: 'Оранжевый',  en: 'Orange' },     accent: '#e8862e', accent2: '#f2b455' },
       { name: { ru: 'Зелёный',    en: 'Green' },      accent: '#5fa86b', accent2: '#8cc47a' },
       { name: { ru: 'Бирюзовый',  en: 'Teal' },       accent: '#3fa8a0', accent2: '#63c8be' },
-      { name: { ru: 'Синий',      en: 'Blue' },       accent: '#5486d8', accent2: '#79aae8' },
       { name: { ru: 'Фиолетовый', en: 'Purple' },     accent: '#9a6ee0', accent2: '#bb92ee' },
     ],
   },

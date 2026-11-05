@@ -242,6 +242,8 @@ p, ul { margin: 0; }
   display: grid; place-items: center;
 }
 .accent__name { flex: 1; }
+/* «Базовый цвет» отделён от остальных тонкой чертой */
+.accents__sep { height: 1px; margin: 3px 4px; background: var(--stroke); }
 .accent__tick { opacity: 0; flex: none; }
 .accent.is-on .accent__tick { opacity: 1; }
 

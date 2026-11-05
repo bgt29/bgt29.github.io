@@ -12,9 +12,9 @@
   var tr = window.SITE_T || function (v) { return v && typeof v === 'object' ? (v.ru || '') : (v || ''); };
   var UI = window.SITE_LANG === 'en'
     ? { button: 'Appearance', title: 'Brightness', accent: 'Accent color', custom: 'Custom',
-        hue: 'Hue', sat: 'Saturation', hex: 'Color code' }
+        hue: 'Hue', sat: 'Saturation', hex: 'Color code', base: 'Default color' }
     : { button: 'Оформление', title: 'Яркость темы', accent: 'Акцентный цвет', custom: 'Другое',
-        hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета' };
+        hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета', base: 'Базовый цвет' };
 
   var btn = document.querySelector('.theme-toggle');
   var panel = document.querySelector('[data-section="panel"]');
@@ -68,11 +68,14 @@
   function renderAccents() {
     var list = T.accents();
     var cur = T.state;
+    /* Первый цвет — родной цвет сайта: отдельной кнопкой «Базовый цвет» над
+       остальными, чтобы к нему было легко вернуться. Остальные — по радуге. */
     var html = list.map(function (a, i) {
       var on = !cur.custom && i === cur.accent;
-      return '<button class="accent' + (on ? ' is-on' : '') + '" type="button" data-accent="' + i + '">' +
+      return (i === 1 ? '<span class="accents__sep" aria-hidden="true"></span>' : '') +
+        '<button class="accent' + (i === 0 ? ' accent--base' : '') + (on ? ' is-on' : '') + '" type="button" data-accent="' + i + '">' +
         '<span class="accent__dot" style="background:' + esc(a.accent) + '"></span>' +
-        '<span class="accent__name">' + esc(tr(a.name)) + '</span>' +
+        '<span class="accent__name">' + esc(i === 0 ? (tr(cfg.baseLabel) || UI.base) : tr(a.name)) + '</span>' +
         '<svg class="accent__tick" viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
         'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M4 12.5 9.5 18 20 7"/></svg>' +
