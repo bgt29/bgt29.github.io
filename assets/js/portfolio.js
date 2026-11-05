@@ -312,6 +312,26 @@
           linksOf(U.cat).map(moreCard).join('') + '</div>';
     }
 
+    /* Отзыв заказчика (review в работе) — цитатой под описанием: текст по
+       абзацам, ниже кто и откуда. Без текста — ничего не выводим.        */
+    function reviewBlock(r) {
+      var text = r && T(r.text);
+      if (!text) return '';
+      var who = [T(r.role), T(r.source)].filter(Boolean).join(' · ');
+      return '<figure class="review">' +
+        '<svg class="review__mark" viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="currentColor">' +
+          '<path d="M4.6 18.3c-1-1.1-1.6-2.3-1.6-4.3 0-3.5 2.5-6.6 6-8.2l.9 1.4C6.6 9 6 11 5.7 12.4c.7-.4 1.6-.5 2.4-.4 2.2.2 3.9 2 3.9 4.3a4.4 4.4 0 0 1-4.4 4.4c-1.3 0-2.5-.6-3.1-1.4Zm10 0c-1-1.1-1.6-2.3-1.6-4.3 0-3.5 2.5-6.6 6-8.2l.9 1.4c-3.3 1.8-3.9 3.8-4.2 5.2.7-.4 1.6-.5 2.4-.4 2.2.2 3.9 2 3.9 4.3a4.4 4.4 0 0 1-4.4 4.4c-1.3 0-2.5-.6-3.1-1.4Z"/></svg>' +
+        '<blockquote class="review__text">' +
+          String(text).split(/\n+/).filter(function (s) { return s.trim(); })
+            .map(function (s) { return '<p>' + esc(typo(s.trim())) + '</p>'; }).join('') +
+        '</blockquote>' +
+        '<figcaption class="review__who">' +
+          '<span class="review__name">' + esc(T(r.name)) + '</span>' +
+          (who ? '<span class="review__role">' + esc(who) + '</span>' : '') +
+        '</figcaption>' +
+      '</figure>';
+    }
+
     /* --- Страница работы ------------------------------------------------------- */
     if (U.page === 'work') {
       var w = items.filter(function (x) { return x.id === U.work; })[0];
@@ -358,6 +378,7 @@
               .map(function (s) { return '<p>' + esc(typo(s.trim())) + '</p>'; }).join('') +
           '</div>' +
           (specs.length ? '<ul class="specs">' + specs.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : '') +
+          reviewBlock(w.review) +
           (url
             ? '<a class="cta-btn" href="' + esc(url) + '" target="_blank" rel="noopener">' +
                 esc(T(w.cta) || ctaFor(url, w.category)) + U.icon('arrow', 16) + '</a>'

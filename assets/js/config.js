@@ -537,6 +537,30 @@ window.SITE_CONFIG = {
         specs: ['1С-Битрикс', { ru: 'Лента и страница статьи', en: 'Feed and article page' },
                 { ru: 'Адаптив под телефоны', en: 'Mobile-friendly' },
                 { ru: 'Публикация статей', en: 'Publishing articles' }] },
+
+      /* ИИ-ассистент для мясного магазина: учёт, отчёты, советы. Картинка —
+         пример переписки, перерисованный без интерфейса и с закрытой
+         себестоимостью. review — отзыв владельца (Telegram, 26.10.2026),
+         показывается цитатой на странице работы                          */
+      { id: 'meat-shop-ai',
+        category: 'ai',
+        date: '2026-10',
+        title: { ru: 'ИИ-ассистент для мясного магазина', en: 'AI assistant for a butcher shop' },
+        text: { ru: 'Учёт и аналитика для мясного магазина с цехом полуфабрикатов. Владелец в течение дня присылает с телефона расходы и фото накладных и журналов, а ассистент сам выгружает чеки из кассы, ведёт таблицы, каждый вечер присылает отчёт с цифрами и советами и готовит план производства на завтра.\nСчитает себестоимость и прибыль по каждому товару, точку безубыточности, долги поставщикам и налоги — и показывает, где магазин теряет деньги.',
+                en: 'Bookkeeping and analytics for a butcher shop with a small ready-meals kitchen. During the day the owner sends expenses and photos of invoices and logs from a phone; the assistant pulls receipts from the till, keeps the spreadsheets, sends a report with figures and advice every evening and plans the next day’s production.\nIt works out the cost and profit of every product, the break-even point, supplier debts and taxes — and shows where the shop is losing money.' },
+        specs: ['Python', { ru: 'Google Таблицы', en: 'Google Sheets' },
+                { ru: 'Распознавание накладных по фото', en: 'Invoice photo recognition' },
+                { ru: 'Отчёт каждый вечер', en: 'Nightly report' },
+                { ru: 'Себестоимость по партиям', en: 'Batch cost tracking' }],
+        review: {
+          name: { ru: 'Александр', en: 'Alexander' },
+          role: { ru: 'владелец мясного магазина', en: 'owner of a butcher shop' },
+          source: { ru: 'отзыв в Telegram, октябрь 2026', en: 'review on Telegram, October 2026 · translated from Russian' },
+          text: {
+            ru: 'У меня мясной магазин с небольшим цехом по производству полуфабрикатов. Бизнес молодой, мы только начинаем и многому учимся. Для чего нам понадобился ИИ? На его «могучие плечи» мы решили взвалить все подсчёты и экономику.\nОказалось довольно-таки просто. В течение дня вносишь все расходы, фото накладных, фото журналов выпуска и т. д., в конце дня — фото журнала остатков. Все данные удобно вносить с телефона. Он сам выгружает чеки из кассы, заполняет таблицы, нужные в бизнесе. Делает ежедневные отчёты. Готовит план производства на следующий день. Как ассистент он очень удобен! Важно следить за правильностью вводимых данных, особенно если текст рукописный (лучше перепроверить).\nНесколько раз «ткнул носом» в наши ошибки. Оказалось, что один из самых популярных товаров мы продавали несколько месяцев себе в убыток. Хорошо, что вовремя спохватилась.\nТакже он ведёт статистику вообще всего, что касается производства и продаж, — по дням, неделям и месяцам. Считает точку безубыточности. Советует, на что обратить внимание. Заменяет нескольких сотрудников и освобождает руководителя от рутины повседневных задач.',
+            en: 'I run a butcher shop with a small kitchen making ready-to-cook products. The business is young, we are just starting out and learning a lot. Why did we need AI? We decided to put all the calculations and the economics on its “mighty shoulders”.\nIt turned out to be quite simple. During the day you enter all the expenses, photos of invoices, photos of the production logs and so on, and at the end of the day a photo of the stock log. Everything is easy to enter from a phone. It pulls the receipts from the till itself and fills in the spreadsheets the business needs. It makes daily reports. It plans production for the next day. As an assistant it is very handy! You do need to watch that the data is entered correctly, especially handwritten text (better to double-check).\nSeveral times it pointed out our mistakes. It turned out that for several months we had been selling one of our most popular products at a loss. Good thing we caught it in time.\nIt also keeps statistics on everything to do with production and sales — by day, week and month. It works out the break-even point. It suggests what to pay attention to. It replaces several employees and frees the manager from everyday routine.'
+          }
+        } },
     ],
   },
 
@@ -560,6 +584,49 @@ window.SITE_CONFIG = {
       { name: { ru: 'Бирюзовый',  en: 'Teal' },       accent: '#3fa8a0', accent2: '#63c8be' },
       { name: { ru: 'Синий',      en: 'Blue' },       accent: '#5486d8', accent2: '#79aae8' },
       { name: { ru: 'Фиолетовый', en: 'Purple' },     accent: '#9a6ee0', accent2: '#bb92ee' },
+    ],
+  },
+
+  /* --- Отзывы: блок на главной под ссылками -------------------------------- */
+  /* Настоящие отзывы с Авито (профиль «Baget PC (Сборка ПК)»), только те, где
+     Кирилл продавал или собирал — отзывы о нём как о покупателе не берём.
+     Тексты — словами авторов: поправлены только пробелы после запятых,
+     заглавная буква в начале и убраны смайлики. Цифры в rating обновлять
+     руками, когда меняются на Авито (на 05.11.2026: 5,0 и 78 отзывов).
+     date — 'ГГГГ-ММ'. enabled: false — блок пропадёт.                     */
+  reviews: {
+    enabled: true,
+    title: { ru: 'Отзывы', en: 'Reviews · in Russian' },
+    rating: {
+      score: '5,0', count: 78,
+      where: { ru: 'на Авито', en: 'on Avito' },
+      url: '/avito',
+      badges: [
+        { ru: 'Надёжный продавец', en: 'Trusted seller' },
+        { ru: 'Данные подтверждены', en: 'Verified profile' },
+        { ru: 'На Авито с мая 2023', en: 'On Avito since May 2023' },
+      ],
+    },
+    all: { ru: 'Все отзывы — на Авито', en: 'All reviews on Avito' },
+    items: [
+      { name: 'Алексей', date: '2025-10', what: { ru: 'Сборка ПК на заказ', en: 'Custom PC build' },
+        quote: 'Спасибо огромное за качественную и быструю сборку! Я особо не разбираюсь в технике, поэтому ооочень много писал, спрашивал, уточнял. Очень приятный сборщик, не ругался за мою глупость, все корректно/вежливо. Также дал гарантию на сборку. Всем рекомендую!' },
+      { name: 'Satoshi', date: '2025-12', what: { ru: 'Игровой ПК на i5 13400 и RTX 3080', en: 'Gaming PC, i5 13400 and RTX 3080' },
+        quote: 'Очень быстро отправили, все комплектующие на месте, собран очень профессионально, компьютер можно просто нажать на кнопку и уже делать что тебе нужно, установили последний виндоус и нужные программы. Спасибо продавцу, покупкой очень доволен. 10/10' },
+      { name: 'Владислав', date: '2026-01', what: { ru: 'Обслуживание видеокарты', en: 'Graphics card service' },
+        quote: 'Обратился к человеку с обслуживанием видеокарты. Услуга была оказана в полном объеме. Мастер внимательный к деталям и особенностям железа разных производителей. Всем советую. 10/10' },
+      { name: 'Юрий', date: '2025-08', what: { ru: 'Сборка ПК на заказ', en: 'Custom PC build' },
+        quote: 'Обратился по сборке ПК, получил ответы на все вопросы, все мои требования были учтены и выполнены полностью. Компьютером очень доволен. Получил дополнительную консультацию по старому компу. Однозначно рекомендую!' },
+      { name: 'Лев', date: '2025-02', what: { ru: 'Сборка ПК и обслуживание видеокарты', en: 'PC build and graphics card service' },
+        quote: 'Всё хорошо, собрал комп, обслужил видеокарту, дал потыкать у себя на клаве, рассказал анекдот. К работе относится должным образом, цену не ломит' },
+      { name: 'Иван', date: '2026-10', what: { ru: 'Видеокарта RTX 3080', en: 'RTX 3080 graphics card' },
+        quote: 'Видеокарта приехала живая, все тесты прошла на отлично. Продавцу спасибо' },
+      { name: 'Ирина', date: '2025-04', what: { ru: 'Смартфон HUAWEI P60 Pro', en: 'HUAWEI P60 Pro smartphone' },
+        quote: 'Спасибо продавцу. Очень переживала такую дорогую вещь покупать с авито, но не пожалела. Все аккуратно упаковано, в описании к товару все честно написал. И + проконсультировал по многим вопросам. Покупкой довольна!' },
+      { name: 'Никита', date: '2024-11', what: { ru: 'Игровой ПК на Ryzen 5 3600', en: 'Gaming PC, Ryzen 5 3600' },
+        quote: 'Все прошло отлично, упаковал лучше, чем многие магазины, сам компьютер тоже отличный, в общем очень рекомендую!!' },
+      { name: 'Илья М', date: '2023-12', what: { ru: 'Игровой ПК', en: 'Gaming PC' },
+        quote: 'Приобрел за адекватные деньги ПК для игр. Товар соответствовал описанию. Рекомендую Кирилла как продавца' },
     ],
   },
 

@@ -71,6 +71,10 @@ window.SITE_PHOTOS = {
     {"src":"/assets/portfolio/i5-14600kf-rtx-4070/9.jpg","w":600,"h":800,"thumb":"/assets/portfolio/i5-14600kf-rtx-4070/9-s.jpg","tw":480,"th":640},
     {"src":"/assets/portfolio/i5-14600kf-rtx-4070/10.jpg","w":800,"h":600,"thumb":"/assets/portfolio/i5-14600kf-rtx-4070/10-s.jpg","tw":640,"th":480}
   ],
+  "meat-shop-ai": [
+    {"src":"/assets/portfolio/meat-shop-ai/1.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/1-s.jpg","tw":480,"th":640},
+    {"src":"/assets/portfolio/meat-shop-ai/2.jpg","w":1200,"h":1600,"thumb":"/assets/portfolio/meat-shop-ai/2-s.jpg","tw":480,"th":640}
+  ],
   "mirumir": [
     {"src":"/assets/portfolio/mirumir/1.jpg","w":1440,"h":900,"thumb":"/assets/portfolio/mirumir/1-s.jpg","tw":640,"th":400},
     {"src":"/assets/portfolio/mirumir/2.jpg","w":1440,"h":900,"thumb":"/assets/portfolio/mirumir/2-s.jpg","tw":640,"th":400},

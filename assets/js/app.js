@@ -45,12 +45,17 @@
           copy: 'Скопировать адрес', copied: 'Адрес скопирован', copyByHand: 'Скопируй адрес:',
           policy: 'Конфиденциальность и куки',
           bug: 'Нашли ошибку? Напишите мне', bugDraft: 'Нашёл ошибку на странице ',
+          reviews: 'Отзывы', reviewsAll: 'Все отзывы', reviewsCount: function (n) {
+            var k = n % 10, h = n % 100;
+            return n + (k === 1 && h !== 11 ? ' отзыв' : k >= 2 && k <= 4 && (h < 12 || h > 14) ? ' отзыва' : ' отзывов');
+          },
           tabLinks: 'Ссылки', tabWorks: 'Портфолио', tabs: 'Разделы сайта',
           other: { code: 'EN', lang: 'en', title: 'English version' } },
     en: { page: 'Personal page', links: 'My links', now: 'Now',
           copy: 'Copy address', copied: 'Address copied', copyByHand: 'Copy the address:',
           policy: 'Privacy & cookies',
           bug: 'Found a bug? Let me know', bugDraft: 'Found a bug on the page ',
+          reviews: 'Reviews', reviewsAll: 'All reviews', reviewsCount: function (n) { return n + (n === 1 ? ' review' : ' reviews'); },
           tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections',
           other: { code: 'RU', lang: 'ru', title: 'Русская версия' } }
   }[LANG];
@@ -570,6 +575,57 @@
     });
   }
 
+  /* --- Отзывы ----------------------------------------------------------------
+     Сверху — оценка и значки с Авито (ссылка на профиль через /avito), ниже —
+     карточки отзывов: на компьютере столбиками разной высоты, на телефоне —
+     рядом, листаются пальцем. Тексты не переводим: они авторов, на английской
+     странице это сказано в заголовке («· in Russian»).                       */
+  var MONTHS = {
+    ru: ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август',
+         'сентябрь', 'октябрь', 'ноябрь', 'декабрь'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+         'September', 'October', 'November', 'December']
+  }[LANG];
+  function month(d) {
+    var m = /^(\d{4})-(\d{2})/.exec(d || '');
+    return m ? MONTHS[+m[2] - 1] + ' ' + m[1] : (d || '');
+  }
+  var STAR = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="currentColor">' +
+    '<path d="M12 2.6l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.3l-5.9 3.2 1.3-6.5L2.5 9.4l6.6-.8z"/></svg>';
+  function stars(n) { return '<span class="stars" aria-hidden="true">' + new Array((n || 5) + 1).join(STAR) + '</span>'; }
+
+  function renderReviews() {
+    var R = C.reviews;
+    var box = document.querySelector('[data-section="reviews"]');
+    if (!box || !R || R.enabled === false || !(R.items || []).length) return;
+    var r = R.rating || {}, url = T(r.url);
+    var head = r.score
+      ? '<div class="rating fade">' +
+          '<div class="rating__score">' +
+            '<span class="rating__num">' + esc(r.score) + '</span>' +
+            '<span class="rating__stars">' + stars(5) +
+              '<span class="rating__count">' + esc(UI.reviewsCount(r.count) + ' ' + T(r.where)) + '</span></span>' +
+          '</div>' +
+          '<ul class="rating__badges">' + (r.badges || []).map(function (b) {
+            return '<li>' + esc(T(b)) + '</li>';
+          }).join('') + '</ul>' +
+          (url ? '<a class="rating__all" href="' + esc(url) + '" target="_blank" rel="noopener">' +
+            esc(T(R.all) || UI.reviewsAll) + icon('out', 16) + '</a>' : '') +
+        '</div>'
+      : '';
+    var cards = R.items.map(function (i) {
+      var meta = [T(i.what), month(i.date)].filter(Boolean).join(' · ');
+      return '<figure class="rev fade">' + stars(5) +
+        '<blockquote class="rev__text">' + esc(typo(T(i.quote))) + '</blockquote>' +
+        '<figcaption class="rev__who"><span class="rev__name">' + esc(T(i.name)) + '</span>' +
+          (meta ? '<span class="rev__meta">' + esc(meta) + '</span>' : '') + '</figcaption>' +
+      '</figure>';
+    }).join('');
+    box.innerHTML = '<h2 class="links__group fade">' + esc(T(R.title) || UI.reviews) + '</h2>' +
+      head + '<div class="revs">' + cards + '</div>';
+    box.hidden = false;
+  }
+
   /* --- Блок «Сейчас» -------------------------------------------------------- */
   function renderNow() {
     var n = C.now;
@@ -654,7 +710,8 @@
      в копии от сборки они могли остаться — убираем, а не прячем: поисковик
      не должен видеть на этой странице чужие ссылки.                     */
   function clearHomeBlocks() {
-    var list = ['[data-section="projects"]', '[data-bind="links"]', '[data-section="now"]'];
+    var list = ['[data-section="projects"]', '[data-bind="links"]', '[data-section="now"]',
+                '[data-section="reviews"]'];
     /* На страницах раздела и работы большая шапка не нужна: заголовок
        страницы — название раздела или работы, а кто автор, видно в пути
        над ним (маленький аватар и имя).                                 */
@@ -710,6 +767,7 @@
     renderLinks();
     normalizeIcons();
     renderNow();
+    renderReviews();
   } else {
     clearHomeBlocks();
   }

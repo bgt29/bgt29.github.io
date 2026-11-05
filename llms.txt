@@ -49,6 +49,9 @@ English version: https://kirillbuldakov.ru/en/
 - [Раздел новостей для «Онлайн-Сервис»](https://kirillbuldakov.ru/portfolio/sites/os24-news/): 2026-08
 - [Интернет-магазин экипировки для бокса «Аргументы»](https://kirillbuldakov.ru/portfolio/sites/argumenty/)
 
+## Портфолио: Внедрение ИИ
+- [ИИ-ассистент для мясного магазина](https://kirillbuldakov.ru/portfolio/ai/meat-shop-ai/): 2026-10
+
 ## English
 
 > Kirill Buldakov, aka Baget — PC builds, websites, AI, photo and video. Telegram, VK, Avito, projects and channels.
