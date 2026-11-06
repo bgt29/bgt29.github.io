@@ -185,7 +185,8 @@ window.SITE_CONFIG = {
     /* Игровые профили (06.11.2026). У Epic Games и Xbox нет страницы профиля,
        на которую можно сослаться, — там ищут по нику. Поэтому вместо url у них
        copy: плитка — кнопка, по нажатию ник копируется в буфер обмена.     */
-    { group: { ru: 'Игры', en: 'Games' } },
+    // preview: false — значков этой группы нет на картинке превью ссылки
+    { group: { ru: 'Игры', en: 'Games' }, preview: false },
 
     { icon: 'steam',     label: 'Steam',
       handle: 'pahage',
