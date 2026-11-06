@@ -107,7 +107,8 @@ window.SITE_CONFIG = {
   /* --- Ссылки. Главный блок ----------------------------------------------- */
   /* icon: telegram, vk, itd, instagram, threads, youtube, github, gitlab,
      boosty, avito, x, linkedin, discord, tiktok, twitch, whatsapp, spotify,
-     behance, dribbble, habr, steam, epicgames, xbox, playstation, email, link.
+     behance, dribbble, habr, steam, epicgames, xbox, playstation, rockstar,
+     email, link.
      Неизвестное имя — значок ссылки.                                      */
   links: [
     /* Строка вида { group: 'Название' } — это заголовок раздела, а не ссылка.
@@ -197,6 +198,13 @@ window.SITE_CONFIG = {
     { icon: 'xbox',      label: 'Xbox',
       handle: 'BudgetPC#5126',
       copy: 'BudgetPC#5126' },
+
+    /* Rockstar Games: профиль Social Club открывается только тем, кто вошёл
+       в свой аккаунт Rockstar, — поэтому и ссылка, и кнопка «скопировать ник» */
+    { icon: 'rockstar',  label: 'Rockstar',
+      handle: 'pahage',
+      url: 'https://socialclub.rockstargames.com/member/pahage',
+      copy: 'pahage' },
   ],
 
   /* --- Портфолио: страница /portfolio/ ------------------------------------ */

@@ -248,7 +248,7 @@
     boosty: '#f15f2c', youtube: '#ff0033', x: '#111111', threads: '#111111', discord: '#5865f2',
     tiktok: '#111111', twitch: '#9146ff', whatsapp: '#25d366', spotify: '#1db954',
     linkedin: '#0a66c2', behance: '#1769ff', dribbble: '#ea4c89', habr: '#65a3be',
-    steam: '#171a21', epicgames: '#2a2a2a', xbox: '#107c10', playstation: '#0070d1'
+    steam: '#171a21', epicgames: '#2a2a2a', xbox: '#107c10', playstation: '#0070d1', rockstar: '#111111'
   };
 
   function tile(l, big) {
@@ -277,7 +277,7 @@
     }
 
     // Все ссылки — в новой вкладке, включая почту: сайт не должен закрываться
-    if (!mail) {
+    if (!mail && !l.copy) {
       return '<a class="' + cls + ' fade" href="' + esc(url) + '"' +
         ' target="_blank" rel="noopener me">' + inner + icon('out', 18, 'link__arrow') + '</a>';
     }
@@ -286,12 +286,16 @@
        пустую вкладку, а сам адрес человек так и не видит. Поэтому в углу
        кнопка «скопировать». Она соседняя, а не вложенная: кнопка внутри
        ссылки — недопустимая разметка, да и клик по ней открыл бы почту.   */
-    var address = url.replace(/^mailto:/i, '').split('?')[0];
+    /* То же у профиля, который открывается не всем (Rockstar показывает его
+       только вошедшим в свой аккаунт): ссылка плюс кнопка «скопировать ник». */
+    var address = mail ? url.replace(/^mailto:/i, '').split('?')[0] : T(l.copy);
+    var copyLabel = mail ? UI.copy : UI.copyNick;
     return '<div class="link-wrap fade">' +
-      '<a class="' + cls + ' link--mail" href="' + esc(url) + '"' +
+      '<a class="' + cls + (mail ? ' link--mail' : '') + '" href="' + esc(url) + '"' +
         ' target="_blank" rel="noopener me">' + inner + '</a>' +
       '<button class="link__copy" type="button" data-copy="' + esc(address) + '"' +
-        ' aria-label="' + esc(UI.copy + ' ' + address) + '" title="' + esc(UI.copy) + '">' +
+        (mail ? '' : ' data-copied="' + esc(UI.nickCopied) + '"') +
+        ' aria-label="' + esc(copyLabel + ' ' + address) + '" title="' + esc(copyLabel) + '">' +
         icon('copy', 18, 'i-copy') + icon('check', 18, 'i-done') +
       '</button>' +
       '</div>';
