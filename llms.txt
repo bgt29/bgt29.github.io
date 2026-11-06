@@ -18,6 +18,7 @@ English version: https://kirillbuldakov.ru/en/
 - [ИТД](https://итд.com/@baget): @baget
 - [Avito](https://kirillbuldakov.ru/avito): мои объявления
 - [GitHub](https://github.com/bgt29): bgt29
+- [Discord](https://discord.com/users/755490431822987365): Kirill
 - Почта: uspeshniyparen@gmail.com
 
 ## Каналы
@@ -25,6 +26,11 @@ English version: https://kirillbuldakov.ru/en/
 - [Boosty](https://boosty.to/bagetpc): bagetpc
 - [Про ПК](https://t.me/ShizaBageta): @ShizaBageta
 - [Барахолка](https://t.me/DlyaProdazhi): @DlyaProdazhi
+
+## Игры
+- [Steam](https://steamcommunity.com/id/pahage/): pahage
+- Epic Games: Kiruha Baget
+- Xbox: BudgetPC#5126
 
 ## Портфолио: Собранные ПК
 - [Сервер под 1С для магазина](https://kirillbuldakov.ru/portfolio/pc/server-1c-i5-12400/): 2026-10

@@ -107,7 +107,8 @@ window.SITE_CONFIG = {
   /* --- Ссылки. Главный блок ----------------------------------------------- */
   /* icon: telegram, vk, itd, instagram, threads, youtube, github, gitlab,
      boosty, avito, x, linkedin, discord, tiktok, twitch, whatsapp, spotify,
-     behance, dribbble, habr, email, link. Неизвестное имя — значок ссылки. */
+     behance, dribbble, habr, steam, epicgames, xbox, playstation, email, link.
+     Неизвестное имя — значок ссылки.                                      */
   links: [
     /* Строка вида { group: 'Название' } — это заголовок раздела, а не ссылка.
        Уберёшь обе такие строки — список снова станет сплошным.
@@ -148,6 +149,11 @@ window.SITE_CONFIG = {
       handle: 'bgt29',
       url: 'https://github.com/bgt29' },
 
+    /* Discord — ссылка на профиль по ID и ник (дал Кирилл 06.11.2026) */
+    { icon: 'discord',   label: 'Discord',
+      handle: 'Kirill',
+      url: 'https://discord.com/users/755490431822987365' },
+
     { icon: 'email',     label: { ru: 'Почта', en: 'Email' },
       handle: 'uspeshniyparen@gmail.com',
       url: 'mailto:uspeshniyparen@gmail.com' },
@@ -174,6 +180,23 @@ window.SITE_CONFIG = {
     { icon: 'telegram', label: { ru: 'Барахолка', en: 'Flea market' },
       handle: '@DlyaProdazhi',
       url: 'https://t.me/DlyaProdazhi' },   // ссылку дал Кирилл 24.10.2026
+
+    /* Игровые профили (06.11.2026). У Epic Games и Xbox нет страницы профиля,
+       на которую можно сослаться, — там ищут по нику. Поэтому вместо url у них
+       copy: плитка — кнопка, по нажатию ник копируется в буфер обмена.     */
+    { group: { ru: 'Игры', en: 'Games' } },
+
+    { icon: 'steam',     label: 'Steam',
+      handle: 'pahage',
+      url: 'https://steamcommunity.com/id/pahage/' },
+
+    { icon: 'epicgames', label: 'Epic Games',
+      handle: 'Kiruha Baget',
+      copy: 'Kiruha Baget' },
+
+    { icon: 'xbox',      label: 'Xbox',
+      handle: 'BudgetPC#5126',
+      copy: 'BudgetPC#5126' },
   ],
 
   /* --- Портфолио: страница /portfolio/ ------------------------------------ */

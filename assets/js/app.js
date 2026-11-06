@@ -44,6 +44,7 @@
   var UI = {
     ru: { page: 'Личная страница', links: 'Мои ссылки', now: 'Сейчас',
           copy: 'Скопировать адрес', copied: 'Адрес скопирован', copyByHand: 'Скопируй адрес:',
+          copyNick: 'Скопировать ник', nickCopied: 'Ник скопирован',
           policy: 'Конфиденциальность и куки',
           bug: 'Нашли ошибку? Напишите мне', bugDraft: 'Нашёл ошибку на странице ',
           reviews: 'Отзывы', reviewsAll: 'Все отзывы', reviewsMore: 'Все отзывы', path: 'Где вы на сайте',
@@ -55,6 +56,7 @@
           other: { code: 'EN', lang: 'en', title: 'English version' } },
     en: { page: 'Personal page', links: 'My links', now: 'Now',
           copy: 'Copy address', copied: 'Address copied', copyByHand: 'Copy the address:',
+          copyNick: 'Copy username', nickCopied: 'Username copied',
           policy: 'Privacy & cookies',
           bug: 'Found a bug? Let me know', bugDraft: 'Found a bug on the page ',
           reviews: 'Reviews', reviewsAll: 'All reviews', reviewsMore: 'All reviews', path: 'You are here',
@@ -245,7 +247,8 @@
     vk: '#0077ff', itd: '#1d1d1d', avito: '#00aaff', github: '#24292f', gitlab: '#fc6d26',
     boosty: '#f15f2c', youtube: '#ff0033', x: '#111111', threads: '#111111', discord: '#5865f2',
     tiktok: '#111111', twitch: '#9146ff', whatsapp: '#25d366', spotify: '#1db954',
-    linkedin: '#0a66c2', behance: '#1769ff', dribbble: '#ea4c89', habr: '#65a3be'
+    linkedin: '#0a66c2', behance: '#1769ff', dribbble: '#ea4c89', habr: '#65a3be',
+    steam: '#171a21', epicgames: '#2a2a2a', xbox: '#107c10', playstation: '#0070d1'
   };
 
   function tile(l, big) {
@@ -262,6 +265,16 @@
         (handle ? '<span class="link__handle">' +
           (mail ? esc(handle).replace('@', '@<wbr>') : esc(handle)) + '</span>' : '') +
       '</span>';
+
+    /* Ник без страницы профиля (Epic Games, Xbox): плитка — кнопка, нажатие
+       копирует ник. В углу вместо стрелки «наружу» — значок копирования.  */
+    if (!url && l.copy) {
+      var nick = T(l.copy);
+      return '<button class="' + cls + ' link--copy fade" type="button" data-copy="' + esc(nick) + '"' +
+        ' data-copied="' + esc(UI.nickCopied) + '"' +
+        ' aria-label="' + esc(UI.copyNick + ' ' + T(l.label) + ': ' + nick) + '" title="' + esc(UI.copyNick) + '">' +
+        inner + icon('copy', 18, 'link__arrow i-copy') + icon('check', 18, 'link__arrow i-done') + '</button>';
+    }
 
     // Все ссылки — в новой вкладке, включая почту: сайт не должен закрываться
     if (!mail) {
@@ -414,7 +427,8 @@
       var btn = e.target.closest && e.target.closest('[data-copy]');
       if (!btn) return;
       var text = btn.getAttribute('data-copy');
-      var hint = btn.parentNode.querySelector('.link__handle');
+      // Подпись под названием: у кнопки почты — в соседней плитке, у плитки-ника — внутри
+      var hint = btn.querySelector('.link__handle') || btn.parentNode.querySelector('.link__handle');
 
       copyText(text).then(function () {
         // Исходную подпись запоминаем один раз, иначе второй клик подряд
@@ -422,7 +436,7 @@
         // (с разметкой: в адресе почты стоит перенос после @)
         if (hint && !hint.dataset.orig) hint.dataset.orig = hint.innerHTML;
         // Коротко: на телефоне подпись с адресом обрезалась бы многоточием
-        if (hint) hint.textContent = UI.copied;
+        if (hint) hint.textContent = btn.getAttribute('data-copied') || UI.copied;
         btn.classList.add('is-done');
         clearTimeout(btn._timer);
         btn._timer = setTimeout(function () {
