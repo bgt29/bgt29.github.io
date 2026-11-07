@@ -362,6 +362,7 @@ if (act === 'close') close();
 else if (act === 'save') save(b);
 else if (act === 'share') share(b);
 });
+dlg.addEventListener('cancel', function (e) { e.preventDefault(); close(); });
 document.addEventListener('keydown', function (e) {
 if (e.key === 'Escape' && dlg.classList.contains('qr--flat') && dlg.hasAttribute('open')) close();
 });
@@ -401,9 +402,18 @@ dlg.querySelector('.qr__url').textContent = t.label;
 if (typeof dlg.showModal === 'function') dlg.showModal();
 else { dlg.classList.add('qr--flat'); dlg.setAttribute('open', ''); }
 }
+var closing = 0;
 function close() {
+if (closing || !dlg.hasAttribute('open')) return;
+var finish = function () {
+closing = 0;
+dlg.classList.remove('is-closing');
 if (typeof dlg.close === 'function' && !dlg.classList.contains('qr--flat')) dlg.close();
 else dlg.removeAttribute('open');
+};
+if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+dlg.classList.add('is-closing');
+closing = setTimeout(finish, 210);
 }
 window.SITE_QR = { open: open, encode: encode, _rs: { divisor: rsDivisor, remainder: rsRemainder } };
 })();

@@ -50,8 +50,9 @@ var list = T.accents();
 var cur = T.state;
 var html = list.map(function (a, i) {
 var on = !cur.custom && i === cur.accent;
-return (i === 1 ? '<span class="accents__sep" aria-hidden="true"></span>' : '') +
-'<button class="accent' + (i === 0 ? ' accent--base' : '') + (on ? ' is-on' : '') + '" type="button" data-accent="' + i + '">' +
+return (i === 1 ? '<span class="accents__sep" aria-hidden="true" style="--i:4"></span>' : '') +
+'<button class="accent' + (i === 0 ? ' accent--base' : '') + (on ? ' is-on' : '') + '" type="button"' +
+' data-accent="' + i + '" style="--i:' + (i ? i + 4 : 3) + '">' +
 '<span class="accent__dot" style="background:' + esc(a.accent) + '"></span>' +
 '<span class="accent__name">' + esc(i === 0 ? (tr(cfg.baseLabel) || UI.base) : tr(a.name)) + '</span>' +
 '<svg class="accent__tick" viewBox="0 0 24 24" width="16" height="16" fill="none" ' +
@@ -60,6 +61,7 @@ return (i === 1 ? '<span class="accents__sep" aria-hidden="true"></span>' : '') 
 '</button>';
 }).join('');
 html += '<button class="accent accent--custom' + (cur.custom ? ' is-on' : '') + '" type="button"' +
+' style="--i:' + (list.length + 4) + '"' +
 ' data-custom aria-expanded="' + (picker && !picker.hidden ? 'true' : 'false') + '">' +
 '<span class="accent__dot accent__dot--custom"' +
 (cur.custom ? ' style="background:' + esc(cur.custom) + ';border-style:solid"' : '') + '></span>' +
@@ -175,9 +177,45 @@ syncPicker();
 if (window.SITE_ON_THEME) window.SITE_ON_THEME();
 }
 refresh();
+var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var wave = null, waveAnim = null, pending = null;
+var FAST = 4;
+function morph(x, y, fn) {
+if (still || !document.startViewTransition) { fn(); return; }
+if (wave) {
+pending = { x: x, y: y, fn: fn };
+if (waveAnim) waveAnim.playbackRate = FAST;
+return;
+}
+run(x, y, fn);
+}
+function run(x, y, fn) {
+var root = document.documentElement;
+root.classList.add('vt-theme');
+var done = function () {
+wave = null; waveAnim = null;
+if (pending) { var p = pending; pending = null; run(p.x, p.y, p.fn); return; }
+root.classList.remove('vt-theme');
+};
+try { wave = document.startViewTransition(fn); }
+catch (e) { wave = null; root.classList.remove('vt-theme'); fn(); return; }
+var w = window.innerWidth, h = window.innerHeight;
+var r = Math.hypot(Math.max(x, w - x), Math.max(y, h - y));
+wave.ready.then(function () {
+waveAnim = root.animate({ clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)'] },
+{ duration: 720, easing: 'cubic-bezier(.45, .05, .2, 1)', pseudoElement: '::view-transition-new(root)' });
+if (pending) waveAnim.playbackRate = FAST;
+}).catch(function () {});
+wave.finished.then(done, done);
+}
+function center(el) {
+var b = el.getBoundingClientRect();
+return [b.left + b.width / 2, b.top + b.height / 2];
+}
 range.addEventListener('input', function () {
-T.setLevel(+range.value);
-refresh();
+var v = +range.value, b = range.getBoundingClientRect(), max = +range.max || 1;
+var x = b.left + 10.5 + (b.width - 21) * v / max;
+morph(x, b.top + b.height / 2, function () { T.setLevel(v); refresh(); });
 });
 panel.addEventListener('click', function (e) {
 var c = e.target.closest && e.target.closest('[data-custom]');
@@ -195,12 +233,32 @@ return;
 }
 var b = e.target.closest && e.target.closest('[data-accent]');
 if (!b) return;
-T.setAccent(+b.dataset.accent);
+var i = +b.dataset.accent, dot = b.querySelector('.accent__dot') || b, c = center(dot);
+morph(c[0], c[1], function () {
+T.setAccent(i);
 showPicker(false);
 refresh();
+var now = panel.querySelector('[data-accent="' + i + '"]');
+if (now) now.classList.add('just-on');
 });
+});
+var isOpen = false, tOpen = 0, tClose = 0;
 function open(yes) {
-panel.hidden = !yes;
+isOpen = yes;
+clearTimeout(tOpen); clearTimeout(tClose);
+if (yes) {
+panel.classList.remove('is-closing');
+panel.hidden = false;
+panel.classList.add('is-opening');
+tOpen = setTimeout(function () { panel.classList.remove('is-opening'); }, 900);
+} else if (!panel.hidden) {
+panel.classList.remove('is-opening');
+if (still) { panel.hidden = true; }
+else {
+panel.classList.add('is-closing');
+tClose = setTimeout(function () { panel.hidden = true; panel.classList.remove('is-closing'); }, 200);
+}
+}
 btn.setAttribute('aria-expanded', yes ? 'true' : 'false');
 btn.classList.toggle('is-open', yes);
 }
@@ -209,13 +267,13 @@ e.stopPropagation();
 var n = countTap();
 if (n === 3) { open(false); return; }
 if (n === 2) return;
-open(panel.hidden);
+open(!isOpen);
 });
 document.addEventListener('site-theme', refresh);
 panel.addEventListener('click', function (e) { e.stopPropagation(); });
-document.addEventListener('click', function () { if (!panel.hidden) open(false); });
+document.addEventListener('click', function () { if (isOpen) open(false); });
 document.addEventListener('keydown', function (e) {
-if (e.key === 'Escape' && !panel.hidden) { open(false); btn.focus(); }
+if (e.key === 'Escape' && isOpen) { open(false); btn.focus(); }
 });
 var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
 if (mq && mq.addEventListener) {

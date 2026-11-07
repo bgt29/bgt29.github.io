@@ -156,4 +156,16 @@ apply();
 if (window.SITE_ON_THEME) window.SITE_ON_THEME();
 });
 }
+var root = document.documentElement;
+root.classList.add('js');
+var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!still) {
+root.classList.add('motion');
+setTimeout(function () {
+if (!root.classList.contains('motion-go')) root.classList.add('motion-fail');
+}, 2500);
+window.addEventListener('pagereveal', function (e) {
+if (e.viewTransition) root.classList.add('vt-nav');
+});
+}
 })();
