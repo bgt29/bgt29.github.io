@@ -1289,12 +1289,15 @@ max-width: none; max-height: none; overflow: visible;
 background: rgba(8, 10, 14, .5);
 -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
-.qr[open] { animation: qrIn .3s var(--ease); }
-.qr[open]::backdrop { animation: qrFade .3s ease; }
-@keyframes qrIn { from { opacity: 0; transform: translateY(12px) scale(.97); } }
+.qr[open] {
+animation: qrRise .55s cubic-bezier(.33, 1, .68, 1), qrFade .4s ease-out;
+will-change: transform, opacity;
+}
+.qr[open]::backdrop { animation: qrFade .45s ease-out; }
+@keyframes qrRise { from { transform: translateY(22px) scale(.95); } }
 @keyframes qrFade { from { opacity: 0; } }
 .qr--flat[open] { position: fixed; inset: 0; z-index: 100; margin: auto; width: fit-content; height: fit-content; }
-html:has(.qr[open]) { overflow: hidden; }
+html:has(.qr[open]) { overflow: hidden; scrollbar-gutter: stable; }
 .qr__card {
 position: relative;
 width: min(340px, calc(100vw - 32px));
