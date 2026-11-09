@@ -1442,9 +1442,30 @@ html.js .tabs.has-pill .tabs__item.is-on { background: transparent; }
 transition: transform .62s var(--spring), width .62s var(--spring), background-color .45s ease;
 }
 .tabs.is-sliding .tabs__item.is-on { color: var(--text-dim); }
+.tabs.no-anim .tabs__pill { transition: none; }
+html.slide-r :is([data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]) {
+animation: pageInR .55s var(--spring) both;
+}
+html.slide-l :is([data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]) {
+animation: pageInL .55s var(--spring) both;
+}
+.top { view-transition-name: top; }
+::view-transition-group(top) { animation-duration: .5s; animation-timing-function: var(--spring); }
+::view-transition-old(tabs) { display: none; }
+::view-transition-new(tabs) { animation: none; }
+.works.is-warming {
+position: fixed; inset: 0; z-index: -1;
+overflow: hidden;
+opacity: .001;
+pointer-events: none;
+view-transition-name: none;
+}
+@keyframes pageInR { from { opacity: 0; transform: translateX(56px); } }
+@keyframes pageInL { from { opacity: 0; transform: translateX(-56px); } }
+html.slide-r::view-transition-old(root), html.slide-l::view-transition-old(root) { animation-duration: .22s; }
 html.vt-theme::view-transition-old(root),
 html.vt-theme::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-html.vt-theme .tools, html.vt-theme .tabs { view-transition-name: none; }
+html.vt-theme .tools, html.vt-theme .tabs, html.vt-theme .top { view-transition-name: none; }
 html.vt-theme *, html.vt-theme *::before, html.vt-theme *::after { transition: none !important; }
 ::view-transition { pointer-events: none; }
 html.motion-go[data-theme="dark"] .i-moon,

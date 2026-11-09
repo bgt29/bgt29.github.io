@@ -31,8 +31,17 @@ function save(v) {
 try { localStorage.setItem(KEY, v); } catch (e) {}
 }
 var loaded = false;
+document.addEventListener('site-pageview', function (e) {
+if (!loaded || !window.ym) return;
+var from = e.detail && e.detail.from;
+window.ym(+ID, 'hit', location.href, from ? { title: document.title, referer: from } : { title: document.title });
+});
 function loadMetrika() {
 if (loaded) return;
+if (document.prerendering) {
+document.addEventListener('prerenderingchange', loadMetrika, { once: true });
+return;
+}
 loaded = true;
 window.ym = window.ym || function () { (window.ym.a = window.ym.a || []).push(arguments); };
 window.ym.l = +new Date();

@@ -26,12 +26,17 @@ return k + '=' + encodeURIComponent(params[k]);
 q.push('rnd=' + Math.random().toString(36).slice(2));
 new Image().src = END + '?' + q.join('&');
 }
+function view(from) {
 send({
 p: location.pathname + location.search,
 t: document.title,
-r: document.referrer,
+r: typeof from === 'string' ? from : document.referrer,
 s: [screen.width, screen.height, window.devicePixelRatio || 1].join(',')
 });
+}
+if (document.prerendering) document.addEventListener('prerenderingchange', function () { view(); }, { once: true });
+else view();
+document.addEventListener('site-pageview', function (e) { view((e.detail && e.detail.from) || ''); });
 document.addEventListener('click', function (e) {
 if (e.defaultPrevented) return;
 var a = e.target.closest && e.target.closest('a[href]');
