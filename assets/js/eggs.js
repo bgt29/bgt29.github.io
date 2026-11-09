@@ -8,7 +8,7 @@ var root = document.documentElement;
 var calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 var UI = EN ? {
 rgbOn: 'RGB mode on 🌈', rgbOff: 'RGB mode off', rain: 'Baguette shower 🥖',
-term: 'Terminal', close: 'Close', input: 'Command',
+term: 'Terminal', close: 'Close', input: 'Command', smaller: 'Smaller text', larger: 'Larger text',
 welcome: 'Baget terminal. Type <b>help</b> to see the commands.',
 secret: 'There are a couple of secret commands too — find them yourself 😉',
 unknown: 'command not found: ', hint: 'Type help.',
@@ -29,7 +29,7 @@ themeDone: 'Theme: ', themeUse: 'usage: theme light | theme dark',
 noPortfolio: 'The portfolio is not ready yet.', seconds: 's'
 } : {
 rgbOn: 'RGB-режим включён 🌈', rgbOff: 'RGB-режим выключен', rain: 'Багетопад 🥖',
-term: 'Терминал', close: 'Закрыть', input: 'Команда',
+term: 'Терминал', close: 'Закрыть', input: 'Команда', smaller: 'Текст мельче', larger: 'Текст крупнее',
 welcome: 'Терминал Багета. Набери <b>help</b> — покажу команды.',
 secret: 'Есть и пара секретных команд — ищи сам 😉',
 unknown: 'команда не найдена: ', hint: 'Набери help.',
@@ -116,6 +116,8 @@ term.innerHTML =
 '<div class="term__bar">' +
 '<span class="term__dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
 '<span class="term__title">baget@site: ~</span>' +
+'<button class="term__btn" type="button" data-zoom="-1" aria-label="' + esc(UI.smaller) + '" title="' + esc(UI.smaller) + '">−</button>' +
+'<button class="term__btn" type="button" data-zoom="1" aria-label="' + esc(UI.larger) + '" title="' + esc(UI.larger) + '">+</button>' +
 '<button class="term__close" type="button" aria-label="' + esc(UI.close) + '">×</button>' +
 '</div>' +
 '<div class="term__out" aria-live="polite"></div>' +
@@ -123,7 +125,8 @@ term.innerHTML =
 '<label class="term__ps" for="term-in">baget@site:~$</label>' +
 '<input class="term__in" id="term-in" type="text" autocomplete="off" autocapitalize="off"' +
 ' autocorrect="off" spellcheck="false" enterkeyhint="send" aria-label="' + esc(UI.input) + '">' +
-'</form>';
+'</form>' +
+'<div class="term__grip" aria-hidden="true"></div>';
 document.body.appendChild(term);
 out = term.querySelector('.term__out');
 input = term.querySelector('.term__in');
@@ -140,6 +143,8 @@ if (e.key === 'ArrowDown') { hi = Math.min(hist.length, hi + 1); input.value = h
 term.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeTerminal(); });
 out.addEventListener('click', function () { if (!getSelection().toString()) input.focus(); });
 drag(term.querySelector('.term__bar'));
+resize(term.querySelector('.term__grip'));
+zoomable();
 window.addEventListener('resize', place);
 if (window.visualViewport) {
 visualViewport.addEventListener('resize', place);
@@ -148,17 +153,22 @@ visualViewport.addEventListener('scroll', place);
 print(UI.welcome, 'is-dim');
 }
 var pos = null;
+function zoomOf() {
+var z = parseFloat(getComputedStyle(document.documentElement).zoom);
+return z > 0 ? z : 1;
+}
 function place() {
 if (!term || term.hidden) return;
 var vv = window.visualViewport;
 var vw = vv ? vv.width : innerWidth, vh = vv ? vv.height : innerHeight;
 var ox = vv ? vv.offsetLeft : 0, oy = vv ? vv.offsetTop : 0;
-term.style.maxHeight = Math.max(160, vh - 16) + 'px';
+var z = zoomOf();
+term.style.maxHeight = Math.max(160, vh - 16) / z + 'px';
 if (!pos) return;
-pos.x = Math.max(ox + 8, Math.min(pos.x, ox + vw - term.offsetWidth - 8));
-pos.y = Math.max(oy + 8, Math.min(pos.y, oy + vh - term.offsetHeight - 8));
-term.style.left = pos.x + 'px';
-term.style.top = pos.y + 'px';
+pos.x = Math.max(ox + 8, Math.min(pos.x, ox + vw - term.offsetWidth * z - 8));
+pos.y = Math.max(oy + 8, Math.min(pos.y, oy + vh - term.offsetHeight * z - 8));
+term.style.left = pos.x / z + 'px';
+term.style.top = pos.y / z + 'px';
 term.style.right = term.style.bottom = 'auto';
 term.style.margin = '0';
 }
@@ -191,8 +201,71 @@ bar.addEventListener('dblclick', function (e) {
 if (e.target.closest('button')) return;
 pos = null;
 term.style.left = term.style.top = term.style.right = term.style.bottom = term.style.margin = '';
+term.style.width = term.style.height = '';
+setZoom(1);
 place();
 });
+}
+var zoom = 1;
+function setZoom(z) {
+zoom = Math.round(Math.max(.8, Math.min(1.6, z)) * 10) / 10;
+term.style.setProperty('--tz', zoom);
+out.scrollTop = out.scrollHeight;
+}
+function zoomable() {
+term.querySelector('.term__bar').addEventListener('click', function (e) {
+var b = e.target.closest && e.target.closest('[data-zoom]');
+if (!b) return;
+setZoom(zoom + .1 * +b.getAttribute('data-zoom'));
+input.focus();
+});
+term.addEventListener('wheel', function (e) {
+if (!e.ctrlKey && !e.metaKey) return;
+e.preventDefault();
+setZoom(zoom + (e.deltaY < 0 ? .1 : -.1));
+}, { passive: false });
+term.addEventListener('keydown', function (e) {
+if (!e.ctrlKey && !e.metaKey) return;
+var k = e.key;
+if (k === '+' || k === '=') setZoom(zoom + .1);
+else if (k === '-' || k === '_') setZoom(zoom - .1);
+else if (k === '0') setZoom(1);
+else return;
+e.preventDefault();
+});
+Array.prototype.forEach.call(term.querySelectorAll('[data-zoom]'), function (b) {
+b.addEventListener('dblclick', function (e) { e.stopPropagation(); });
+});
+}
+var MIN_W = 420, MIN_H = 280;
+function resize(grip) {
+var id = null, sx = 0, sy = 0, sw = 0, sh = 0;
+grip.addEventListener('pointerdown', function (e) {
+if (e.button !== 0) return;
+var r = term.getBoundingClientRect();
+pos = { x: r.left, y: r.top };
+sx = e.clientX; sy = e.clientY; sw = r.width; sh = r.height;
+id = e.pointerId;
+grip.setPointerCapture(id);
+term.classList.add('is-resize');
+place();
+e.preventDefault();
+});
+grip.addEventListener('pointermove', function (e) {
+if (e.pointerId !== id) return;
+var vv = window.visualViewport;
+var vw = vv ? vv.width : innerWidth, vh = vv ? vv.height : innerHeight;
+var z = zoomOf(), maxW = vw - pos.x - 8, maxH = vh - pos.y - 8;
+term.style.width = Math.min(maxW, Math.max(Math.min(MIN_W * z, maxW), sw + e.clientX - sx)) / z + 'px';
+term.style.height = Math.min(maxH, Math.max(Math.min(MIN_H * z, maxH), sh + e.clientY - sy)) / z + 'px';
+});
+function stop(e) {
+if (e.pointerId !== id) return;
+id = null;
+term.classList.remove('is-resize');
+}
+grip.addEventListener('pointerup', stop);
+grip.addEventListener('pointercancel', stop);
 }
 function openTerminal() {
 if (!term) build();

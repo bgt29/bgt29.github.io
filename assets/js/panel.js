@@ -6,9 +6,9 @@ var cfg = C.appearance || {};
 var tr = window.SITE_T || function (v) { return v && typeof v === 'object' ? (v.ru || '') : (v || ''); };
 var UI = window.SITE_LANG === 'en'
 ? { button: 'Appearance', title: 'Brightness', accent: 'Accent color', custom: 'Custom',
-hue: 'Hue', sat: 'Saturation', hex: 'Color code', base: 'Default color' }
+hue: 'Hue', sat: 'Saturation', hex: 'Color code', base: 'Default color', scale: 'Scale' }
 : { button: 'Оформление', title: 'Яркость темы', accent: 'Акцентный цвет', custom: 'Другое',
-hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета', base: 'Базовый цвет' };
+hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета', base: 'Базовый цвет', scale: 'Масштаб' };
 var btn = document.querySelector('.theme-toggle');
 var panel = document.querySelector('[data-section="panel"]');
 if (!T || !btn || !panel) return;
@@ -165,9 +165,42 @@ function syncLevel() {
 range.value = T.state.level;
 var el = slot('panel-level');
 if (el) el.textContent = tr(T.levels[T.state.level].name);
-var dots = panel.querySelectorAll('.bright__dot');
+var dots = panel.querySelectorAll('[data-bind="panel-dots"] .bright__dot');
 Array.prototype.forEach.call(dots, function (d, i) {
 d.classList.toggle('is-on', i === T.state.level);
+});
+}
+var scaleRange = null;
+function buildScale() {
+if (!T.scales || !T.setScale) return;
+var dots = slot('panel-dots');
+if (!dots) return;
+var A = function (cls) { return '<span class="scale__a ' + cls + '" aria-hidden="true">A</span>'; };
+dots.insertAdjacentHTML('afterend',
+'<div class="panel__head panel__head--gap scale__head">' +
+'<span class="panel__cap">' + esc(UI.scale) + '</span>' +
+'<span class="panel__level" data-bind="panel-scale"></span>' +
+'</div>' +
+'<div class="bright scale">' + A('scale__a--s') +
+'<input class="bright__input scale__input" type="range" min="0" max="' + (T.scales.length - 1) +
+'" step="1" aria-label="' + esc(UI.scale) + '">' + A('scale__a--l') +
+'</div>' +
+'<div class="bright__dots scale__dots" aria-hidden="true">' +
+T.scales.map(function () { return '<span class="bright__dot"></span>'; }).join('') +
+'</div>');
+scaleRange = panel.querySelector('.scale__input');
+scaleRange.addEventListener('input', function () { syncScale(+scaleRange.value); });
+scaleRange.addEventListener('change', function () { T.setScale(+scaleRange.value); syncScale(); });
+syncScale();
+}
+function syncScale(at) {
+if (!scaleRange) return;
+var i = at == null ? T.scale() : at;
+if (at == null) scaleRange.value = i;
+var el = slot('panel-scale');
+if (el) el.textContent = Math.round(T.scales[i] * 100) + '%';
+Array.prototype.forEach.call(panel.querySelectorAll('.scale__dots .bright__dot'), function (d, k) {
+d.classList.toggle('is-on', k === i);
 });
 }
 function refresh() {
@@ -176,6 +209,7 @@ renderAccents();
 syncPicker();
 if (window.SITE_ON_THEME) window.SITE_ON_THEME();
 }
+buildScale();
 refresh();
 var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var wave = null, waveAnim = null, pending = null;

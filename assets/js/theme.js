@@ -147,6 +147,27 @@ save(); apply();
 current: currentAccent
 };
 apply();
+var SCALES = [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3];
+var wide = window.matchMedia ? window.matchMedia('(min-width: 740px)') : null;
+var scaleAt = SCALES.indexOf(1);
+try {
+var savedScale = SCALES.indexOf(+localStorage.getItem('site-scale'));
+if (savedScale >= 0) scaleAt = savedScale;
+} catch (e) {}
+function applyScale() {
+var z = wide && !wide.matches ? 1 : SCALES[scaleAt];
+document.documentElement.style.zoom = z === 1 ? '' : String(z);
+}
+applyScale();
+if (wide && wide.addEventListener) wide.addEventListener('change', applyScale);
+window.SITE_THEME.scales = SCALES;
+window.SITE_THEME.scale = function () { return scaleAt; };
+window.SITE_THEME.setScale = function (i) {
+scaleAt = Math.max(0, Math.min(SCALES.length - 1, i));
+try { localStorage.setItem('site-scale', String(SCALES[scaleAt])); } catch (e) {}
+applyScale();
+try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+};
 var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
 if (mq && mq.addEventListener) {
 mq.addEventListener('change', function () {

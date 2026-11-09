@@ -126,6 +126,12 @@ text-transform: uppercase; letter-spacing: .09em;
 color: var(--text-faint);
 }
 .panel__cap--gap { display: block; margin: 20px 0 10px; }
+.panel__head--gap { margin-top: 20px; }
+.scale__a { flex: none; width: 16px; text-align: center; font-weight: 700; line-height: 1; color: var(--text-faint); }
+.scale__a--s { font-size: 11px; }
+.scale__a--l { font-size: 17px; }
+.bright__input.scale__input { background: linear-gradient(90deg, var(--tint), color-mix(in srgb, var(--accent) 60%, transparent)); background-origin: border-box; }
+@media (max-width: 739px) { .scale__head, .scale, .scale__dots { display: none; } }
 .panel__level { font-size: 13px; font-weight: 600; color: var(--accent); }
 .bright, .bright__dots { --thumb: 21px; }
 .bright { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: var(--text-faint); }
@@ -1141,7 +1147,7 @@ border-radius: 16px;
 background: #0f0d0b;
 color: #e8e2d6;
 box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .7);
-font: 13.5px/1.55 ui-monospace, 'Cascadia Mono', Consolas, 'SFMono-Regular', Menlo, monospace;
+font: calc(13.5px * var(--tz, 1))/1.55 ui-monospace, 'Cascadia Mono', Consolas, 'SFMono-Regular', Menlo, monospace;
 animation: termIn .25s var(--ease);
 }
 .term[hidden] { display: none; }
@@ -1155,6 +1161,16 @@ cursor: grab; touch-action: none;
 -webkit-user-select: none; user-select: none;
 }
 .term.is-drag .term__bar { cursor: grabbing; }
+.term__grip {
+position: absolute; right: 0; bottom: 0; z-index: 1;
+width: 22px; height: 22px;
+cursor: nwse-resize; touch-action: none;
+background: linear-gradient(135deg, transparent 52%, rgba(255, 176, 0, .5) 52% 58%,
+transparent 58% 68%, rgba(255, 176, 0, .5) 68% 74%, transparent 74%);
+border-bottom-right-radius: 16px;
+}
+.term.is-resize { -webkit-user-select: none; user-select: none; }
+.term.is-resize .term__grip { background-color: rgba(255, 176, 0, .08); }
 .term.is-drag { box-shadow: 0 40px 90px -20px rgba(0, 0, 0, .8); }
 .term__dots { display: flex; gap: 6px; }
 .term__dots i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
@@ -1167,6 +1183,14 @@ background: none; color: #8f877a; cursor: pointer;
 font-family: inherit; font-size: 18px; line-height: 1;
 }
 .term__close:hover { background: rgba(255, 255, 255, .08); color: #e8e2d6; }
+.term__btn {
+width: 26px; height: 26px; border: 0; border-radius: 8px;
+background: none; color: #8f877a; cursor: pointer;
+font-family: inherit; font-size: 17px; line-height: 1;
+transition: background .2s, color .2s, transform .45s var(--spring-bounce, ease);
+}
+.term__btn:hover { background: rgba(255, 255, 255, .08); color: #ffb000; }
+.term__btn:active { transform: scale(.85); transition-duration: .1s; }
 .term__out { flex: 1; overflow: auto; padding: 12px 14px; white-space: pre-wrap; word-break: break-word; }
 .term__row + .term__row { margin-top: 3px; }
 .term__row a { color: #ffb000; text-decoration: underline; text-underline-offset: 3px; }
@@ -1188,7 +1212,7 @@ color: inherit; font: inherit; caret-color: #ffb000;
 }
 @media (max-width: 640px) {
 .term { bottom: max(12px, env(safe-area-inset-bottom)); height: min(62vh, 520px); }
-.term__in { font-size: 16px; }
+.term__in { font-size: max(16px, calc(13.5px * var(--tz, 1))); }
 }
 @view-transition { navigation: auto; }
 .tools { view-transition-name: tools; }
@@ -1453,6 +1477,9 @@ animation: pageInL .55s var(--spring) both;
 ::view-transition-group(top) { animation-duration: .5s; animation-timing-function: var(--spring); }
 ::view-transition-old(tabs) { display: none; }
 ::view-transition-new(tabs) { animation: none; }
+.term { view-transition-name: term; }
+.cookie { view-transition-name: cookie; }
+.egg-toast { view-transition-name: egg-toast; }
 .works.is-warming {
 position: fixed; inset: 0; z-index: -1;
 overflow: hidden;
@@ -1506,6 +1533,7 @@ transition: color .25s, border-color .25s, background-color .25s, opacity .25s, 
 .panel { transform-origin: calc(100% - var(--bar) / 2) -8px; }
 .panel.is-closing { animation: panelOut .2s cubic-bezier(.4, 0, 1, 1) both; pointer-events: none; }
 .panel__head { --i: 0; } .bright, .bright__dots { --i: 1; } .panel__cap--gap { --i: 2; }
+.scale__head, .scale, .scale__dots { --i: 2; }
 .panel.is-opening :is(.panel__head, .bright, .bright__dots, .panel__cap--gap, .accent, .accents__sep, .picker) {
 animation: rowIn .6s var(--spring) backwards;
 animation-delay: calc(50ms + var(--i, 3) * 22ms);
