@@ -264,6 +264,7 @@ if (!w) { box.innerHTML = '<p class="works__empty fade">' + esc(UI.empty) + '</p
 var ph = photosOf(w), title = T(w.title);
 var ratio = ph[0] ? Math.min(16 / 9, Math.max(3 / 4, ph[0].w / ph[0].h)) : 4 / 3;
 var specs = (w.specs || []).map(T).filter(Boolean);
+var stats = (w.stats || []).filter(function (s) { return s && T(s.value); });
 var url = T(w.url);
 var others = inCat(w.category).filter(function (x) { return x.id !== w.id; });
 box.innerHTML = crumbs([
@@ -295,6 +296,12 @@ esc(label) + '" width="' + p.w +
 '<p class="work-page__meta">' + esc([catName[w.category], when(w.date, true)].filter(Boolean).join(' · ')) + '</p>' +
 '<h1 class="work-page__title">' + esc(typo(title)) + '</h1>' +
 (w.team ? orgLine(w.category, 'work') : '') +
+(stats.length
+? '<ul class="stats" style="--n:' + Math.min(stats.length, 4) + ';--m:' + (stats.length > 3 ? 2 : stats.length) + '">' + stats.map(function (s) {
+return '<li class="stats__item"><span class="stats__num">' + esc(T(s.value)) + '</span>' +
+'<span class="stats__label">' + esc(typo(T(s.label) || '')) + '</span></li>';
+}).join('') + '</ul>'
+: '') +
 '<div class="work-page__text">' +
 String(T(w.text) || '').split(/\n+/).filter(function (s) { return s.trim(); })
 .map(function (s) { return '<p>' + esc(typo(s.trim())) + '</p>'; }).join('') +

@@ -37,6 +37,10 @@ window.SITE_PHOTOS = {
 {"src":"/assets/portfolio/cherepovets/17-photo_26.jpg","w":1065,"h":1600,"thumb":"/assets/portfolio/cherepovets/17-photo_26-s.jpg","tw":426,"th":640},
 {"src":"/assets/portfolio/cherepovets/18-photo_29.jpg","w":1600,"h":1065,"thumb":"/assets/portfolio/cherepovets/18-photo_29-s.jpg","tw":640,"th":426}
 ],
+"hw-logo-emoji": [
+{"src":"/assets/portfolio/hw-logo-emoji/1.jpg","w":1600,"h":1200,"thumb":"/assets/portfolio/hw-logo-emoji/1-s.jpg","tw":640,"th":480},
+{"src":"/assets/portfolio/hw-logo-emoji/2.jpg","w":1600,"h":1200,"thumb":"/assets/portfolio/hw-logo-emoji/2-s.jpg","tw":640,"th":480}
+],
 "i3-12100f-rx-6600": [
 {"src":"/assets/portfolio/i3-12100f-rx-6600/1.jpg","w":800,"h":600,"thumb":"/assets/portfolio/i3-12100f-rx-6600/1-s.jpg","tw":640,"th":480},
 {"src":"/assets/portfolio/i3-12100f-rx-6600/2.jpg","w":800,"h":776,"thumb":"/assets/portfolio/i3-12100f-rx-6600/2-s.jpg","tw":640,"th":621},

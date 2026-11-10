@@ -59,6 +59,9 @@ English version: https://kirillbuldakov.ru/en/
 ## Портфолио: Внедрение ИИ
 - [ИИ-ассистент для мясного магазина](https://kirillbuldakov.ru/portfolio/ai/meat-shop-ai/): 2026-10
 
+## Портфолио: Другое
+- [Эмодзи-набор HW Logo для Telegram](https://kirillbuldakov.ru/portfolio/other/hw-logo-emoji/)
+
 ## English
 
 > Kirill Buldakov, aka Baget — PC builds, websites, AI, photo and video. Telegram, VK, Avito, projects and channels.
