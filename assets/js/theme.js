@@ -148,20 +148,46 @@ current: currentAccent
 };
 apply();
 var SCALES = [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3];
-var wide = window.matchMedia ? window.matchMedia('(min-width: 740px)') : null;
 var scaleAt = SCALES.indexOf(1);
 try {
 var savedScale = SCALES.indexOf(+localStorage.getItem('site-scale'));
 if (savedScale >= 0) scaleAt = savedScale;
 } catch (e) {}
+var viewport = document.querySelector('meta[name="viewport"]');
+var viewportBase = viewport ? viewport.getAttribute('content') : '';
+function deviceWidth() {
+var vv = window.visualViewport;
+return Math.round(vv ? vv.width * vv.scale : (window.innerWidth || 1024));
+}
+function scaleCount() {
+var d = deviceWidth();
+if (d >= 740) return SCALES.length;
+var n = 0;
+while (n < SCALES.length && d / SCALES[n] >= 320) n++;
+return Math.max(n, SCALES.indexOf(1) + 1);
+}
+var lastWidth = 0;
 function applyScale() {
-var z = wide && !wide.matches ? 1 : SCALES[scaleAt];
-document.documentElement.style.zoom = z === 1 ? '' : String(z);
+var root = document.documentElement, d = deviceWidth();
+var z = SCALES[Math.min(scaleAt, scaleCount() - 1)];
+lastWidth = d;
+if (d >= 740 || !viewport) {
+root.style.zoom = z === 1 ? '' : String(z);
+if (viewport && viewport.getAttribute('content') !== viewportBase) viewport.setAttribute('content', viewportBase);
+return;
+}
+root.style.zoom = '';
+var want = z === 1 ? viewportBase
+: 'width=' + Math.round(d / z) + ', initial-scale=' + z + ', viewport-fit=cover';
+if (viewport.getAttribute('content') !== want) viewport.setAttribute('content', want);
 }
 applyScale();
-if (wide && wide.addEventListener) wide.addEventListener('change', applyScale);
+window.addEventListener('resize', function () {
+if (Math.abs(deviceWidth() - lastWidth) > 2) applyScale();
+});
 window.SITE_THEME.scales = SCALES;
-window.SITE_THEME.scale = function () { return scaleAt; };
+window.SITE_THEME.scaleCount = scaleCount;
+window.SITE_THEME.scale = function () { return Math.min(scaleAt, scaleCount() - 1); };
 window.SITE_THEME.setScale = function (i) {
 scaleAt = Math.max(0, Math.min(SCALES.length - 1, i));
 try { localStorage.setItem('site-scale', String(SCALES[scaleAt])); } catch (e) {}

@@ -171,6 +171,7 @@ d.classList.toggle('is-on', i === T.state.level);
 });
 }
 var scaleRange = null;
+function count() { return T.scaleCount ? T.scaleCount() : T.scales.length; }
 function buildScale() {
 if (!T.scales || !T.setScale) return;
 var dots = slot('panel-dots');
@@ -182,11 +183,11 @@ dots.insertAdjacentHTML('afterend',
 '<span class="panel__level" data-bind="panel-scale"></span>' +
 '</div>' +
 '<div class="bright scale">' + A('scale__a--s') +
-'<input class="bright__input scale__input" type="range" min="0" max="' + (T.scales.length - 1) +
+'<input class="bright__input scale__input" type="range" min="0" max="' + (count() - 1) +
 '" step="1" aria-label="' + esc(UI.scale) + '">' + A('scale__a--l') +
 '</div>' +
 '<div class="bright__dots scale__dots" aria-hidden="true">' +
-T.scales.map(function () { return '<span class="bright__dot"></span>'; }).join('') +
+T.scales.slice(0, count()).map(function () { return '<span class="bright__dot"></span>'; }).join('') +
 '</div>');
 scaleRange = panel.querySelector('.scale__input');
 scaleRange.addEventListener('input', function () { syncScale(+scaleRange.value); });
