@@ -6,9 +6,11 @@ var cfg = C.appearance || {};
 var tr = window.SITE_T || function (v) { return v && typeof v === 'object' ? (v.ru || '') : (v || ''); };
 var UI = window.SITE_LANG === 'en'
 ? { button: 'Appearance', title: 'Brightness', accent: 'Accent color', custom: 'Custom',
-hue: 'Hue', sat: 'Saturation', hex: 'Color code', base: 'Default color', scale: 'Scale' }
+hue: 'Hue', sat: 'Saturation', hex: 'Color code', base: 'Default color', scale: 'Scale',
+reset: 'Reset appearance' }
 : { button: 'Оформление', title: 'Яркость темы', accent: 'Акцентный цвет', custom: 'Другое',
-hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета', base: 'Базовый цвет', scale: 'Масштаб' };
+hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета', base: 'Базовый цвет', scale: 'Масштаб',
+reset: 'Сбросить оформление' };
 var btn = document.querySelector('.theme-toggle');
 var panel = document.querySelector('[data-section="panel"]');
 if (!T || !btn || !panel) return;
@@ -191,7 +193,7 @@ T.scales.slice(0, count()).map(function () { return '<span class="bright__dot"><
 '</div>');
 scaleRange = panel.querySelector('.scale__input');
 scaleRange.addEventListener('input', function () { syncScale(+scaleRange.value); });
-scaleRange.addEventListener('change', function () { T.setScale(+scaleRange.value); syncScale(); });
+scaleRange.addEventListener('change', function () { T.setScale(+scaleRange.value); syncScale(); syncReset(); });
 syncScale();
 }
 function syncScale(at) {
@@ -204,13 +206,41 @@ Array.prototype.forEach.call(panel.querySelectorAll('.scale__dots .bright__dot')
 d.classList.toggle('is-on', k === i);
 });
 }
+var resetBtn = null;
+function buildReset() {
+if (!T.reset) return;
+panel.insertAdjacentHTML('beforeend',
+'<button class="panel__reset" type="button" style="--i:12">' +
+'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor"' +
+' stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/>' +
+'<path d="M4 4.5v4h4"/></svg><span>' + esc(UI.reset) + '</span></button>');
+resetBtn = panel.querySelector('.panel__reset');
+resetBtn.addEventListener('click', function () {
+var c = center(resetBtn);
+morph(c[0], c[1], function () {
+T.reset();
+if (T.resetScale) T.resetScale();
+if (document.documentElement.classList.contains('rgb') && window.SITE_EGGS) window.SITE_EGGS.rgb();
+showPicker(false);
+refresh();
+syncScale();
+});
+});
+}
+function syncReset() {
+if (!resetBtn) return;
+var scaled = T.scale && T.scales && T.scales[T.scale()] !== 1;
+resetBtn.disabled = !(T.state.touched || scaled || document.documentElement.classList.contains('rgb'));
+}
 function refresh() {
 syncLevel();
 renderAccents();
 syncPicker();
+syncReset();
 if (window.SITE_ON_THEME) window.SITE_ON_THEME();
 }
 buildScale();
+buildReset();
 refresh();
 var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var wave = null, waveAnim = null, pending = null;

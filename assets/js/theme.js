@@ -144,7 +144,14 @@ setCustom: function (hex) {
 state.custom = hex;
 save(); apply();
 },
-current: currentAccent
+current: currentAccent,
+reset: function () {
+try { localStorage.removeItem('appearance'); } catch (e) {}
+var mode = ((window.SITE_CONFIG || {}).meta || {}).theme || 'auto';
+state.level = mode === 'dark' ? 1 : mode === 'light' ? 3 : systemLevel();
+state.accent = 0; state.custom = null; state.touched = false;
+apply();
+}
 };
 apply();
 var SCALES = [0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3];
@@ -188,6 +195,12 @@ if (Math.abs(deviceWidth() - lastWidth) > 2) applyScale();
 window.SITE_THEME.scales = SCALES;
 window.SITE_THEME.scaleCount = scaleCount;
 window.SITE_THEME.scale = function () { return Math.min(scaleAt, scaleCount() - 1); };
+window.SITE_THEME.resetScale = function () {
+try { localStorage.removeItem('site-scale'); } catch (e) {}
+scaleAt = SCALES.indexOf(1);
+applyScale();
+try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+};
 window.SITE_THEME.setScale = function (i) {
 scaleAt = Math.max(0, Math.min(SCALES.length - 1, i));
 try { localStorage.setItem('site-scale', String(SCALES[scaleAt])); } catch (e) {}
