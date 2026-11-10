@@ -154,7 +154,7 @@ print(UI.welcome, 'is-dim');
 }
 var pos = null;
 function zoomOf() {
-var z = parseFloat(getComputedStyle(document.documentElement).zoom);
+var z = parseFloat(getComputedStyle(document.body).zoom);
 return z > 0 ? z : 1;
 }
 function place() {

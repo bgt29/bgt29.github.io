@@ -47,12 +47,12 @@ function systemLevel() {
 var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 return dark ? 1 : 3;
 }
-var state = { level: null, accent: 0, custom: null, touched: false };
+var state = { level: null, accent: 0, custom: null, touched: false, ownLevel: false };
 try {
 var raw = localStorage.getItem('appearance');
 if (raw) {
 var saved = JSON.parse(raw);
-if (typeof saved.level === 'number') state.level = saved.level;
+if (typeof saved.level === 'number') { state.level = saved.level; state.ownLevel = true; }
 if (typeof saved.accent === 'number') state.accent = saved.accent;
 if (typeof saved.accentHex === 'string') {
 var at = accents().map(function (a) { return String(a.accent).toLowerCase(); })
@@ -121,7 +121,7 @@ s.setProperty('--glow-3', 'hsla(' + (h + 15) + ', ' + sat + '%, 70%, ' + a(dark 
 function save() {
 try {
 localStorage.setItem('appearance', JSON.stringify({
-level: state.level, accent: state.accent, custom: state.custom,
+level: state.ownLevel ? state.level : null, accent: state.accent, custom: state.custom,
 accentHex: (accents()[state.accent] || {}).accent || ''
 }));
 } catch (e) {}
@@ -134,6 +134,7 @@ state: state,
 apply: apply,
 setLevel: function (i) {
 state.level = Math.max(0, Math.min(LEVELS.length - 1, i));
+state.ownLevel = true;
 save(); apply();
 },
 setAccent: function (i) {
@@ -149,7 +150,7 @@ reset: function () {
 try { localStorage.removeItem('appearance'); } catch (e) {}
 var mode = ((window.SITE_CONFIG || {}).meta || {}).theme || 'auto';
 state.level = mode === 'dark' ? 1 : mode === 'light' ? 3 : systemLevel();
-state.accent = 0; state.custom = null; state.touched = false;
+state.accent = 0; state.custom = null; state.touched = false; state.ownLevel = false;
 apply();
 }
 };
@@ -173,17 +174,25 @@ var n = 0;
 while (n < SCALES.length && d / SCALES[n] >= 320) n++;
 return Math.max(n, SCALES.indexOf(1) + 1);
 }
+function setZoom(z) {
+var s = document.documentElement.style;
+if (z === 1) s.removeProperty('--zoom'); else s.setProperty('--zoom', String(z));
+}
+window.SITE_THEME.zoom = function () {
+var z = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zoom'));
+return z > 0 ? z : 1;
+};
 var lastWidth = 0;
 function applyScale() {
 var root = document.documentElement, d = deviceWidth();
 var z = SCALES[Math.min(scaleAt, scaleCount() - 1)];
 lastWidth = d;
 if (d >= 740 || !viewport) {
-root.style.zoom = z === 1 ? '' : String(z);
+setZoom(z);
 if (viewport && viewport.getAttribute('content') !== viewportBase) viewport.setAttribute('content', viewportBase);
 return;
 }
-root.style.zoom = '';
+setZoom(1);
 var want = z === 1 ? viewportBase
 : 'width=' + Math.round(d / z) + ', initial-scale=' + z + ', viewport-fit=cover';
 if (viewport.getAttribute('content') !== want) viewport.setAttribute('content', want);
@@ -210,7 +219,7 @@ try { window.dispatchEvent(new Event('resize')); } catch (e) {}
 var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
 if (mq && mq.addEventListener) {
 mq.addEventListener('change', function () {
-if (state.touched) return;
+if (state.ownLevel) return;
 state.level = systemLevel();
 apply();
 if (window.SITE_ON_THEME) window.SITE_ON_THEME();

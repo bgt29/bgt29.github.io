@@ -342,6 +342,6 @@ if (e.key === 'Escape' && isOpen) { open(false); btn.focus(); }
 });
 var mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
 if (mq && mq.addEventListener) {
-mq.addEventListener('change', function () { if (!T.state.touched) refresh(); });
+mq.addEventListener('change', function () { if (!T.state.ownLevel) refresh(); });
 }
 })();
