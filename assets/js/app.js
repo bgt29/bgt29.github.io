@@ -68,6 +68,9 @@ tower: '<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M9 6h6M9 8.5
 camera: '<path d="M3.5 8.5a2 2 0 0 1 2-2h2.2l1.6-2.2h5.4l1.6 2.2h2.2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/>',
 layers: '<path d="M12 3.5 21 8l-9 4.5L3 8z"/><path d="M3 12.5l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5"/>',
 code: '<path d="M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"/>',
+sparkle: '<path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+video: '<rect x="3" y="6.5" width="13" height="11" rx="2.5"/><path d="M16 11l5-3v8l-5-3"/>',
+more: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
 out: '<path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/>',
 browser: '<rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M3 9.5h18M6.5 7h.01M9 7h.01"/>',
 megaphone: '<path d="M4 10v4h3l6 4.5v-13L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>',
@@ -162,8 +165,9 @@ fill('bio', String(T(h.bio)).split('\n').filter(function (s) { return s.trim(); 
 .map(function (s) {
 s = s.trim();
 if (/\s·\s/.test(s)) {
-return '<span class="bio__chips">' + s.split(/\s*·\s*/).filter(Boolean).map(function (c) {
-return '<span class="chip">' + esc(typo(c)) + '</span>';
+return '<span class="bio__chips">' + s.split(/\s*·\s*/).filter(Boolean).map(function (c, i) {
+var ic = (h.bioIcons || [])[i];
+return '<span class="chip">' + (ic ? icon(ic, 16) : '') + esc(typo(c)) + '</span>';
 }).join('') + '</span>';
 }
 return '<span class="bio__line">' + esc(typo(s)) + '</span>';
@@ -266,7 +270,7 @@ return '<img src="' + esc(c.thumb) + '" alt="" width="' + c.tw + '" height="' + 
 }).join('') + '</span>'
 : '') +
 '<span class="tile__chips">' + cats.map(function (c) {
-return '<span class="chip">' + esc(T(c.name)) + '</span>';
+return '<span class="chip">' + (c.icon ? icon(c.icon, 15) : '') + esc(T(c.name)) + '</span>';
 }).join('') + '</span>' +
 '</a>';
 }

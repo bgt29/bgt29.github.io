@@ -1,5 +1,10 @@
 (function () {
 'use strict';
+if (window.top !== window.self) {
+document.documentElement.style.display = 'none';
+try { window.top.location = window.location.href; } catch (e) {}
+return;
+}
 var API = 'https://api.github.com';
 var FILE = 'assets/js/config.js';
 var KEY = 'admin-auth';
@@ -9,12 +14,13 @@ var original = '';
 var crlf = false;
 var checked = null;
 function $(id) { return document.getElementById(id); }
+try { localStorage.removeItem(KEY); } catch (e) {}
 function loadAuth() {
-try { return JSON.parse(sessionStorage.getItem(KEY) || localStorage.getItem(KEY) || 'null'); }
+try { return JSON.parse(sessionStorage.getItem(KEY) || 'null'); }
 catch (e) { return null; }
 }
-function saveAuth(a, remember) {
-try { (remember ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(a)); } catch (e) {}
+function saveAuth(a) {
+try { sessionStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
 }
 function clearAuth() {
 try { sessionStorage.removeItem(KEY); localStorage.removeItem(KEY); } catch (e) {}
@@ -235,7 +241,7 @@ if (!/^[\w.-]+\/[\w.-]+$/.test(a.repo)) { status('Репозиторий — в 
 auth = a;
 status('Проверяю ключ…');
 loadFile().then(function () {
-saveAuth(a, $('remember').checked);
+saveAuth(a);
 $('token').value = '';
 }).catch(function (err) {
 auth = null;
