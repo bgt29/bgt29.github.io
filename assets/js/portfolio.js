@@ -241,6 +241,31 @@ offersOf(U.cat).map(moreBanner).join('') +
 '<div class="works__grid">' + list.map(function (w) { return card(w, true); }).join('') +
 linksOf(U.cat).map(moreCard).join('') + '</div>';
 }
+var PARTS = {
+cpu:      { icon: 'cpu',    ru: 'Процессор',         en: 'Processor' },
+gpu:      { icon: 'gpu',    ru: 'Видеокарта',        en: 'Graphics card' },
+mb:       { icon: 'board',  ru: 'Материнская плата', en: 'Motherboard' },
+ram:      { icon: 'ram',    ru: 'Память',            en: 'Memory' },
+ssd:      { icon: 'drive',  ru: 'Накопитель',        en: 'Storage' },
+cool:     { icon: 'fan',    ru: 'Охлаждение',        en: 'Cooling' },
+psu:      { icon: 'power',  ru: 'Блок питания',      en: 'Power supply' },
+case:     { icon: 'tower',  ru: 'Корпус',            en: 'Case' },
+camera:   { icon: 'camera', ru: 'Камера',            en: 'Camera' },
+platform: { icon: 'layers', ru: 'Платформа',         en: 'Platform' },
+tech:     { icon: 'code',   ru: 'Технологии',        en: 'Technologies' }
+};
+function specsBlock(list) {
+if (!list.length) return '';
+return '<ul class="specs' + (list.length === 1 ? ' specs--one' : '') + '">' + list.map(function (s) {
+var p = PARTS[s.part];
+return p
+? '<li class="specs__item"><span class="specs__ic">' + U.icon(p.icon, 22) + '</span>' +
+'<span class="specs__txt"><span class="specs__k">' + esc(LANG === 'en' ? p.en : p.ru) + '</span>' +
+'<span class="specs__v">' + esc(typo(s.name)) + '</span></span></li>'
+: '<li class="specs__item specs__item--tag"><span class="specs__ic">' + U.icon('check', 15) + '</span>' +
+'<span class="specs__v">' + esc(typo(s.name)) + '</span></li>';
+}).join('') + '</ul>';
+}
 function reviewBlock(r) {
 var text = r && T(r.text);
 if (!text) return '';
@@ -263,7 +288,9 @@ var w = items.filter(function (x) { return x.id === U.work; })[0];
 if (!w) { box.innerHTML = '<p class="works__empty fade">' + esc(UI.empty) + '</p>'; box.hidden = false; return; }
 var ph = photosOf(w), title = T(w.title);
 var ratio = ph[0] ? Math.min(16 / 9, Math.max(3 / 4, ph[0].w / ph[0].h)) : 4 / 3;
-var specs = (w.specs || []).map(T).filter(Boolean);
+var specs = (w.specs || []).map(function (s) {
+return s && s.part ? { part: PARTS[s.part] ? s.part : '', name: T(s.name) } : { part: '', name: T(s) };
+}).filter(function (s) { return s.name; });
 var stats = (w.stats || []).filter(function (s) { return s && T(s.value); });
 var url = T(w.url);
 var others = inCat(w.category).filter(function (x) { return x.id !== w.id; });
@@ -306,7 +333,7 @@ return '<li class="stats__item"><span class="stats__num">' + esc(T(s.value)) + '
 String(T(w.text) || '').split(/\n+/).filter(function (s) { return s.trim(); })
 .map(function (s) { return '<p>' + esc(typo(s.trim())) + '</p>'; }).join('') +
 '</div>' +
-(specs.length ? '<ul class="specs">' + specs.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : '') +
+specsBlock(specs) +
 reviewBlock(w.review) +
 (url
 ? '<a class="cta-btn" href="' + esc(url) + '" target="_blank" rel="noopener">' +

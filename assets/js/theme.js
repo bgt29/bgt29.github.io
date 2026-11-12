@@ -167,9 +167,14 @@ function deviceWidth() {
 var vv = window.visualViewport;
 return Math.round(vv ? vv.width * vv.scale : (window.innerWidth || 1024));
 }
+var desktopMode = (function () {
+var d = deviceWidth(), lw = document.documentElement.clientWidth || window.innerWidth || 0;
+return d < 740 && lw >= 740 && lw > d * 1.3;
+})();
+function wide() { return desktopMode || !viewport || deviceWidth() >= 740; }
 function scaleCount() {
 var d = deviceWidth();
-if (d >= 740) return SCALES.length;
+if (wide()) return SCALES.length;
 var n = 0;
 while (n < SCALES.length && d / SCALES[n] >= 320) n++;
 return Math.max(n, SCALES.indexOf(1) + 1);
@@ -187,7 +192,7 @@ function applyScale() {
 var root = document.documentElement, d = deviceWidth();
 var z = SCALES[Math.min(scaleAt, scaleCount() - 1)];
 lastWidth = d;
-if (d >= 740 || !viewport) {
+if (wide()) {
 setZoom(z);
 if (viewport && viewport.getAttribute('content') !== viewportBase) viewport.setAttribute('content', viewportBase);
 return;
