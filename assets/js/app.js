@@ -71,6 +71,9 @@ code: '<path d="M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"/>',
 sparkle: '<path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
 video: '<rect x="3" y="6.5" width="13" height="11" rx="2.5"/><path d="M16 11l5-3v8l-5-3"/>',
 more: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+shield: '<path d="M12 3l7 3v5.5c0 4.3-2.9 7.7-7 9.5-4.1-1.8-7-5.2-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>',
+verified: '<circle cx="9" cy="8.5" r="3.5"/><path d="M3 19.5c.8-3 3.2-4.8 6-4.8 1.3 0 2.5.4 3.5 1.1"/><path d="M15 16l2 2 4-4"/>',
+calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
 out: '<path d="M7 17 17 7"/><path d="M8.5 7H17v8.5"/>',
 browser: '<rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M3 9.5h18M6.5 7h.01M9 7h.01"/>',
 megaphone: '<path d="M4 10v4h3l6 4.5v-13L7 10H4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/>',
@@ -448,7 +451,7 @@ var head = r.score
 '<span class="rating__count">' + esc(UI.reviewsCount(r.count) + ' ' + T(r.where)) + '</span></span>' +
 '</div>' +
 '<ul class="rating__badges">' + (r.badges || []).map(function (b) {
-return '<li>' + esc(T(b)) + '</li>';
+return '<li>' + (b && b.icon ? icon(b.icon, 16) : '') + esc(T(b)) + '</li>';
 }).join('') + '</ul>' +
 (url ? '<a class="rating__all" href="' + esc(url) + '" target="_blank" rel="noopener">' +
 esc(T(R.all) || UI.reviewsAll) + icon('out', 16) + '</a>' : '') +

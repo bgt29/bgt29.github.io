@@ -476,9 +476,9 @@ score: '5,0', count: 80,
 where: { ru: 'на Авито', en: 'on Avito' },
 url: '/avito',
 badges: [
-{ ru: 'Надёжный продавец', en: 'Trusted seller' },
-{ ru: 'Данные подтверждены', en: 'Verified profile' },
-{ ru: 'На Авито с мая 2023', en: 'On Avito since May 2023' },
+{ icon: 'shield',   ru: 'Надёжный продавец', en: 'Trusted seller' },
+{ icon: 'verified', ru: 'Данные подтверждены', en: 'Verified profile' },
+{ icon: 'calendar', ru: 'На Авито с мая 2023', en: 'On Avito since May 2023' },
 ],
 },
 groups: {
