@@ -825,6 +825,13 @@ var a0 = track[0], a1 = track[track.length - 1];
 var v = a1 && a0 && a1[0] > a0[0] ? (a1[1] - a0[1]) / (a1[0] - a0[0]) : 0;
 var fast = Math.abs(dx) > 24 && Math.abs(v) > .3 && (v < 0) === (dx < 0);
 if (a && i >= 0 && (Math.abs(dx) > COMMIT || fast)) {
+cancelAnimationFrame(swipeFrame); swipeFrame = 0;
+paintSwipe(swipeNext, false);
+var root = document.documentElement;
+root.classList.remove('swipe-out-l', 'swipe-out-r');
+root.classList.add(dx < 0 ? 'swipe-out-l' : 'swipe-out-r');
+clearTimeout(end.t);
+end.t = setTimeout(function () { root.classList.remove('swipe-out-l', 'swipe-out-r'); }, 600);
 a.click();
 } else {
 setSwipe(0, true);

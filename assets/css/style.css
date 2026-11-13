@@ -1554,6 +1554,10 @@ html.swiping .page { overflow-x: clip; }
 html { overscroll-behavior-x: none; }
 .page { touch-action: pan-y pinch-zoom; }
 }
+html.swipe-out-l::view-transition-old(root) { animation: swipeOutL .24s cubic-bezier(.3, .6, .6, 1) both; }
+html.swipe-out-r::view-transition-old(root) { animation: swipeOutR .24s cubic-bezier(.3, .6, .6, 1) both; }
+@keyframes swipeOutL { to { transform: translateX(-90px); opacity: 0; } }
+@keyframes swipeOutR { to { transform: translateX(90px); opacity: 0; } }
 html.swiping :is(.top, [data-bind="links"], [data-section]) { will-change: translate, opacity; }
 .top { view-transition-name: top; }
 ::view-transition-group(top) { animation-duration: .5s; animation-timing-function: var(--spring); }
