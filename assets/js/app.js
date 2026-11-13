@@ -744,15 +744,22 @@ return Array.prototype.filter.call(document.querySelectorAll(
 return !el.hidden && el.offsetParent !== null && !el.classList.contains('is-warming');
 });
 }
-function setSwipe(dx, back) {
+var swipeFrame = 0, swipeNext = 0;
+function paintSwipe(dx, back) {
 swipeEls.forEach(function (el) {
-el.style.transition = back ? 'translate .45s var(--spring), opacity .3s ease' : 'none';
+el.style.transition = back ? 'translate .4s var(--spring), opacity .3s ease' : 'none';
 el.style.translate = dx ? dx.toFixed(1) + 'px 0' : '';
-el.style.opacity = dx ? String(1 - Math.min(Math.abs(dx) / 260, .3)) : '';
+el.style.opacity = dx ? String(1 - Math.min(Math.abs(dx) / 320, .3)) : '';
 });
+}
+function setSwipe(dx, back) {
+swipeNext = dx;
+if (back) { cancelAnimationFrame(swipeFrame); swipeFrame = 0; paintSwipe(dx, true); return; }
+if (!swipeFrame) swipeFrame = requestAnimationFrame(function () { swipeFrame = 0; paintSwipe(swipeNext, false); });
 }
 function clearSwipe() {
 clearTimeout(clearSwipe.t);
+cancelAnimationFrame(swipeFrame); swipeFrame = 0;
 swipeEls.forEach(function (el) { el.style.transition = el.style.translate = el.style.opacity = ''; });
 swipeEls = [];
 document.documentElement.classList.remove('swiping');
@@ -762,8 +769,9 @@ if (!window.matchMedia || !matchMedia('(hover: none) and (pointer: coarse)').mat
 if (!window.history || !history.pushState) return;
 var nav = slot('tabs');
 if (!nav || nav.hidden || TAB_ORDER.indexOf(PAGE) < 0) return;
-var EDGE = 24, LOCK = 12, COMMIT = 70;
-var x0 = 0, y0 = 0, t0 = 0, dx = 0, mode = 'no';
+var EDGE = 24, LOCK = 10, COMMIT = 56;
+var x0 = 0, y0 = 0, xs = 0, dx = 0, mode = 'no';
+var track = [];
 function tabLink(p) {
 return Array.prototype.filter.call(nav.querySelectorAll('.tabs__item'), function (a) {
 return tabPageOf(a.pathname) === p;
@@ -783,34 +791,39 @@ return false;
 document.addEventListener('touchstart', function (e) {
 mode = 'no';
 if (e.touches.length !== 1 || TAB_ORDER.indexOf(PAGE) < 0) return;
-var root = document.documentElement;
-if (root.classList.contains('slide-r') || root.classList.contains('slide-l')) return;
 var t = e.touches[0];
 if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE || blocked(e.target)) return;
-x0 = t.clientX; y0 = t.clientY; dx = 0; mode = '';
+x0 = xs = t.clientX; y0 = t.clientY; dx = 0; mode = '';
+track = [[e.timeStamp, t.clientX]];
 }, { passive: true });
 document.addEventListener('touchmove', function (e) {
 if (mode === 'no' || e.touches.length !== 1) return;
 var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0;
+track.push([e.timeStamp, t.clientX]);
+while (track.length > 2 && e.timeStamp - track[0][0] > 100) track.shift();
 if (mode === '') {
 if (Math.abs(mx) < LOCK && Math.abs(my) < LOCK) return;
 if (Math.abs(mx) < Math.abs(my) * 1.4) { mode = 'no'; return; }
-mode = 'x'; x0 = t.clientX; t0 = Date.now(); mx = 0;
+mode = 'x'; x0 = t.clientX; mx = 0;
 clearSwipe();
+clearTimeout(slideIn.t);
+document.documentElement.classList.remove('slide-r', 'slide-l');
 swipeEls = swipeTargets();
 document.documentElement.classList.add('swiping');
 }
 var list = order(), i = list.indexOf(PAGE);
 var has = mx < 0 ? i >= 0 && i < list.length - 1 : i > 0;
-dx = mx;
-setSwipe(mx * (has ? .35 : .12), false);
+dx = t.clientX - xs;
+setSwipe(mx * (has ? .55 : .14), false);
 }, { passive: true });
 function end() {
 if (mode !== 'x') { mode = 'no'; return; }
 mode = 'no';
 var list = order(), i = list.indexOf(PAGE);
 var j = dx < 0 ? i + 1 : i - 1, a = list[j] && tabLink(list[j]);
-var fast = Math.abs(dx) > 30 && Math.abs(dx) / Math.max(1, Date.now() - t0) > .5;
+var a0 = track[0], a1 = track[track.length - 1];
+var v = a1 && a0 && a1[0] > a0[0] ? (a1[1] - a0[1]) / (a1[0] - a0[0]) : 0;
+var fast = Math.abs(dx) > 24 && Math.abs(v) > .3 && (v < 0) === (dx < 0);
 if (a && i >= 0 && (Math.abs(dx) > COMMIT || fast)) {
 a.click();
 } else {
