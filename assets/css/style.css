@@ -1549,6 +1549,10 @@ html.slide-l :is([data-bind="links"], [data-section="works"], [data-section="rev
 animation: pageInL .55s var(--spring) both;
 }
 html.slide-r .page, html.slide-l .page { overflow-x: clip; }
+html.swiping .page { overflow-x: clip; }
+@media (hover: none) and (pointer: coarse) {
+html { overscroll-behavior-x: none; }
+}
 .top { view-transition-name: top; }
 ::view-transition-group(top) { animation-duration: .5s; animation-timing-function: var(--spring); }
 ::view-transition-old(tabs) { display: none; }

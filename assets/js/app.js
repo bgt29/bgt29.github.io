@@ -698,9 +698,13 @@ clearTimeout(slideIn.t);
 slideIn.t = setTimeout(function () { root.classList.remove('slide-r', 'slide-l'); }, 700);
 }
 function switchTo(page, dir) {
-var go = function () { showPage(page); slideIn(dir); };
+var go = function () { clearSwipe(); showPage(page); slideIn(dir); };
 if (!document.startViewTransition || !document.documentElement.classList.contains('motion')) { go(); return; }
-try { document.startViewTransition(go); } catch (e) { go(); }
+try {
+var vt = document.startViewTransition(go);
+vt.ready.catch(function () {});
+vt.updateCallbackDone.catch(function () {});
+} catch (e) { go(); }
 }
 function announce(from) {
 try { document.dispatchEvent(new CustomEvent('site-pageview', { detail: { from: from || '' } })); } catch (e) {}
@@ -732,6 +736,93 @@ if (!page || page === PAGE) return;
 switchTo(page, dirFor(PAGE, page));
 announce('');
 });
+}
+var swipeEls = [];
+function swipeTargets() {
+return Array.prototype.filter.call(document.querySelectorAll(
+'.top, [data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]'), function (el) {
+return !el.hidden && el.offsetParent !== null && !el.classList.contains('is-warming');
+});
+}
+function setSwipe(dx, back) {
+swipeEls.forEach(function (el) {
+el.style.transition = back ? 'translate .45s var(--spring), opacity .3s ease' : 'none';
+el.style.translate = dx ? dx.toFixed(1) + 'px 0' : '';
+el.style.opacity = dx ? String(1 - Math.min(Math.abs(dx) / 260, .3)) : '';
+});
+}
+function clearSwipe() {
+clearTimeout(clearSwipe.t);
+swipeEls.forEach(function (el) { el.style.transition = el.style.translate = el.style.opacity = ''; });
+swipeEls = [];
+document.documentElement.classList.remove('swiping');
+}
+function initSwipe() {
+if (!window.matchMedia || !matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+if (!window.history || !history.pushState) return;
+var nav = slot('tabs');
+if (!nav || nav.hidden || TAB_ORDER.indexOf(PAGE) < 0) return;
+var EDGE = 24, LOCK = 12, COMMIT = 70;
+var x0 = 0, y0 = 0, t0 = 0, dx = 0, mode = 'no';
+function tabLink(p) {
+return Array.prototype.filter.call(nav.querySelectorAll('.tabs__item'), function (a) {
+return tabPageOf(a.pathname) === p;
+})[0] || null;
+}
+function order() { return TAB_ORDER.filter(function (p) { return tabLink(p); }); }
+function blocked(t) {
+for (var el = t; el && el !== document.body && el.nodeType === 1; el = el.parentElement) {
+if (el.matches('.panel, .term, dialog, .tabs, .gallery, input, textarea, select, [contenteditable]')) return true;
+if (el.scrollWidth > el.clientWidth + 2) {
+var ox = getComputedStyle(el).overflowX;
+if (ox === 'auto' || ox === 'scroll') return true;
+}
+}
+return false;
+}
+document.addEventListener('touchstart', function (e) {
+mode = 'no';
+if (e.touches.length !== 1 || TAB_ORDER.indexOf(PAGE) < 0) return;
+var root = document.documentElement;
+if (root.classList.contains('slide-r') || root.classList.contains('slide-l')) return;
+var t = e.touches[0];
+if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE || blocked(e.target)) return;
+x0 = t.clientX; y0 = t.clientY; dx = 0; mode = '';
+}, { passive: true });
+document.addEventListener('touchmove', function (e) {
+if (mode === 'no' || e.touches.length !== 1) return;
+var t = e.touches[0], mx = t.clientX - x0, my = t.clientY - y0;
+if (mode === '') {
+if (Math.abs(mx) < LOCK && Math.abs(my) < LOCK) return;
+if (Math.abs(mx) < Math.abs(my) * 1.4) { mode = 'no'; return; }
+mode = 'x'; x0 = t.clientX; t0 = Date.now(); mx = 0;
+clearSwipe();
+swipeEls = swipeTargets();
+document.documentElement.classList.add('swiping');
+}
+var list = order(), i = list.indexOf(PAGE);
+var has = mx < 0 ? i >= 0 && i < list.length - 1 : i > 0;
+dx = mx;
+setSwipe(mx * (has ? .35 : .12), false);
+}, { passive: true });
+function end() {
+if (mode !== 'x') { mode = 'no'; return; }
+mode = 'no';
+var list = order(), i = list.indexOf(PAGE);
+var j = dx < 0 ? i + 1 : i - 1, a = list[j] && tabLink(list[j]);
+var fast = Math.abs(dx) > 30 && Math.abs(dx) / Math.max(1, Date.now() - t0) > .5;
+if (a && i >= 0 && (Math.abs(dx) > COMMIT || fast)) {
+a.click();
+} else {
+setSwipe(0, true);
+clearSwipe.t = setTimeout(clearSwipe, 460);
+}
+}
+document.addEventListener('touchend', end, { passive: true });
+document.addEventListener('touchcancel', function () {
+if (mode === 'x') { setSwipe(0, true); clearSwipe.t = setTimeout(clearSwipe, 460); }
+mode = 'no';
+}, { passive: true });
 }
 function warmUp() {
 if (!HAS_WORKS || PAGE === 'portfolio' || !window.SITE_RENDER_WORKS || !window.SITE_UTIL) return;
@@ -822,5 +913,6 @@ page: PAGE, cat: CAT, work: WORK };
 if (PAGE !== 'home' && window.SITE_RENDER_WORKS) window.SITE_RENDER_WORKS();
 initFade();
 initSwitch();
+initSwipe();
 if (slot('tabs') && !slot('tabs').hidden) whenIdle(warmUp);
 })();
