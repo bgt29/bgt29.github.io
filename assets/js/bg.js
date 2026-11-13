@@ -10,8 +10,12 @@ premultipliedAlpha: true, powerPreference: 'low-power' });
 if (!gl) return;
 glow.appendChild(canvas);
 var VERT = 'attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }';
+var hp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+var HIGH = !!(hp && hp.precision > 0);
+var AA = !!gl.getExtension('OES_standard_derivatives');
 var FRAG = [
-'precision mediump float;',
+AA ? '#extension GL_OES_standard_derivatives : enable\n#define AA 1' : '',
+'precision ' + (HIGH ? 'highp' : 'mediump') + ' float;',
 'uniform vec2 u_res; uniform float u_time; uniform float u_strength; uniform float u_rgb; uniform float u_shade;',
 'uniform vec3 u_spot; uniform vec3 u_shadeCol;',
 'vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }',
@@ -49,7 +53,12 @@ var FRAG = [
 '  vec2 q = vec2(fbm(vec3(uv * 0.7, t)), fbm(vec3(uv * 0.7 + vec2(5.2, 1.3), t)));',
 '  float n = fbm(vec3(uv + 0.55 * q, t * 0.8));',
 '  n = n * 0.5 + 0.5;',
-'  float s = smoothstep(0.50, 0.68, n) * 0.7 + smoothstep(0.66, 0.84, n) * 0.3;',
+'#ifdef AA',
+'  float w = max(0.0, fwidth(n) * 1.25 - 0.09);',
+'#else',
+'  float w = 0.0;',
+'#endif',
+'  float s = smoothstep(0.50 - w, 0.68 + w, n) * 0.7 + smoothstep(0.66 - w, 0.84 + w, n) * 0.3;',
 '  float aShade = u_shade * (1.0 - s);',
 '  float aSpot = u_strength * s;',
 '  vec3 rgb = 0.5 + 0.5 * cos(6.2832 * (n * 1.5 + t * 0.6 + vec3(0.0, 0.33, 0.67)));',
@@ -64,6 +73,10 @@ gl.compileShader(s);
 return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
 }
 var vs = shader(gl.VERTEX_SHADER, VERT), fs = shader(gl.FRAGMENT_SHADER, FRAG);
+if (!fs && (AA || HIGH)) {
+fs = shader(gl.FRAGMENT_SHADER, FRAG.replace(/^#extension[^\n]*\n#define AA 1\n/, '')
+.replace('precision highp', 'precision mediump'));
+}
 var prog = vs && fs && gl.createProgram();
 if (!prog) { canvas.remove(); return; }
 gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);

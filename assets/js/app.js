@@ -689,23 +689,54 @@ Array.prototype.forEach.call(document.querySelectorAll('.fade:not(.is-in)'), fun
 el.classList.add('is-in');
 });
 }
-function slideIn(dir) {
+function slideIn(dir, wait) {
 var root = document.documentElement;
-root.classList.remove('slide-r', 'slide-l');
+clearTimeout(slideIn.t);
+root.classList.remove('slide-r', 'slide-l', 'slide-wait');
 if (!dir || !root.classList.contains('motion')) return;
 root.classList.add(dir === 'tab-forward' ? 'slide-r' : 'slide-l');
+if (wait) root.classList.add('slide-wait'); else slideDone();
+}
+function slideDone() {
+var root = document.documentElement;
 clearTimeout(slideIn.t);
 slideIn.t = setTimeout(function () { root.classList.remove('slide-r', 'slide-l'); }, 700);
 }
-function switchTo(page, dir) {
-var go = function () { clearSwipe(); showPage(page); slideIn(dir); };
-if (!document.startViewTransition || !document.documentElement.classList.contains('motion')) { go(); return; }
-try {
-var vt = document.startViewTransition(go);
-vt.ready.catch(function () {});
-vt.updateCallbackDone.catch(function () {});
-} catch (e) { go(); }
+function slidePlay() {
+var root = document.documentElement;
+if (!root.classList.contains('slide-wait')) return;
+root.classList.remove('slide-wait');
+slideDone();
 }
+var vtNow = null, vtSeq = 0, swipeOut = '';
+function switchTo(page, dir) {
+var root = document.documentElement;
+var out = swipeOut; swipeOut = '';
+if (!document.startViewTransition || !root.classList.contains('motion')) {
+clearSwipe(); showPage(page); slideIn(dir); return;
+}
+var n = ++vtSeq;
+var go = function () { clearSwipe(); showPage(page); slideIn(dir, true); };
+var play = function () { if (n === vtSeq) slidePlay(); };
+var done = function () {
+if (n !== vtSeq) return;
+vtNow = null;
+slidePlay();
+root.classList.remove('vt-tab', 'swipe-out-l', 'swipe-out-r');
+};
+root.classList.remove('swipe-out-l', 'swipe-out-r');
+root.classList.add('vt-tab');
+if (out) root.classList.add('swipe-out-' + out);
+try {
+var vt = vtNow = document.startViewTransition(go);
+vt.ready.then(play, play);
+vt.updateCallbackDone.catch(function () {});
+vt.finished.then(done, done);
+} catch (e) { vtNow = null; root.classList.remove('vt-tab', 'swipe-out-l', 'swipe-out-r'); clearSwipe(); showPage(page); slideIn(dir); }
+}
+window.addEventListener('scroll', function () {
+if (vtNow && window.scrollY > 2) { try { vtNow.skipTransition(); } catch (e) {} }
+}, { passive: true });
 function announce(from) {
 try { document.dispatchEvent(new CustomEvent('site-pageview', { detail: { from: from || '' } })); } catch (e) {}
 }
@@ -807,7 +838,7 @@ if (Math.abs(mx) < Math.abs(my) * 1.4) { mode = 'no'; return; }
 mode = 'x'; x0 = t.clientX; mx = 0;
 clearSwipe();
 clearTimeout(slideIn.t);
-document.documentElement.classList.remove('slide-r', 'slide-l');
+document.documentElement.classList.remove('slide-r', 'slide-l', 'slide-wait');
 swipeEls = swipeTargets();
 document.documentElement.classList.add('swiping');
 }
@@ -827,12 +858,9 @@ var fast = Math.abs(dx) > 24 && Math.abs(v) > .3 && (v < 0) === (dx < 0);
 if (a && i >= 0 && (Math.abs(dx) > COMMIT || fast)) {
 cancelAnimationFrame(swipeFrame); swipeFrame = 0;
 paintSwipe(swipeNext, false);
-var root = document.documentElement;
-root.classList.remove('swipe-out-l', 'swipe-out-r');
-root.classList.add(dx < 0 ? 'swipe-out-l' : 'swipe-out-r');
-clearTimeout(end.t);
-end.t = setTimeout(function () { root.classList.remove('swipe-out-l', 'swipe-out-r'); }, 600);
+swipeOut = dx < 0 ? 'l' : 'r';
 a.click();
+swipeOut = '';
 } else {
 setSwipe(0, true);
 clearSwipe.t = setTimeout(clearSwipe, 460);

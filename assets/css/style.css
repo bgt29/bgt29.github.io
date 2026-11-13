@@ -1543,10 +1543,13 @@ transition: transform .62s var(--spring), width .62s var(--spring), background-c
 .tabs.is-sliding .tabs__item.is-on { color: var(--text-dim); }
 .tabs.no-anim .tabs__pill { transition: none; }
 html.slide-r :is([data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]) {
-animation: pageInR .55s var(--spring) both;
+animation: pageMoveR .5s var(--spring) .08s both, pageFadeIn .22s ease .08s both;
 }
 html.slide-l :is([data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]) {
-animation: pageInL .55s var(--spring) both;
+animation: pageMoveL .5s var(--spring) .08s both, pageFadeIn .22s ease .08s both;
+}
+html.slide-wait :is([data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]) {
+animation-play-state: paused;
 }
 html.slide-r .page, html.slide-l .page { overflow-x: clip; }
 html.swiping .page { overflow-x: clip; }
@@ -1554,10 +1557,25 @@ html.swiping .page { overflow-x: clip; }
 html { overscroll-behavior-x: none; }
 .page { touch-action: pan-y pinch-zoom; }
 }
-html.swipe-out-l::view-transition-old(root) { animation: swipeOutL .24s cubic-bezier(.3, .6, .6, 1) both; }
-html.swipe-out-r::view-transition-old(root) { animation: swipeOutR .24s cubic-bezier(.3, .6, .6, 1) both; }
-@keyframes swipeOutL { to { transform: translateX(-90px); opacity: 0; } }
-@keyframes swipeOutR { to { transform: translateX(90px); opacity: 0; } }
+html.vt-tab::view-transition-old(root) {
+z-index: 1;
+mix-blend-mode: normal;
+animation: tabOut .15s cubic-bezier(.2, .7, .3, 1) both;
+}
+html.vt-tab::view-transition-new(root) { mix-blend-mode: normal; animation: none; }
+@keyframes tabOut { to { opacity: 0; } }
+html.vt-tab.swipe-out-l::view-transition-old(root) {
+animation-name: swipeOutL;
+-webkit-mask-image: linear-gradient(to left, transparent, #000 28px);
+mask-image: linear-gradient(to left, transparent, #000 28px);
+}
+html.vt-tab.swipe-out-r::view-transition-old(root) {
+animation-name: swipeOutR;
+-webkit-mask-image: linear-gradient(to right, transparent, #000 28px);
+mask-image: linear-gradient(to right, transparent, #000 28px);
+}
+@keyframes swipeOutL { to { transform: translateX(-24px); opacity: 0; } }
+@keyframes swipeOutR { to { transform: translateX(24px); opacity: 0; } }
 html.swiping :is(.top, [data-bind="links"], [data-section]) { will-change: translate, opacity; }
 .top { view-transition-name: top; }
 ::view-transition-group(top) { animation-duration: .5s; animation-timing-function: var(--spring); }
@@ -1573,9 +1591,9 @@ opacity: .001;
 pointer-events: none;
 view-transition-name: none;
 }
-@keyframes pageInR { from { opacity: 0; transform: translateX(56px); } }
-@keyframes pageInL { from { opacity: 0; transform: translateX(-56px); } }
-html.slide-r::view-transition-old(root), html.slide-l::view-transition-old(root) { animation-duration: .22s; }
+@keyframes pageMoveR { from { transform: translateX(56px); } }
+@keyframes pageMoveL { from { transform: translateX(-56px); } }
+@keyframes pageFadeIn { from { opacity: 0; } }
 html.vt-theme::view-transition-old(root),
 html.vt-theme::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 html.vt-theme .tools, html.vt-theme .tabs, html.vt-theme .top { view-transition-name: none; }
