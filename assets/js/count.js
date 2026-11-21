@@ -34,8 +34,14 @@ r: typeof from === 'string' ? from : document.referrer,
 s: [screen.width, screen.height, window.devicePixelRatio || 1].join(',')
 });
 }
-if (document.prerendering) document.addEventListener('prerenderingchange', function () { view(); }, { once: true });
-else view();
+function theme() {
+var dark = !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+send({ p: 'theme-' + (dark ? 'dark' : 'light'),
+t: dark ? 'Тема устройства: тёмная' : 'Тема устройства: светлая', e: 'true' });
+}
+function first() { view(); theme(); }
+if (document.prerendering) document.addEventListener('prerenderingchange', first, { once: true });
+else first();
 document.addEventListener('site-pageview', function (e) { view((e.detail && e.detail.from) || ''); });
 document.addEventListener('click', function (e) {
 if (e.defaultPrevented) return;

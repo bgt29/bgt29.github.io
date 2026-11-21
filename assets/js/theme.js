@@ -1,4 +1,33 @@
 (function () {
+try {
+var KEY = 'site-lang';
+document.addEventListener('click', function (e) {
+var a = e.target.closest && e.target.closest('a.lang-toggle[hreflang], a.lang-seg__item[hreflang]');
+if (!a) return;
+try { localStorage.setItem(KEY, a.getAttribute('hreflang')); } catch (x) {}
+}, true);
+if (document.documentElement.lang !== 'ru') return;
+var alt = document.querySelector('link[rel="alternate"][hreflang="en"]');
+if (!alt) return;
+var saved = null;
+try { saved = localStorage.getItem(KEY); } catch (x) {}
+if (saved === 'ru') return;
+if (saved !== 'en') {
+var ua = navigator.userAgent || '';
+if (navigator.webdriver || /bot|crawl|spider|slurp|google|yandex|bing|baidu|duckduck|mail\.ru|telegram|whatsapp|vkshare|facebook|twitter|linkedin|preview|headless|lighthouse|pagespeed/i.test(ua)) return;
+var langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''])
+.map(function (l) { return String(l).toLowerCase(); });
+if (!langs[0] || langs.some(function (l) { return /^(ru|be|uk|kk|ky|uz|tg)\b/.test(l); })) return;
+if (document.referrer) {
+try { if (new URL(document.referrer).host === location.host) return; } catch (x) {}
+}
+}
+var to = new URL(alt.getAttribute('href'), location.href);
+if (to.pathname === location.pathname) return;
+location.replace(to.pathname + location.search + location.hash);
+} catch (e) {}
+})();
+(function () {
 'use strict';
 var LEVELS = [
 { name: { ru: 'Ночь', en: 'Night' },       dark: true,  glow: .85,

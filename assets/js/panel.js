@@ -7,14 +7,37 @@ var tr = window.SITE_T || function (v) { return v && typeof v === 'object' ? (v.
 var UI = window.SITE_LANG === 'en'
 ? { button: 'Appearance', title: 'Brightness', accent: 'Accent color', custom: 'Custom',
 hue: 'Hue', sat: 'Saturation', hex: 'Color code', base: 'Default color', scale: 'Scale',
-reset: 'Reset appearance' }
+reset: 'Reset appearance', lang: 'Language', buttonLang: 'Appearance and language' }
 : { button: 'Оформление', title: 'Яркость темы', accent: 'Акцентный цвет', custom: 'Другое',
 hue: 'Оттенок', sat: 'Насыщенность', hex: 'Код цвета', base: 'Базовый цвет', scale: 'Масштаб',
-reset: 'Сбросить оформление' };
+reset: 'Сбросить оформление', lang: 'Язык', buttonLang: 'Оформление и язык' };
 var btn = document.querySelector('.theme-toggle');
 var panel = document.querySelector('[data-section="panel"]');
 if (!T || !btn || !panel) return;
 btn.setAttribute('aria-label', UI.button);
+var langSw = document.querySelector('[data-bind="lang-switch"]');
+var hasLang = !!(window.SITE_HAS_EN && langSw);
+var langGo = null;
+if (hasLang) {
+var EN = window.SITE_LANG === 'en';
+btn.setAttribute('aria-label', UI.buttonLang);
+var badge = btn.querySelector('.theme-toggle__lang');
+if (badge) badge.textContent = EN ? 'RU' : 'EN';
+var item = function (code, label, on) {
+return on
+? '<span class="lang-seg__item is-on" lang="' + code + '" aria-current="true">' + label + '</span>'
+: '<a class="lang-seg__item" lang="' + code + '" hreflang="' + code + '" href="#" data-lang-go>' + label + '</a>';
+};
+panel.insertAdjacentHTML('afterbegin',
+'<div class="panel__lang">' +
+'<span class="panel__cap">' + UI.lang + '</span>' +
+'<div class="lang-seg" role="group" aria-label="' + UI.lang + '">' +
+item('ru', 'Русский', !EN) + item('en', 'English', EN) +
+'</div>' +
+'</div>');
+langGo = panel.querySelector('[data-lang-go]');
+}
+function syncLang() { if (langGo) langGo.setAttribute('href', langSw.getAttribute('href') || '/'); }
 var taps = 0, lastTap = 0;
 function countTap() {
 var now = Date.now();
@@ -312,6 +335,7 @@ function open(yes) {
 isOpen = yes;
 clearTimeout(tOpen); clearTimeout(tClose);
 if (yes) {
+syncLang();
 panel.classList.remove('is-closing');
 panel.hidden = false;
 panel.classList.add('is-opening');

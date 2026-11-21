@@ -7,6 +7,7 @@
 
 Сайт: https://kirillbuldakov.ru/
 English version: https://kirillbuldakov.ru/en/
+О сайте (возможности, управление, пасхалки): https://kirillbuldakov.ru/about-site/
 
 ## Проекты
 - [VPN-бот в Telegram](https://t.me/EBK_KVN_BOT): @EBK_KVN_BOT
@@ -42,8 +43,18 @@ English version: https://kirillbuldakov.ru/en/
 - [Рабочий ПК на Ryzen 9 9900X](https://kirillbuldakov.ru/portfolio/pc/ryzen-9-9900x-rtx-5050/): 2026-02
 - [Игровой ПК на RTX 3080 Ti](https://kirillbuldakov.ru/portfolio/pc/ryzen-5-7500f-rtx-3080-ti/): 2026-01
 - [Бюджетный ПК из новых комплектующих](https://kirillbuldakov.ru/portfolio/pc/i3-12100f-rx-6600/): 2025-11
+- [Компактный ПК на GTX 1660 Super](https://kirillbuldakov.ru/portfolio/pc/i3-12100f-gtx-1660-super/): 2025-11
+- [Игровой ПК на RTX 5060 Ti](https://kirillbuldakov.ru/portfolio/pc/ryzen-5-7500f-rtx-5060-ti/): 2025-10
+- [Белый игровой ПК на RX 6600 XT](https://kirillbuldakov.ru/portfolio/pc/i3-13100f-rx-6600-xt/): 2025-09
 - [ПК по необычному ТЗ](https://kirillbuldakov.ru/portfolio/pc/i5-14600kf-rtx-3050/): 2025-04
 - [Игровой ПК на RTX 4070](https://kirillbuldakov.ru/portfolio/pc/i5-14600kf-rtx-4070/): 2025-03
+
+## Портфолио: Обслуживание
+- [Обслуживание RTX 3080 Ti iChill X4](https://kirillbuldakov.ru/portfolio/service/rtx-3080-ti-ichill-x4/): 2026-01
+- [Обслуживание ноутбука и второй SSD](https://kirillbuldakov.ru/portfolio/service/laptop-ssd/): 2025-12
+- [Чистка запущенного ПК](https://kirillbuldakov.ru/portfolio/service/pc-cleaning/): 2025-10
+- [Обслуживание ноутбука на AMD Ryzen](https://kirillbuldakov.ru/portfolio/service/laptop-ryzen/): 2025-10
+- [Обслуживание RTX 3070 EVGA FTW3](https://kirillbuldakov.ru/portfolio/service/rtx-3070-evga-ftw3/): 2025-08
 
 ## Портфолио: Фото
 - [Съёмка для бренда одежды Vulgar](https://kirillbuldakov.ru/portfolio/photo/vulgar/): 2026-08
@@ -52,6 +63,8 @@ English version: https://kirillbuldakov.ru/en/
 - [Череповец](https://kirillbuldakov.ru/portfolio/photo/cherepovets/): 2026
 
 ## Портфолио: Сайты
+- [Интернет-магазин экипировки «Спорт Драйв»](https://kirillbuldakov.ru/portfolio/sites/sport-drive/): 2026-11
+- [Этот сайт — kirillbuldakov.ru](https://kirillbuldakov.ru/portfolio/sites/kirillbuldakov/): 2026-10
 - [Сайт благотворительного фонда «Миру Мир»](https://kirillbuldakov.ru/portfolio/sites/mirumir/): 2026-10
 - [Раздел новостей для «Онлайн-Сервис»](https://kirillbuldakov.ru/portfolio/sites/os24-news/): 2026-08
 - [Интернет-магазин экипировки для бокса «Аргументы»](https://kirillbuldakov.ru/portfolio/sites/argumenty/)
@@ -60,7 +73,65 @@ English version: https://kirillbuldakov.ru/en/
 - [ИИ-ассистент для мясного магазина](https://kirillbuldakov.ru/portfolio/ai/meat-shop-ai/): 2026-10
 
 ## Портфолио: Другое
-- [Эмодзи-набор HW Logo для Telegram](https://kirillbuldakov.ru/portfolio/other/hw-logo-emoji/)
+- [Эмодзи-набор HW Logo для Telegram](https://kirillbuldakov.ru/portfolio/other/hw-logo-emoji/): 2025-06
+
+## Статьи
+- [Чем я собираю и обслуживаю компьютеры](https://kirillbuldakov.ru/articles/chem-ya-sobirayu-pk/): Расходники, жидкости, инструменты и приборы для диагностики, которыми я пользуюсь при сборке и обслуживании ПК, — и почему именно они.
+- [Почему греются видеокарты Palit и как это исправить](https://kirillbuldakov.ru/articles/palit-peregrev-bolty/): Hot Spot под 105 °C, плавающее энергопотребление и шум — типичная проблема Palit и похожих брендов. Причина — в болтах охлаждения, и её можно исправить.
+- [Когда пора обслуживать видеокарту](https://kirillbuldakov.ru/articles/kogda-obsluzhivat-videokartu/): По каким признакам понять, что видеокарте нужны новая термопаста и прокладки, и что это даёт, — на примерах карт, которые я обслуживал.
+- [Почему не стоит экономить на блоке питания](https://kirillbuldakov.ru/articles/ne-ekonomte-na-bloke-pitaniya/): Случай с заказа: клиент оставил старый блок питания по совету друга — и дома компьютер не запустился. Как искали причину и чем всё закончилось.
+- [Бюджетный игровой ПК: базовый минимум](https://kirillbuldakov.ru/articles/byudzhetnyy-igrovoy-pk/): Новый компьютер, чтобы играть и работать, за 57 000 ₽ вместе со сборкой: какие комплектующие. Цены — на октябрь 2025 года.
+
+## Услуги (https://kirillbuldakov.ru/services/)
+
+### Сборка ПК на заказ (https://kirillbuldakov.ru/services/pc-build/)
+Подбор конфигурации, сборка, Windows и полное тестирование. Отправляю по России и в СНГ.
+- 6+ лет собираю ПК
+- 200+ собранных компьютеров
+- 1 год гарантии на работу
+- Подбор конфигурации со ссылками на комплектующие: 1 000 ₽
+- Сборка ПК стоимостью до 100 000 ₽: 6 000 ₽
+- Сборка ПК стоимостью свыше 100 000 ₽: 6 % от цены сборки
+- Дистанционная сборка — помощь в чате или по звонку: 3 000 ₽
+- Кастомная сборка: по сложности
+- На заказ собираю ПК стоимостью от 60 000 ₽
+- Гарантия на мою работу: на полностью новые сборки — 1 год, с б/у комплектующими — по договорённости
+- Работаю официально, с чеком — с частными лицами и компаниями
+
+### Обслуживание, апгрейд, диагностика и настройка (https://kirillbuldakov.ru/services/upgrade/)
+ПК, ноутбуки, видеокарты и асики: диагностика, обслуживание, ремонт, замена комплектующих и настройка.
+- Обслуживание, апгрейд, диагностика и настройка ПК, ноутбуков, видеокарт, асиков: от 1 000 ₽
+- Термоинтерфейсы (термопаста, термопрокладки) ставлю только топовые
+- Работаю официально, с чеком — с частными лицами и компаниями
+
+### Фото- и видеосъёмка (https://kirillbuldakov.ru/services/shooting/)
+Фотосессии, улица и город, съёмка для брендов и соцсетей, рилсы. Обработка — сам.
+- Фото- или видеосъёмка, за час: от 2 000 ₽
+
+### Монтаж видео (https://kirillbuldakov.ru/services/editing/)
+Рилсы, короткие ролики и видео для YouTube — из вашего материала или после моей съёмки.
+- Рилс или короткий ролик: от 1 000 ₽
+- Видео для YouTube: от 3 000 ₽
+
+### Ведение соцсетей и сайтов (https://kirillbuldakov.ru/services/smm/)
+Под ключ: посты, рилсы, новости и статьи на сайте — от идеи и съёмки до публикации.
+- Ведение соцсетей или сайта, в месяц: от 15 000 ₽
+
+### Сайты (https://kirillbuldakov.ru/services/sites/)
+Новые сайты и доработка готовых: разделы, страницы, функции.
+- Доработка готового сайта: от 2 000 ₽
+- Лендинг: от 20 000 ₽
+- Сайт с каталогом или интернет-магазин: по договорённости
+
+### Внедрение ИИ и автоматизация (https://kirillbuldakov.ru/services/ai/)
+Учёт, отчёты и рутина бизнеса — на ИИ, Python и Google Таблицах.
+- Скрипт, отчёт или автоматизация таблицы: от 5 000 ₽
+- Система учёта и большие проекты: по договорённости
+
+### Другие задачи
+Берусь за самые разные задачи на заказ — здесь лишь несколько примеров: презентации, оформление и вёрстка документов, редактура текстов, таблицы в Excel и Google, наборы эмодзи для Telegram. Не нашли своей задачи — всё равно напишите, обсудим. Цена — по договорённости.
+
+Как заказать: Напишите в Telegram, обсудим задачу, цену и сроки. https://t.me/Baget_PC
 
 ## English
 

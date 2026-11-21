@@ -1,7 +1,6 @@
 (function () {
 'use strict';
 var C = window.SITE_CONFIG;
-var STATIC = !!document.querySelector('.page[data-static]');
 if (!C) {
 document.body.innerHTML = '<p style="padding:40px;font:16px sans-serif">' +
 'Не найден assets/js/config.js</p>';
@@ -11,14 +10,23 @@ var LANG = window.SITE_LANG || 'ru';
 var T = window.SITE_T || function (v) { return v && typeof v === 'object' ? (v.ru || '') : (v || ''); };
 var B = document.body;
 var PAGE = B.getAttribute('data-page') || 'home';
-if (!/^(portfolio|category|work|reviews)$/.test(PAGE)) PAGE = 'home';
+if (!/^(portfolio|category|work|reviews|services|service|site|articles|article)$/.test(PAGE)) PAGE = 'home';
+var ART = B.getAttribute('data-article') || '';
 var CAT = B.getAttribute('data-cat') || '', WORK = B.getAttribute('data-work') || '';
+var SVC = B.getAttribute('data-svc') || '';
 function pathFor(lang, page) {
 var p = '/';
 if (page === 'portfolio') p = '/portfolio/';
 else if (page === 'category') p = '/portfolio/' + CAT + '/';
 else if (page === 'work') p = '/portfolio/' + CAT + '/' + WORK + '/';
 else if (page === 'reviews') p = '/reviews/';
+else if (page === 'services') p = '/services/';
+else if (page === 'service') p = '/services/' + SVC + '/';
+else if (page === 'site') p = '/about-site/';
+else if (page === 'articles' || page === 'article') {
+if (lang === 'en') return '/en/';
+p = page === 'article' ? '/articles/' + ART + '/' : '/articles/';
+}
 return (lang === 'en' ? '/en' : '') + p;
 }
 var UI = {
@@ -32,7 +40,9 @@ reviewCase: 'К работе', reviewProjects: 'Проекты', reviewsCount: f
 var k = n % 10, h = n % 100;
 return n + (k === 1 && h !== 11 ? ' отзыв' : k >= 2 && k <= 4 && (h < 12 || h > 14) ? ' отзыва' : ' отзывов');
 },
-tabLinks: 'Ссылки', tabWorks: 'Портфолио', tabs: 'Разделы сайта', qr: 'QR-код сайта',
+tabLinks: 'Ссылки', tabWorks: 'Портфолио', tabs: 'Разделы сайта', qr: 'QR-код сайта', aboutSite: 'О сайте',
+services: 'Услуги', deal: 'по договорённости', works: 'Работы', order: 'Как заказать',
+write: 'Написать в Telegram', writeVk: 'Написать в ВК', seller: 'Исполнитель', inn: 'ИНН', offer: 'Договор-оферта',
 other: { code: 'EN', lang: 'en', title: 'English version' } },
 en: { page: 'Personal page', links: 'My links', now: 'Now',
 copy: 'Copy address', copied: 'Address copied', copyByHand: 'Copy the address:',
@@ -41,12 +51,15 @@ policy: 'Privacy & cookies',
 bug: 'Found a bug? Let me know', bugDraft: 'Found a bug on the page ',
 reviews: 'Reviews', reviewsAll: 'All reviews', reviewsMore: 'All reviews', path: 'You are here',
 reviewCase: 'See the work', reviewProjects: 'Projects', reviewsCount: function (n) { return n + (n === 1 ? ' review' : ' reviews'); },
-tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections', qr: 'QR code of the site',
+tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections', qr: 'QR code of the site', aboutSite: 'About this site',
+services: 'Services', deal: 'by agreement', works: 'Works', order: 'How to order',
+write: 'Message me on Telegram', writeVk: 'Message me on VK', seller: 'Contractor', inn: 'TIN', offer: 'Public offer (in Russian)',
 other: { code: 'RU', lang: 'ru', title: 'Русская версия' } }
 }[LANG];
 var P = C.portfolio || {};
 var HAS_WORKS = P.enabled !== false && ((P.items || []).length > 0 || P.showEmpty === true);
 var HAS_REVIEWS = !!(C.reviews && C.reviews.enabled !== false && (C.reviews.items || []).length);
+var HAS_SERVICES = !!(C.services && C.services.enabled !== false && (C.services.pages || []).length);
 function asset(p) {
 p = String(p || '');
 return !p || /^([a-z]+:|\/)/i.test(p) ? p : '/' + p;
@@ -65,9 +78,26 @@ drive: '<rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7v10"/><cir
 fan: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="1.6"/><path d="M12 10.4c0-3 1-4.5 3.2-4.6M13.6 12c3 0 4.5 1 4.6 3.2M12 13.6c0 3-1 4.5-3.2 4.6M10.4 12c-3 0-4.5-1-4.6-3.2"/>',
 power: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M13 8.5l-3 4h4l-3 4"/>',
 tower: '<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M9 6h6M9 8.5h6"/><circle cx="12" cy="15" r="2.6"/>',
+laptop: '<rect x="4.5" y="5" width="15" height="10.5" rx="1.6"/><path d="M2.5 19h19"/>',
+search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 20.5 20.5"/>',
 camera: '<path d="M3.5 8.5a2 2 0 0 1 2-2h2.2l1.6-2.2h5.4l1.6 2.2h2.2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.6"/>',
+article: '<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/>',
+post: '<rect x="4" y="3" width="16" height="18" rx="3"/><rect x="7" y="6" width="10" height="6.5" rx="1.2"/><path d="M7 15.5h10M7 18.2h6"/>',
+lens: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M10.2 10.4a2.4 2.4 0 0 1 1.8-1"/>',
+mic: '<rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/>',
+light: '<path d="M9.5 18h5M10.5 21h3M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/>',
+tripod: '<rect x="8" y="3" width="8" height="5" rx="1.2"/><path d="M12 8v4M12 12l-5.5 9M12 12l5.5 9M12 12v9"/>',
 layers: '<path d="M12 3.5 21 8l-9 4.5L3 8z"/><path d="M3 12.5l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5"/>',
 code: '<path d="M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"/>',
+pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+cake: '<path d="M4.5 20.5h15v-6a2 2 0 0 0-2-2h-11a2 2 0 0 0-2 2z"/><path d="M4.5 16c1.5 1.2 3 1.2 4.5 0s3-1.2 4.5 0 3 1.2 4.5 0 1.5-1 1.5-1M12 12.5V9.5"/><path d="M12 7.5c-.9 0-1.4-.8-1-1.6L12 4l1 1.9c.4.8-.1 1.6-1 1.6z"/>',
+cap: '<path d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5v4c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-4M21.5 9.5v5"/>',
+work: '<rect x="3" y="7.5" width="18" height="12" rx="2.5"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3 12.5h18"/>',
+terminal: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="m7 10 3 2.5L7 15M12.5 15H17"/>',
+qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2.5v2.5M20 14v2.5M14 20h2.5M19.5 19.5h.5v.5"/>',
+cup: '<path d="M4.5 10h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M15.5 11.5h1.2a2.4 2.4 0 0 1 0 4.8h-1.5"/><path d="M8.5 3.5c-.8 1 .8 2 0 3M12 3.5c-.8 1 .8 2 0 3"/>',
+bread: '<path d="M5.2 18.8c-2.2-2.2.2-7 4.7-11.5s9.3-6.9 11.5-4.7-.2 7-4.7 11.5-9.3 6.9-11.5 4.7z"/><path d="M8.5 12.5l2 2M11.5 9.5l2 2M14.5 6.5l2 2"/>',
+gamepad: '<path d="M7.5 7h9a5 5 0 0 1 5 5v.5a4.5 4.5 0 0 1-8 2.8l-.3-.3h-2.4l-.3.3a4.5 4.5 0 0 1-8-2.8V12a5 5 0 0 1 5-5z"/><path d="M7.5 10v4M5.5 12h4"/><circle cx="15.5" cy="11" r=".6"/><circle cx="17.5" cy="13" r=".6"/>',
 sparkle: '<path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
 video: '<rect x="3" y="6.5" width="13" height="11" rx="2.5"/><path d="M16 11l5-3v8l-5-3"/>',
 more: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
@@ -175,6 +205,25 @@ return '<span class="chip">' + (ic ? icon(ic, 16) : '') + esc(typo(c)) + '</span
 }
 return '<span class="bio__line">' + esc(typo(s)) + '</span>';
 }).join(''));
+fill('about', aboutFacts(h));
+}
+function aboutFacts(h) {
+var items = [];
+if (T(h.city)) items.push(['pin', T(h.city)]);
+var m = String(h.born || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+if (m) {
+var y = +m[1], mo = +m[2], d = +m[3], now = new Date();
+var age = now.getFullYear() - y - ((now.getMonth() + 1 < mo || (now.getMonth() + 1 === mo && now.getDate() < d)) ? 1 : 0);
+var k = age % 10, hh = age % 100;
+var yw = LANG === 'en' ? 'years old' : k === 1 && hh !== 11 ? 'год' : k >= 2 && k <= 4 && (hh < 12 || hh > 14) ? 'года' : 'лет';
+var date = LANG === 'en' ? m[2] + '/' + m[3] + '/' + y : m[3] + '.' + m[2] + '.' + y;
+items.push(['cake', date + ' · ' + age + ' ' + yw]);
+}
+if (T(h.education)) items.push(['cap', T(h.education)]);
+if (T(h.work)) items.push(['work', T(h.work)]);
+return items.map(function (it) {
+return '<span class="about__item">' + icon(it[0], 15) + '<span>' + esc(typo(it[1])) + '</span></span>';
+}).join('');
 }
 var QR_ICON = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" ' +
 'stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
@@ -269,7 +318,7 @@ return '<a class="tile tile--works fade" href="' + pathFor(LANG, 'portfolio') + 
 icon('arrow', 22) + '</span>' +
 (covers.length
 ? '<span class="tile__covers">' + covers.map(function (c) {
-return '<img src="' + esc(c.thumb) + '" alt="" width="' + c.tw + '" height="' + c.th + '" loading="lazy">';
+return '<img src="' + esc(c.thumb) + '" alt="" width="' + c.tw + '" height="' + c.th + '">';
 }).join('') + '</span>'
 : '') +
 '<span class="tile__chips">' + cats.map(function (c) {
@@ -410,6 +459,10 @@ document.addEventListener('dragstart', function (e) {
 var t = e.target;
 if (t && t.closest && t.closest('a, img, svg')) e.preventDefault();
 });
+document.addEventListener('contextmenu', function (e) {
+var t = e.target;
+if (t && t.closest && t.closest('img, video, .gallery')) e.preventDefault();
+});
 }
 var MONTHS = {
 ru: ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август',
@@ -492,6 +545,109 @@ function countAll(R) {
 var n = R.items.length + ((C.portfolio || {}).items || []).filter(function (w) { return w && w.review; }).length;
 return '(' + n + ')';
 }
+var SVC_PAGES = HAS_SERVICES ? C.services.pages.filter(function (p) { return p && p.id; }) : [];
+function svcPath(id) { return (LANG === 'en' ? '/en' : '') + '/services/' + id + '/'; }
+function keepNum(s) {
+return String(s || '').replace(/(\d) (?=\d)/g, '$1 ').replace(/ (₽|%)/g, ' $1');
+}
+function sellerName() {
+var h = C.hero || {}, parts = String(T(h.name) || '').trim().split(/\s+/), pat = T(h.patronymic);
+return parts.length === 2 ? parts[1] + ' ' + parts[0] + (pat ? ' ' + pat : '') : parts.join(' ');
+}
+function svcRows(items) {
+return (items || []).map(function (i) {
+var price = keepNum(T(i.price));
+var kind = !price ? ' svc__price--deal' : /[a-zа-яё]/i.test(price.replace(/^(от|from)\s/i, '')) ? ' svc__price--text' : '';
+return '<li class="svc__row"><span class="svc__name">' + esc(keepNum(typo(T(i.name)))) + '</span>' +
+'<span class="svc__price' + kind + '">' + esc(price || UI.deal) + '</span></li>';
+}).join('');
+}
+function svcNotes(notes) {
+if (!(notes || []).length) return '';
+return '<ul class="svc__notes">' + notes.map(function (n) {
+return '<li>' + icon(n.icon || 'check', 16) + '<span>' + esc(keepNum(typo(T(n)))) + '</span></li>';
+}).join('') + '</ul>';
+}
+function svcBadges() {
+var S = C.services;
+if (!(S.badges || []).length) return '';
+return '<div class="rating svc-lead fade"><ul class="rating__badges">' + S.badges.map(function (b) {
+return '<li>' + (b.icon ? icon(b.icon, 16) : '') + esc(T(b)) + '</li>';
+}).join('') + '</ul></div>';
+}
+function askText(ask) {
+var S = C.services || {};
+if (typeof ask === 'string') {
+if (ask === 'extra') return T((S.extra || {}).ask);
+var pg = (S.pages || []).filter(function (x) { return x && x.id === ask; })[0];
+return pg ? T(pg.ask) : '';
+}
+return T(ask);
+}
+function askUrl(url, ask) {
+var t = askText(ask);
+if (!url || !t || !/^https:\/\/t\.me\//i.test(url)) return url;
+return url + (url.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(t);
+}
+function ctaPair(ask, tg, cls) {
+var S = C.services || {}, out = '';
+if (S.orderUrl) {
+out += '<a class="cta-btn' + (cls ? ' ' + cls : '') + '" href="' + esc(askUrl(S.orderUrl, ask)) + '" target="_blank" rel="noopener">' +
+icon('telegram', 18) + esc(tg || UI.write) + '</a>';
+}
+if (S.orderVk) {
+out += '<a class="cta-btn cta-btn--vk" href="' + esc(S.orderVk) + '" target="_blank" rel="noopener">' +
+icon('vk', 18) + esc(UI.writeVk) + '</a>';
+}
+return out ? '<div class="cta-row">' + out + '</div>' : '';
+}
+function svcExtra() {
+var x = C.services.extra, url = askUrl(C.services.orderUrl, 'extra');
+if (!x || !T(x.title)) return '';
+var ex = (x.examples || []).map(function (e) { return T(e); }).filter(Boolean);
+return '<a class="svc-card svc-card--extra fade" href="' + esc(url || '#') + '" target="_blank" rel="noopener">' +
+'<span class="svc-card__ic">' + icon('more', 24) + '</span>' +
+'<span class="svc-card__body"><span class="svc-card__title">' + esc(T(x.title)) + '</span>' +
+'<span class="svc-card__text">' + esc(typo(T(x.text))) + '</span>' +
+(ex.length ? '<span class="svc-card__tags">' + ex.map(function (e) {
+return '<span>' + esc(typo(e)) + '</span>';
+}).join('') + '</span>' : '') +
+(T(x.note) ? '<span class="svc-card__text">' + esc(typo(T(x.note))) + '</span>' : '') +
+'<span class="svc-card__price svc-card__price--deal">' + esc(UI.deal) + '</span></span>' +
+icon('out', 18, 'svc-card__go') + '</a>';
+}
+function svcOrder(ask) {
+var S = C.services;
+if (!T(S.order) && !S.orderUrl) return '';
+return '<h2 class="links__group fade">' + esc(UI.order) + '</h2>' +
+'<div class="svc svc--order fade">' +
+(T(S.order) ? '<p class="svc__order">' + esc(typo(T(S.order))) + '</p>' : '') +
+ctaPair(ask || S.ask) +
+'</div>';
+}
+function svcSeller() {
+var sel = C.services.seller || {}, inn = String(sel.inn || '').replace(/\D/g, '');
+var who = [sellerName(), T(sel.status), inn ? UI.inn + ' ' + inn : ''].filter(Boolean).join(', ');
+return '<p class="svc__seller fade">' + esc(UI.seller) + ': ' + esc(who) +
+' · <a href="/offer/' + (LANG === 'en' ? '?lang=en' : '') + '">' + esc(UI.offer) + '</a></p>';
+}
+function svcCard(p) {
+var price = keepNum(T(p.price));
+return '<a class="svc-card fade" href="' + svcPath(p.id) + '">' +
+'<span class="svc-card__ic">' + icon(p.icon || 'check', 24) + '</span>' +
+'<span class="svc-card__body"><span class="svc-card__title">' + esc(typo(T(p.title))) + '</span>' +
+(T(p.short) ? '<span class="svc-card__text">' + esc(keepNum(typo(T(p.short)))) + '</span>' : '') +
+'<span class="svc-card__price' + (price ? '' : ' svc-card__price--deal') + '">' + esc(price || UI.deal) + '</span></span>' +
+icon('arrow', 18, 'svc-card__go') + '</a>';
+}
+function renderServices() {
+var box = document.querySelector('[data-section="services"]');
+if (!box || !HAS_SERVICES) return;
+box.innerHTML = svcBadges() +
+'<div class="svc-grid">' + SVC_PAGES.map(svcCard).join('') + svcExtra() + '</div>' +
+svcOrder() + svcSeller();
+box.hidden = false;
+}
 function renderNow() {
 var n = C.now;
 if (!n || n.enabled === false) return;
@@ -520,10 +676,18 @@ else if (/^mailto:/i.test(bug)) bug += '?subject=' + encodeURIComponent(UI.bug) 
 line = '<a class="footer__bug" href="' + esc(bug) + '" target="_blank" rel="noopener">' +
 icon('bug', 15) + esc(UI.bug) + '</a>' + line;
 }
-if ((C.analytics || {}).metrika || (C.analytics || {}).goatcounter) {
-line += '<a class="footer__policy" href="/privacy/' + (LANG === 'en' ? '?lang=en' : '') + '">' +
-esc(UI.policy) + '</a>';
+var more = [];
+if (LANG !== 'en' && ((C.articles || {}).items || []).length) {
+more.push('<a class="footer__articles" href="/articles/">' + esc(T((C.articles || {}).title) || 'Статьи') + '</a>');
 }
+if (C.siteInfo && C.siteInfo.enabled !== false) {
+more.push('<a class="footer__about" href="' + (LANG === 'en' ? '/en' : '') + '/about-site/">' + esc(UI.aboutSite) + '</a>');
+}
+if ((C.analytics || {}).metrika || (C.analytics || {}).goatcounter) {
+more.push('<a class="footer__policy" href="/privacy/' + (LANG === 'en' ? '?lang=en' : '') + '">' +
+esc(UI.policy) + '</a>');
+}
+if (more.length) line += '<span class="footer__more">' + more.join('<span class="footer__dot" aria-hidden="true">·</span>') + '</span>';
 fill('footer', line);
 }
 function renderLang() {
@@ -542,7 +706,8 @@ a.textContent = o.code;
 function renderTabs() {
 var nav = slot('tabs');
 if (!nav) return;
-if (!(HAS_WORKS || HAS_REVIEWS) || PAGE === 'category' || PAGE === 'work') { nav.hidden = true; nav.innerHTML = ''; return; }
+if (!(HAS_WORKS || HAS_REVIEWS || HAS_SERVICES) || PAGE === 'category' || PAGE === 'work' || PAGE === 'service' || PAGE === 'site' ||
+PAGE === 'articles' || PAGE === 'article') { nav.hidden = true; nav.innerHTML = ''; return; }
 var tab = function (key, label) {
 var on = key === PAGE;
 return '<a class="tabs__item' + (on ? ' is-on' : '') + '" href="' + pathFor(LANG, key) + '"' +
@@ -553,8 +718,11 @@ nav.classList.remove('has-pill', 'is-sliding');
 nav.innerHTML = tab('home', UI.tabLinks) +
 (HAS_WORKS ? tab('portfolio', T(P.title) || UI.tabWorks) : '') +
 (HAS_REVIEWS ? tab('reviews', UI.reviews) : '') +
+(HAS_SERVICES ? tab('services', T(C.services.title) || UI.services) : '') +
 '<span class="tabs__pill" aria-hidden="true"></span>';
-nav.style.setProperty('--tabs', nav.querySelectorAll('.tabs__item').length);
+var n = nav.querySelectorAll('.tabs__item').length;
+nav.style.setProperty('--tabs', n);
+nav.classList.toggle('tabs--4', n >= 4);
 nav.hidden = false;
 }
 function initPill() {
@@ -564,6 +732,21 @@ var pill = nav.querySelector('.tabs__pill'), on = nav.querySelector('.tabs__item
 var items = nav.querySelectorAll('.tabs__item');
 if (!pill || !on) return;
 var cur = [].indexOf.call(items, on);
+function fitTabs() {
+if (!nav.classList.contains('tabs--4')) return;
+nav.style.removeProperty('--tabs-fs');
+var last = items[items.length - 1], ns = getComputedStyle(nav);
+var over = function () {
+return last.getBoundingClientRect().right >
+nav.getBoundingClientRect().right - parseFloat(ns.borderRightWidth) - parseFloat(ns.paddingRight) + 0.5;
+};
+var fs = parseFloat(getComputedStyle(items[0]).fontSize), k = 0;
+while (over() && fs > 10 && k++ < 24) {
+fs -= 0.25;
+nav.style.setProperty('--tabs-fs', fs + 'px');
+}
+}
+fitTabs();
 function place(el) {
 pill.style.setProperty('--x', el.offsetLeft + 'px');
 pill.style.setProperty('--w', el.offsetWidth + 'px');
@@ -612,18 +795,20 @@ if (!a || a === now) return;
 try { sessionStorage.setItem('site-tab-from', String([].indexOf.call(items, now))); } catch (e2) {}
 });
 var again = function () {
+fitTabs();
 var now = nav.querySelector('.tabs__item.is-on');
 if (now && !nav.classList.contains('is-sliding')) place(now);
 };
 window.addEventListener('resize', again);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(again);
 }
-var TAB_ORDER = ['home', 'portfolio', 'reviews'];
+var TAB_ORDER = ['home', 'portfolio', 'reviews', 'services'];
 function tabPageOf(pathname) {
 for (var i = 0; i < TAB_ORDER.length; i++) {
 var p = TAB_ORDER[i];
 if (p === 'portfolio' && !HAS_WORKS) continue;
 if (p === 'reviews' && !HAS_REVIEWS) continue;
+if (p === 'services' && !HAS_SERVICES) continue;
 if (pathFor(LANG, p) === pathname) return p;
 }
 return null;
@@ -631,7 +816,9 @@ return null;
 function titleFor(page) {
 var name = T((C.hero || {}).name);
 if (page === 'home') return T((C.meta || {}).title) || name || UI.page;
-var label = page === 'portfolio' ? (T(P.title) || UI.tabWorks) : (T((C.reviews || {}).title) || UI.reviews);
+var label = page === 'portfolio' ? (T(P.title) || UI.tabWorks)
+: page === 'services' ? (T((C.services || {}).title) || UI.services)
+: (T((C.reviews || {}).title) || UI.reviews);
 return label + ' — ' + name;
 }
 function movePill() {
@@ -655,6 +842,8 @@ works.removeAttribute('aria-hidden');
 works.innerHTML = '';
 works.hidden = true;
 }
+var svc = document.querySelector('[data-section="services"]');
+if (svc && page !== 'services') { svc.innerHTML = ''; svc.hidden = true; }
 if (page === 'home') {
 applyMeta();
 var links = slot('links');
@@ -672,6 +861,7 @@ renderReviews();
 clearHomeBlocks();
 document.title = titleFor(page);
 if (page === 'reviews') renderReviews();
+if (page === 'services') renderServices();
 if (page === 'portfolio' && window.SITE_RENDER_WORKS) window.SITE_RENDER_WORKS();
 }
 var nav = slot('tabs');
@@ -771,7 +961,7 @@ announce('');
 var swipeEls = [];
 function swipeTargets() {
 return Array.prototype.filter.call(document.querySelectorAll(
-'.top, [data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"]'), function (el) {
+'.top, [data-bind="links"], [data-section="works"], [data-section="reviews"], [data-section="now"], [data-section="services"]'), function (el) {
 return !el.hidden && el.offsetParent !== null && !el.classList.contains('is-warming');
 });
 }
@@ -903,7 +1093,8 @@ else window.addEventListener('load', function () { setTimeout(go, 800); }, { onc
 function clearHomeBlocks() {
 var list = ['[data-section="projects"]', '[data-bind="links"]', '[data-section="now"]'];
 if (PAGE !== 'reviews') list.push('[data-section="reviews"]');
-if (PAGE === 'category' || PAGE === 'work') list.push('.intro');
+if (PAGE === 'category' || PAGE === 'work' || PAGE === 'service' || PAGE === 'site' ||
+PAGE === 'articles' || PAGE === 'article') list.push('.intro');
 list.forEach(function (s) {
 var el = document.querySelector(s);
 if (el) { el.innerHTML = ''; el.hidden = true; }
@@ -936,7 +1127,7 @@ requestAnimationFrame(function () { requestAnimationFrame(show); });
 }
 setTimeout(show, 150);
 }
-if (PAGE === 'home' || PAGE === 'portfolio' || PAGE === 'reviews') renderHero();
+if (PAGE === 'home' || PAGE === 'portfolio' || PAGE === 'reviews' || PAGE === 'services') renderHero();
 renderTabs();
 if (PAGE === 'home') {
 applyMeta();
@@ -948,6 +1139,7 @@ renderReviews();
 } else {
 clearHomeBlocks();
 if (PAGE === 'reviews') renderReviews();
+if (PAGE === 'services') renderServices();
 }
 renderFooter();
 renderLang();
@@ -956,8 +1148,10 @@ initCopy();
 initTap();
 initNoDrag();
 initQr();
-window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAND,
-page: PAGE, cat: CAT, work: WORK };
+window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAND, askUrl: askUrl, cta: ctaPair,
+page: PAGE, cat: CAT, work: WORK, svcId: SVC, art: ART,
+svc: { rows: svcRows, notes: svcNotes, order: svcOrder, seller: svcSeller, extra: svcExtra, card: svcCard,
+path: svcPath, keep: keepNum, review: reviewCard, deal: UI.deal } };
 if (PAGE !== 'home' && window.SITE_RENDER_WORKS) window.SITE_RENDER_WORKS();
 initFade();
 initSwitch();
