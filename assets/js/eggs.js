@@ -453,7 +453,11 @@ return '↗  ' + link(u, label) + (T(l.handle) ? ' <span class="is-dim">— ' + 
 return;
 case 'vpn':
 var pr = ((C.projects || {}).items || []).filter(function (p) { return p && T(p.url); });
-print(pr.length ? pr.map(function (p) { return '↗  ' + link(T(p.url), T(p.title)) + ' <span class="is-dim">' + esc(T(p.handle)) + '</span>'; }).join('\n')
+print(pr.length ? pr.map(function (p) {
+if ((p.links || []).length) return p.links.map(function (l) {
+return '↗  ' + link(T(l.url), T(l.text)) + ' <span class="is-dim">— ' + esc(T(l.label)) + '</span>';
+}).join('\n');
+return '↗  ' + link(T(p.url), T(p.title)) + ' <span class="is-dim">' + esc(T(p.handle)) + '</span>'; }).join('\n')
 : '—', pr.length ? '' : 'is-dim');
 return;
 case 'portfolio':

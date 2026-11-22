@@ -15,7 +15,7 @@ English version: https://kirillbuldakov.ru/en/
 Статус: самозанятый, работает официально, с чеком; гарантия на работу по новым сборкам — 1 год.
 
 ## Проекты
-- [VPN-бот в Telegram](https://t.me/EBK_KVN_BOT): @EBK_KVN_BOT
+- [VPN EBK KVN](https://t.me/EBK_KVN_BOT): бот в Telegram и сайт с личным кабинетом; бот в Telegram — [@EBK_KVN_BOT](https://t.me/EBK_KVN_BOT), сайт и личный кабинет — [ebk.ru.net](https://ebk.ru.net/)
 
 ## Профили
 - [Telegram](https://t.me/Baget_PC): @Baget_PC

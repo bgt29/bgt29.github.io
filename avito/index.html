@@ -16,12 +16,13 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/assets/css/style.css?v=1508793276">
-  <script src="/assets/js/config.js?v=45b304a2eb"></script>
+  <link rel="stylesheet" href="/assets/css/style.css?v=d369c69da6">
+  <script src="/assets/js/config.js?v=14476dc150"></script>
   <script>
 (function () {
 var C = window.SITE_CONFIG || {}, to = "https://www.avito.ru/user/ba1b4d160ef31d9e2c5f8959441c713b/profile";
-var all = (C.links || []).concat((C.projects || {}).items || []);
+var pi = (C.projects || {}).items || [], all = (C.links || []).concat(pi);
+pi.forEach(function (p) { all = all.concat((p && p.links) || []); });
 for (var i = 0; i < all.length; i++) {
 var l = all[i] || {};
 if ([].concat(l.short || []).indexOf("avito") < 0) continue;

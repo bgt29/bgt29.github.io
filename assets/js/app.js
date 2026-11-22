@@ -37,6 +37,7 @@ copy: 'Скопировать адрес', copied: 'Адрес скопиров�
 copyNick: 'Скопировать ник', nickCopied: 'Ник скопирован',
 policy: 'Конфиденциальность и куки',
 bug: 'Нашли ошибку? Напишите мне', bugDraft: 'Нашёл ошибку на странице ',
+bugTo: 'Нашли ошибку? Напишите в', bugOr: 'или',
 reviews: 'Отзывы', reviewsAll: 'Все отзывы', reviewsMore: 'Все отзывы', path: 'Где вы на сайте',
 reviewCase: 'К работе', reviewProjects: 'Проекты', reviewsCount: function (n) {
 var k = n % 10, h = n % 100;
@@ -51,6 +52,7 @@ copy: 'Copy address', copied: 'Address copied', copyByHand: 'Copy the address:',
 copyNick: 'Copy username', nickCopied: 'Username copied',
 policy: 'Privacy & cookies',
 bug: 'Found a bug? Let me know', bugDraft: 'Found a bug on the page ',
+bugTo: 'Found a bug? Message me on', bugOr: 'or',
 reviews: 'Reviews', reviewsAll: 'All reviews', reviewsMore: 'All reviews', path: 'You are here',
 reviewCase: 'See the work', reviewProjects: 'Projects', reviewsCount: function (n) { return n + (n === 1 ? ' review' : ' reviews'); },
 tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections', qr: 'QR code of the site', aboutSite: 'About this site',
@@ -104,6 +106,7 @@ gamepad: '<path d="M7.5 7h9a5 5 0 0 1 5 5v.5a4.5 4.5 0 0 1-8 2.8l-.3-.3h-2.4l-.3
 sparkle: '<path d="M12 3.5l1.8 4.7 4.7 1.8-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.8z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
 video: '<rect x="3" y="6.5" width="13" height="11" rx="2.5"/><path d="M16 11l5-3v8l-5-3"/>',
 more: '<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+chat: '<path d="M20.5 11.5a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1.4-4.5a8.5 8.5 0 1 1 15.6-4.5z"/><path d="M8.5 11.5h7M8.5 14.5h4"/>',
 shield: '<path d="M12 3l7 3v5.5c0 4.3-2.9 7.7-7 9.5-4.1-1.8-7-5.2-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/>',
 verified: '<circle cx="9" cy="8.5" r="3.5"/><path d="M3 19.5c.8-3 3.2-4.8 6-4.8 1.3 0 2.5.4 3.5 1.1"/><path d="M15 16l2 2 4-4"/>',
 calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
@@ -401,6 +404,20 @@ var mark = p.logo === 'ebk'
 '</span>'
 : '<span class="link__icon">' + icon(p.icon || 'link', 24) + '</span>';
 var handle = T(p.handle), cta = T(p.cta);
+var links = (p.links || []).filter(function (l) { return l && T(l.url); });
+if (links.length) {
+return '<div class="feat feat--multi fade">' + mark +
+'<span class="feat__text">' +
+'<span class="feat__title">' + esc(typo(T(p.title))) + '</span>' +
+(handle ? '<span class="feat__sub">' + esc(typo(handle)) + '</span>' : '') +
+'<span class="feat__btns">' + links.map(function (l, i) {
+return '<a class="feat__cta' + (i ? ' feat__cta--ghost' : '') + '" href="' + esc(T(l.url)) + '" target="_blank" rel="noopener"' +
+(T(l.label) ? ' aria-label="' + esc(T(l.label) + ': ' + T(l.text)) + '"' : '') + '>' +
+(l.icon ? icon(l.icon, 15) : '') + '<span class="feat__addr">' + esc(T(l.text)) + '</span>' + icon('arrow', 15) + '</a>';
+}).join('') + '</span>' +
+'</span>' +
+'</div>';
+}
 return '<a class="feat fade" href="' + esc(T(p.url)) + '" target="_blank" rel="noopener">' +
 mark +
 '<span class="feat__text">' +
@@ -462,7 +479,7 @@ window.prompt(UI.copyByHand, text);
 }
 function initTap() {
 if (!window.matchMedia || !matchMedia('(hover: none)').matches) return;
-var SEL = '.tile, .link-wrap, .work, .more, .feat, .cta-btn, .socials__item';
+var SEL = '.more__btn, .feat--multi .feat__cta, .tile, .link-wrap, .work, .more, .feat, .cta-btn, .socials__item';
 var el = null, on = 0, off = 0, x0 = 0, y0 = 0;
 function clear() {
 clearTimeout(on); clearTimeout(off);
@@ -475,7 +492,8 @@ clear();
 x0 = e.clientX; y0 = e.clientY;
 var t = e.target.closest && e.target.closest(SEL);
 if (t && t.parentNode.classList && t.parentNode.classList.contains('link-wrap')) t = t.parentNode;
-if (!t || t.classList.contains('more--group') || t.classList.contains('work--group')) return;
+if (!t || t.classList.contains('more--group') || t.classList.contains('work--group') ||
+t.classList.contains('more--offer') || t.classList.contains('feat--multi')) return;
 el = t;
 on = setTimeout(function () { t.classList.add('is-press'); }, 70);
 }, { passive: true });
@@ -629,15 +647,15 @@ var t = askText(ask);
 if (!url || !t || !/^https:\/\/t\.me\//i.test(url)) return url;
 return url + (url.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(t);
 }
-function ctaPair(ask, tg, cls) {
+function ctaPair(ask, tg, cls, vk) {
 var S = C.services || {}, out = '';
 if (S.orderUrl) {
 out += '<a class="cta-btn cta-btn--tg' + (cls ? ' ' + cls : '') + '" href="' + esc(askUrl(S.orderUrl, ask)) + '" target="_blank" rel="noopener">' +
-icon('telegram', 18) + esc(tg || UI.write) + '</a>';
+icon('telegram', 18) + '<span class="cta-long">' + esc(tg || UI.write) + '</span><span class="cta-short">Telegram</span></a>';
 }
 if (S.orderVk) {
 out += '<a class="cta-btn cta-btn--vk" href="' + esc(S.orderVk) + '" target="_blank" rel="noopener">' +
-icon('vk', 18) + esc(UI.writeVk) + '</a>';
+icon('vk', 18) + '<span class="cta-long">' + esc(vk || UI.writeVk) + '</span><span class="cta-short">' + (LANG === 'en' ? 'VK' : 'ВК') + '</span></a>';
 }
 return out ? '<div class="cta-row">' + out + '</div>' : '';
 }
@@ -645,6 +663,23 @@ function svcExtra() {
 var x = C.services.extra, url = askUrl(C.services.orderUrl, 'extra');
 if (!x || !T(x.title)) return '';
 var ex = (x.examples || []).map(function (e) { return T(e); }).filter(Boolean);
+var vkX = C.services.orderVk;
+if (vkX) {
+return '<div class="svc-card svc-card--extra svc-card--btns fade">' +
+'<span class="svc-card__ic">' + icon('more', 24) + '</span>' +
+'<span class="svc-card__body"><span class="svc-card__title">' + esc(T(x.title)) + '</span>' +
+'<span class="svc-card__text">' + esc(typo(T(x.text))) + '</span>' +
+(ex.length ? '<span class="svc-card__tags">' + ex.map(function (e) {
+return '<span>' + esc(typo(e)) + '</span>';
+}).join('') + '</span>' : '') +
+(T(x.note) ? '<span class="svc-card__text">' + esc(typo(T(x.note))) + '</span>' : '') +
+'<span class="svc-card__price svc-card__price--deal">' + esc(UI.deal) + '</span>' +
+'<span class="more__btns svc-card__btns">' +
+'<a class="more__btn more__btn--tg" href="' + esc(url) + '" target="_blank" rel="noopener">' + icon('telegram', 16) + 'Telegram</a>' +
+'<a class="more__btn more__btn--vk" href="' + esc(vkX) + '" target="_blank" rel="noopener">' + icon('vk', 16) + (LANG === 'en' ? 'VK' : 'ВК') + '</a>' +
+'</span></span>' +
+'</div>';
+}
 return '<a class="svc-card svc-card--extra fade" href="' + esc(url || '#') + '" target="_blank" rel="noopener">' +
 '<span class="svc-card__ic">' + icon('more', 24) + '</span>' +
 '<span class="svc-card__body"><span class="svc-card__title">' + esc(T(x.title)) + '</span>' +
@@ -713,8 +748,13 @@ var page = (T((C.meta || {}).url) || location.origin).replace(/\/+$/, '') + loca
 var draft = UI.bugDraft + page + ' — ';
 if (/^https:\/\/t\.me\//i.test(bug)) bug += (bug.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(draft);
 else if (/^mailto:/i.test(bug)) bug += '?subject=' + encodeURIComponent(UI.bug) + '&body=' + encodeURIComponent(draft);
-line = '<a class="footer__bug" href="' + esc(bug) + '" target="_blank" rel="noopener">' +
-icon('bug', 15) + esc(UI.bug) + '</a>' + line;
+var vkBug = (C.services || {}).orderVk;
+line = (vkBug
+? '<span class="footer__bug footer__bug--two">' + icon('bug', 15) +
+'<span>' + esc(UI.bugTo) + ' <a href="' + esc(bug) + '" target="_blank" rel="noopener">Telegram</a> ' +
+esc(UI.bugOr) + ' <a href="' + esc(vkBug) + '" target="_blank" rel="noopener">' + (LANG === 'en' ? 'VK' : 'ВК') + '</a></span></span>'
+: '<a class="footer__bug" href="' + esc(bug) + '" target="_blank" rel="noopener">' +
+icon('bug', 15) + esc(UI.bug) + '</a>') + line;
 }
 var more = [];
 if (artItems().length) {
@@ -1192,7 +1232,7 @@ initQr();
 window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAND, askUrl: askUrl, cta: ctaPair,
 articles: artItems, artCard: artCard,
 page: PAGE, cat: CAT, work: WORK, svcId: SVC, art: ART,
-svc: { rows: svcRows, notes: svcNotes, order: svcOrder, seller: svcSeller, extra: svcExtra, card: svcCard,
+svc: { rows: svcRows, notes: svcNotes, order: svcOrder, seller: svcSeller, card: svcCard,
 path: svcPath, keep: keepNum, review: reviewCard, deal: UI.deal } };
 if (PAGE !== 'home' && window.SITE_RENDER_WORKS) window.SITE_RENDER_WORKS();
 initFade();

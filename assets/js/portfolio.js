@@ -100,7 +100,7 @@ empty: 'Работы скоро появятся.', soon: 'Скоро здесь
 services: 'Услуги', includes: 'Что входит', steps: 'Как проходит', prices: 'Цены',
 terms: 'Условия', works: 'Работы', where: 'Где посмотреть', reviews: 'Отзывы',
 allReviews: 'Все отзывы', faq: 'Частые вопросы', otherSvc: 'Другие услуги',
-write: 'Написать в Telegram',
+write: 'Написать в Telegram', order: 'Цены и как заказать',
 aboutSite: 'О сайте', siteFeatures: 'Что умеет', siteControls: 'Управление',
 siteEggs: 'Пасхалки', siteTech: 'Как сделан',
 months: ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль',
@@ -114,7 +114,7 @@ empty: 'Work coming soon.', soon: 'Work coming soon',
 services: 'Services', includes: 'What’s included', steps: 'How it works', prices: 'Prices',
 terms: 'Terms', works: 'Work', where: 'Where to see it', reviews: 'Reviews',
 allReviews: 'All reviews', faq: 'Questions', otherSvc: 'Other services',
-write: 'Message me on Telegram',
+write: 'Message me on Telegram', order: 'Prices and how to order',
 aboutSite: 'About this site', siteFeatures: 'Features', siteControls: 'Controls',
 siteEggs: 'Easter eggs', siteTech: 'How it’s built',
 months: ['January', 'February', 'March', 'April', 'May', 'June', 'July',
@@ -256,6 +256,27 @@ socials(m) +
 '</span>' +
 '</div>';
 }
+var VKu = (C.services || {}).orderVk;
+if (m.offer && /t\.me\//.test(T(m.url))) {
+var sv = ((C.services || {}).pages || []).filter(function (x) { return x && x.id === m.ask; })[0];
+var ic = sv && sv.icon ? sv.icon : (m.ask === 'extra' ? 'more' : m.icon);
+var title = T(m.title);
+return '<div class="more more--offer">' +
+'<span class="link__icon" style="--brand: var(--accent)">' + U.icon(ic, 24) + '</span>' +
+'<span class="more__text">' +
+'<span class="more__title">' + esc(typo(title)) + '</span>' +
+(sub ? '<span class="more__sub">' + esc(typo(sub)) + '</span>' : '') +
+'</span>' +
+'<span class="more__btns">' +
+'<a class="more__btn more__btn--tg" href="' + esc(U.askUrl(T(m.url), m.ask)) + '" target="_blank" rel="noopener"' +
+' aria-label="' + esc((LANG === 'en' ? 'Message me on Telegram: ' : 'Написать в Telegram: ') + title) + '">' +
+U.icon('telegram', 16) + 'Telegram</a>' +
+(VKu ? '<a class="more__btn more__btn--vk" href="' + esc(VKu) + '" target="_blank" rel="noopener"' +
+' aria-label="' + esc((LANG === 'en' ? 'Message me on VK: ' : 'Написать в ВК: ') + title) + '">' +
+U.icon('vk', 16) + (LANG === 'en' ? 'VK' : 'ВК') + '</a>' : '') +
+'</span>' +
+'</div>';
+}
 return '<a class="more" href="' + esc(U.askUrl(T(m.url), m.ask)) + '" target="_blank" rel="noopener">' +
 '<span class="link__icon" style="--brand: ' + brandOf(m) + '">' + U.icon(m.icon, 24) + '</span>' +
 '<span class="more__text">' +
@@ -276,6 +297,32 @@ return href
 }
 function offersOf(id) { return (catMore[id] || []).filter(function (m) { return m.offer; }); }
 function linksOf(id) { return (catMore[id] || []).filter(function (m) { return !m.offer; }); }
+var SVC_IDS = {};
+if (C.services && C.services.enabled !== false) {
+(C.services.pages || []).forEach(function (s) { if (s && s.id) SVC_IDS[s.id] = 1; });
+}
+function linked(m) { return m.offer && SVC_IDS[m.ask]; }
+function orderLink(id) {
+var o = offersOf(id).filter(linked)[0];
+return o ? '<a class="shelf__order" href="' + PRE + '/services/' + esc(o.ask) + '/">' +
+esc(UI.order) + U.icon('arrow', 14) + '</a>' : '';
+}
+function subLine(id) {
+var a = orderLink(id), org = orgLine(id);
+return a ? '<div class="shelf__sub">' + a + org + '</div>' : org;
+}
+function orderEnd() {
+var o = P.order || {};
+if (!T(o.title)) return '';
+return '<div class="works-end fade">' +
+'<span class="link__icon" style="--brand: var(--accent)">' + U.icon('chat', 24) + '</span>' +
+'<span class="works-end__text">' +
+'<span class="works-end__title">' + esc(typo(T(o.title))) + '</span>' +
+(T(o.sub) ? '<span class="works-end__sub">' + esc(typo(T(o.sub))) + '</span>' : '') +
+'</span>' +
+U.cta(o.ask) +
+'</div>';
+}
 function shelf(id, list, title, allHref, total, cat) {
 var more = linksOf(cat || id);
 return '<section class="shelf fade" aria-labelledby="shelf-' + esc(id) + '">' +
@@ -287,7 +334,7 @@ return '<section class="shelf fade" aria-labelledby="shelf-' + esc(id) + '">' +
 ' <span>' + (total || list.length) + '</span>' + U.icon('arrow', 15) + '</a>'
 : '') +
 '</div>' +
-(cat ? '' : orgLine(id) + offersOf(id).map(moreBanner).join('')) +
+(cat ? '' : subLine(id)) +
 '<div class="shelf__wrap">' +
 '<div class="shelf__row">' + list.map(function (w) { return card(w, false); }).join('') +
 more.map(moreCard).join('') + '</div>' +
@@ -309,17 +356,19 @@ return '<span class="crumbs__sep" aria-hidden="true">›</span><a href="' + c.hr
 }
 var portfolioName = T(P.title) || UI.portfolio;
 if (U.page === 'portfolio') {
-box.innerHTML = cats.map(function (c) {
+var shelves = cats.map(function (c) {
 var list = inCat(c.id);
 if (list.length) return shelf(c.id, list, catName[c.id], urlCat(c.id));
 return P.showEmpty === true || catMore[c.id].length ? soonShelf(c.id, catName[c.id]) : '';
-}).join('') || '<p class="works__empty fade">' + esc(UI.empty) + '</p>';
+}).join('');
+box.innerHTML = shelves ? shelves + orderEnd() : '<p class="works__empty fade">' + esc(UI.empty) + '</p>';
 }
 function soonShelf(id, title) {
+var rest = catMore[id].filter(function (m) { return !linked(m); });
 return '<section class="shelf fade" aria-labelledby="shelf-' + esc(id) + '">' +
 '<div class="shelf__head"><h2 class="shelf__title" id="shelf-' + esc(id) + '">' + esc(title) + '</h2></div>' +
-orgLine(id) +
-(catMore[id].length ? catMore[id].map(moreBanner).join('') :
+subLine(id) +
+(rest.length ? rest.map(moreBanner).join('') :
 '<div class="soon">' +
 '<span class="soon__icon">' +
 '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor"' +
@@ -525,7 +574,7 @@ html += head(T(K.title)) +
 '<span class="svc-calc__label">' + esc(T(K.result)) + '</span>' +
 '<span class="svc-calc__price"></span>' +
 '<span class="svc-calc__note"></span>' +
-U.cta(sp.id, T(K.button), 'svc-calc__go') +
+U.cta(sp.id, T(K.button), 'svc-calc__go', T(K.buttonVk)) +
 '</div>' +
 (T(K.hint) ? '<p class="svc-calc__hint">' + esc(typo(T(K.hint))) + '</p>' : '') +
 '</div>';
@@ -565,8 +614,6 @@ U.icon('arrow', 16, 'faq__mark') + '</summary>' +
 '<p class="faq__a">' + esc(S2.keep(typo(T(q.a)))) + '</p></details>';
 }).join('') + '</div>';
 }
-var extra = S2.extra();
-if (extra) html += '<div class="svc-grid svc-grid--one">' + extra + '</div>';
 html += S2.order(sp.ask);
 var rest = pages.filter(function (x) { return x.id !== sp.id; });
 if (rest.length) {
