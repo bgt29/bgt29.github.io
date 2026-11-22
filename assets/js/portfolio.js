@@ -699,9 +699,11 @@ var EN = document.documentElement.lang === 'en';
 var fmt = function (n) { return EN ? n.toLocaleString('en-US') + '\u00a0₽' : n.toLocaleString('ru-RU').replace(/\s/g, '\u00a0') + '\u00a0₽'; };
 var digits = function (n) { return EN ? n.toLocaleString('en-US') : n.toLocaleString('ru-RU').replace(/\s/g, '\u00a0'); };
 function show(n) {
+var low = K.min && n < K.min;
+if (low) n = K.min;
 var price = n <= K.threshold ? K.fixed : Math.round(n * K.percent / 100);
 out.textContent = fmt(price);
-note.textContent = T(n <= K.threshold ? K.fixedNote : K.percentNote);
+note.textContent = T(low && K.minNote ? K.minNote : n <= K.threshold ? K.fixedNote : K.percentNote);
 if (go) {
 var t = String(T(K.ask) || '').replace('{budget}', fmt(n)).replace('{price}', fmt(price));
 go.href = U.askUrl((C.services || {}).orderUrl, { ru: t, en: t });
@@ -720,6 +722,10 @@ range.value = toPos(n);
 show(n);
 }
 sum.addEventListener('input', fromSum);
+sum.addEventListener('change', function () {
+var n = parseInt(String(sum.value).replace(/\D/g, '').slice(0, 15), 10) || 0;
+if (K.min && n < K.min) { sum.value = digits(K.min); fromSum(); }
+});
 range.addEventListener('input', function () { var n = toSum(+range.value); sum.value = digits(n); show(n); });
 fromSum();
 }

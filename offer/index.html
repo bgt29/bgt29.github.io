@@ -12,7 +12,7 @@
   <script>
 if (/[?&]lang=en\b/.test(location.search)) document.documentElement.lang = 'en';
 </script>
-  <script src="/assets/js/config.js?v=80858aaac1"></script>
+  <script src="/assets/js/config.js?v=45b304a2eb"></script>
   <script src="/assets/js/i18n.js?v=37a0221fe9"></script>
   <script src="/assets/js/theme.js?v=efbee483a3"></script>
   <style>
@@ -103,7 +103,7 @@ html[lang="en"] .l-ru { display: none; }
     <p>2.1. Исполнитель оказывает услуги, перечисленные на странице
        «<a href="/services/">Услуги</a>», а также другие услуги по согласованию сторон.</p>
     <p>2.2. Состав работ, стоимость и сроки каждого заказа стороны согласуют в переписке
-       (в Telegram или по почте) до оплаты. Согласованное в переписке — часть договора.</p>
+       (в Telegram, ВКонтакте или по почте) до оплаты. Согласованное в переписке — часть договора.</p>
     <h2>3. Стоимость и оплата</h2>
     <p>3.1. Цены на странице «Услуги» указаны в рублях. Цена «от» — нижняя граница: точную
        стоимость Исполнитель называет до оплаты.</p>
@@ -148,7 +148,8 @@ html[lang="en"] .l-ru { display: none; }
     <h2>9. Реквизиты и контакты Исполнителя</h2>
     <p><b data-bind="seller">Исполнитель</b>, <span data-bind="status">самозанятый</span><span data-bind="inn-wrap">,
        ИНН <span data-bind="inn"></span></span>.</p>
-    <p>Telegram: <a data-bind="tg" href="#">указан на главной</a><span data-bind="mail-wrap"> ·
+    <p>Telegram: <a data-bind="tg" href="#">указан на главной</a><span data-bind="vk-wrap" hidden> ·
+       ВКонтакте: <a data-bind="vk" href="#"></a></span><span data-bind="mail-wrap"> ·
        почта: <a data-bind="mail" href="#"></a></span><span data-bind="site-wrap"> ·
        сайт: <a data-bind="site" href="/"></a></span></p>
   </main>
@@ -178,6 +179,13 @@ if (!tg) return;
 a.href = tg;
 a.textContent = tg.replace(/^https?:\/\/t\.me\//i, '@');
 });
+var vk = String(S.orderVk || '');
+each('[data-bind="vk"]', function (a) {
+if (!vk) return;
+a.href = vk;
+a.textContent = vk.replace(/^https?:\/\/(vk\.me|vk\.com)\//i, 'vk.com/');
+});
+each('[data-bind="vk-wrap"]', function (el) { el.hidden = !vk; });
 var mail = '';
 (C.links || []).forEach(function (l) {
 var u = String(T(l.url));
