@@ -632,7 +632,7 @@ return url + (url.indexOf('?') < 0 ? '?' : '&') + 'text=' + encodeURIComponent(t
 function ctaPair(ask, tg, cls) {
 var S = C.services || {}, out = '';
 if (S.orderUrl) {
-out += '<a class="cta-btn' + (cls ? ' ' + cls : '') + '" href="' + esc(askUrl(S.orderUrl, ask)) + '" target="_blank" rel="noopener">' +
+out += '<a class="cta-btn cta-btn--tg' + (cls ? ' ' + cls : '') + '" href="' + esc(askUrl(S.orderUrl, ask)) + '" target="_blank" rel="noopener">' +
 icon('telegram', 18) + esc(tg || UI.write) + '</a>';
 }
 if (S.orderVk) {

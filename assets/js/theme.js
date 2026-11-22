@@ -261,6 +261,8 @@ if (window.SITE_ON_THEME) window.SITE_ON_THEME();
 }
 var root = document.documentElement;
 root.classList.add('js');
+document.addEventListener('pointerdown', function () { root.classList.add('by-pointer'); }, true);
+document.addEventListener('keydown', function (e) { if (e.key === 'Tab') root.classList.remove('by-pointer'); }, true);
 var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!still) {
 root.classList.add('motion');

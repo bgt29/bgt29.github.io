@@ -110,6 +110,7 @@ outline: 2px solid var(--accent);
 outline-offset: 3px;
 border-radius: 14px;
 }
+html.by-pointer :focus-visible:not(input, textarea, select) { outline: none; }
 .glow {
 position: fixed;
 inset: 0;
@@ -1535,6 +1536,7 @@ transition: transform .25s var(--ease), box-shadow .25s;
 .svc--order .cta-row { margin-top: 14px; }
 .svc-calc__out .cta-row { margin-top: 12px; }
 .cta-btn--vk { background: #0077ff; }
+.cta-btn--tg { background: #2481cc; }
 .work-page + .shelf { margin-top: 44px; }
 @media (max-width: 640px) {
 .shelf__row {
