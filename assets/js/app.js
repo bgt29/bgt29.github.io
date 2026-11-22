@@ -24,8 +24,10 @@ else if (page === 'services') p = '/services/';
 else if (page === 'service') p = '/services/' + SVC + '/';
 else if (page === 'site') p = '/about-site/';
 else if (page === 'articles' || page === 'article') {
-if (lang === 'en') return '/en/';
-p = page === 'article' ? '/articles/' + ART + '/' : '/articles/';
+var arts = (C.articles || {}).items || [];
+var cur = arts.filter(function (a) { return a && a.id === ART; })[0];
+if (page === 'article' && (lang !== 'en' || artHasEn(cur))) p = '/articles/' + ART + '/';
+else if (lang !== 'en' || arts.some(artHasEn)) p = '/articles/';
 }
 return (lang === 'en' ? '/en' : '') + p;
 }
@@ -87,6 +89,7 @@ lens: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d
 mic: '<rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/>',
 light: '<path d="M9.5 18h5M10.5 21h3M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.6 1.1-2.1A6 6 0 0 0 12 3z"/>',
 tripod: '<rect x="8" y="3" width="8" height="5" rx="1.2"/><path d="M12 8v4M12 12l-5.5 9M12 12l5.5 9M12 12v9"/>',
+calc: '<rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="5.5" width="8" height="4" rx=".8"/><path d="M8.5 13h.01M12 13h.01M15.5 13h.01M8.5 16.5h.01M12 16.5h.01M15.5 16.5h.01"/>',
 layers: '<path d="M12 3.5 21 8l-9 4.5L3 8z"/><path d="M3 12.5l9 4.5 9-4.5M3 16.5l9 4.5 9-4.5"/>',
 code: '<path d="M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5M13.5 4.5l-3 15"/>',
 pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
@@ -329,12 +332,13 @@ return '<span class="chip">' + (c.icon ? icon(c.icon, 15) : '') + esc(T(c.name))
 function renderLinks() {
 var nav = slot('links');
 if (nav) nav.setAttribute('aria-label', UI.links);
-var html = '', open = false, groups = 0;
+var html = '', open = false, groups = 0, artDone = false;
 function close() { if (open) { html += '</div>'; open = false; } }
 (C.links || []).forEach(function (l) {
 if (l.group && !T(l.url)) {
 if (groups === 1 && open) html += worksTile();
 close();
+if (groups === 2) { html += homeArticles(); artDone = true; }
 groups++;
 html += '<h2 class="links__group fade">' + esc(T(l.group)) + '</h2>';
 return;
@@ -349,7 +353,43 @@ if (works && !open) { html += '<div class="bento">'; open = true; }
 html += works;
 }
 close();
+if (!artDone) html += homeArticles();
 fill('links', html);
+if (window.SITE_SHELVES) window.SITE_SHELVES(slot('links'));
+}
+function artHasEn(a) { return !!(a && a.title && typeof a.title === 'object' && a.title.en); }
+function artItems() {
+return ((C.articles || {}).items || []).filter(function (a) {
+return a && /^[a-z0-9][a-z0-9-]*$/.test(a.id || '') && (LANG !== 'en' || artHasEn(a));
+}).slice().sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
+}
+function artCard(a) {
+var p = ((window.SITE_PHOTOS || {})[a.id] || [])[0];
+return '<a class="art-card fade" href="' + (LANG === 'en' ? '/en' : '') + '/articles/' + esc(a.id) + '/">' +
+(p ? '<span class="art-card__cover"><img src="' + esc(p.thumb) + '" alt="" width="' + p.tw + '" height="' + p.th +
+'" loading="lazy" decoding="async"></span>'
+: '<span class="art-card__cover art-card__cover--empty">' + icon('article', 40) + '</span>') +
+'<span class="art-card__body">' +
+(a.date ? '<span class="art-card__date">' + esc(month(a.date)) + '</span>' : '') +
+'<span class="art-card__title">' + esc(typo(T(a.title))) + '</span>' +
+(T(a.description) ? '<span class="art-card__text">' + esc(typo(T(a.description))) + '</span>' : '') +
+'</span></a>';
+}
+function homeArticles() {
+var list = artItems();
+if (!list.length) return '';
+var en = LANG === 'en';
+return '<div class="shelf__head fade"><h2 class="links__group">' + esc(T((C.articles || {}).title) || (en ? 'Articles' : 'Статьи')) + '</h2>' +
+'<a class="shelf__all" href="' + (en ? '/en' : '') + '/articles/">' + (en ? 'All articles' : 'Все статьи') +
+'<span>' + list.length + '</span>' + icon('arrow', 15) + '</a></div>' +
+'<div class="shelf__wrap fade"><div class="shelf__row shelf__row--art">' + list.slice(0, 8).map(artCard).join('') + '</div>' +
+shelfArrow('prev', en ? 'Scroll back' : 'Пролистать назад') + shelfArrow('next', en ? 'Scroll forward' : 'Пролистать вперёд') + '</div>';
+}
+function shelfArrow(dir, label) {
+return '<button class="shelf__nav shelf__nav--' + dir + '" type="button" aria-label="' + esc(label) + '">' +
+'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor"' +
+' stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="' +
+(dir === 'prev' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7') + '"/></svg></button>';
 }
 function projectCard(p) {
 var mark = p.logo === 'ebk'
@@ -677,8 +717,9 @@ line = '<a class="footer__bug" href="' + esc(bug) + '" target="_blank" rel="noop
 icon('bug', 15) + esc(UI.bug) + '</a>' + line;
 }
 var more = [];
-if (LANG !== 'en' && ((C.articles || {}).items || []).length) {
-more.push('<a class="footer__articles" href="/articles/">' + esc(T((C.articles || {}).title) || 'Статьи') + '</a>');
+if (artItems().length) {
+more.push('<a class="footer__articles" href="' + (LANG === 'en' ? '/en' : '') + '/articles/">' +
+esc(T((C.articles || {}).title) || (LANG === 'en' ? 'Articles' : 'Статьи')) + '</a>');
 }
 if (C.siteInfo && C.siteInfo.enabled !== false) {
 more.push('<a class="footer__about" href="' + (LANG === 'en' ? '/en' : '') + '/about-site/">' + esc(UI.aboutSite) + '</a>');
@@ -1149,6 +1190,7 @@ initTap();
 initNoDrag();
 initQr();
 window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAND, askUrl: askUrl, cta: ctaPair,
+articles: artItems, artCard: artCard,
 page: PAGE, cat: CAT, work: WORK, svcId: SVC, art: ART,
 svc: { rows: svcRows, notes: svcNotes, order: svcOrder, seller: svcSeller, extra: svcExtra, card: svcCard,
 path: svcPath, keep: keepNum, review: reviewCard, deal: UI.deal } };

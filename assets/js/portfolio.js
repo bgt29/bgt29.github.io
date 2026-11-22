@@ -1,5 +1,83 @@
 (function () {
 'use strict';
+function initShelves(root) {
+Array.prototype.forEach.call((root || document).querySelectorAll('.shelf__wrap'), function (wrap) {
+var row = wrap.querySelector('.shelf__row');
+var prev = wrap.querySelector('.shelf__nav--prev'), next = wrap.querySelector('.shelf__nav--next');
+if (!prev || !next) return;
+if (wrap._shelf) return;
+wrap._shelf = true;
+wrap.classList.add('has-fade');
+function sync() {
+prev.hidden = row.scrollLeft <= 4;
+next.hidden = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4;
+wrap.classList.toggle('is-start', prev.hidden);
+wrap.classList.toggle('is-end', next.hidden);
+}
+function step(dir) {
+cancelAnimationFrame(glide);
+var r = row.getBoundingClientRect(), k = row.clientWidth / Math.max(1, r.width);
+var pad = parseFloat(getComputedStyle(row).paddingLeft) || 0;
+var target = row.scrollLeft + dir * row.clientWidth * 0.9, best = target, bd = Infinity;
+Array.prototype.forEach.call(row.children, function (c) {
+var x = (c.getBoundingClientRect().left - r.left) * k + row.scrollLeft - pad;
+if (Math.abs(x - target) < bd) { bd = Math.abs(x - target); best = x; }
+});
+row.scrollTo({ left: Math.max(0, best), behavior: 'smooth' });
+}
+prev.addEventListener('click', function () { step(-1); });
+next.addEventListener('click', function () { step(1); });
+var drag = null, moved = false, glide = 0;
+row.addEventListener('pointerdown', function (e) {
+if (e.pointerType !== 'mouse' || e.button !== 0) return;
+cancelAnimationFrame(glide);
+moved = false;
+drag = { id: e.pointerId, x: e.clientX, left: row.scrollLeft, lx: e.clientX, t: e.timeStamp, v: 0,
+k: row.clientWidth / Math.max(1, row.getBoundingClientRect().width) };
+});
+row.addEventListener('pointermove', function (e) {
+if (!drag || e.pointerId !== drag.id) return;
+var dx = e.clientX - drag.x;
+if (!moved) {
+if (Math.abs(dx) < 6) return;
+moved = true;
+try { row.setPointerCapture(e.pointerId); } catch (err) {}
+wrap.classList.add('is-dragging');
+}
+row.scrollLeft = drag.left - dx * drag.k;
+var dt = e.timeStamp - drag.t;
+if (dt > 0) {
+drag.v = .7 * ((e.clientX - drag.lx) * drag.k / dt) + .3 * drag.v;
+drag.t = e.timeStamp; drag.lx = e.clientX;
+}
+});
+function release(e) {
+if (!drag || e.pointerId !== drag.id) return;
+var d = drag, v = -d.v, last = performance.now();
+drag = null;
+wrap.classList.remove('is-dragging');
+if (!moved || e.timeStamp - d.t > 90) return;
+(function roll() {
+glide = requestAnimationFrame(function () {
+var now = performance.now(), dt = Math.min(32, now - last), max = row.scrollWidth - row.clientWidth;
+last = now;
+row.scrollLeft += v * dt;
+v *= Math.pow(.996, dt);
+if (Math.abs(v) > .03 && row.scrollLeft > 0 && row.scrollLeft < max) roll();
+});
+})();
+}
+row.addEventListener('pointerup', release);
+row.addEventListener('pointercancel', release);
+row.addEventListener('click', function (e) {
+if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+}, true);
+row.addEventListener('scroll', sync, { passive: true });
+window.addEventListener('resize', sync);
+sync();
+});
+}
+window.SITE_SHELVES = initShelves;
 window.SITE_RENDER_WORKS = function () {
 var box = document.querySelector('[data-section="works"]');
 if (!box) return;
@@ -95,26 +173,18 @@ return '<button class="' + cls + ' ' + cls + '--' + dir + '" type="button" aria-
 ' stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="' +
 (dir === 'prev' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7') + '"/></svg></button>';
 }
-var ART_UI = { title: 'Статьи', useful: 'Полезное', all: 'Все статьи', more: 'Ещё статьи',
+var ART_UI = {
+ru: { title: 'Статьи', useful: 'Полезное', all: 'Все статьи', more: 'Ещё статьи',
 services: 'Услуги по теме', min: 'мин чтения',
 source: 'Впервые — в моём Telegram-канале «Про ПК»:', post: 'пост',
-sources: 'Собрано из постов моего Telegram-канала «Про ПК»:' };
-function articles() {
-return ((C.articles || {}).items || []).filter(function (a) { return a && /^[a-z0-9][a-z0-9-]*$/.test(a.id || ''); })
-.slice().sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
-}
-function artCard(a) {
-var p = photosOf(a)[0];
-return '<a class="art-card fade" href="/articles/' + esc(a.id) + '/">' +
-(p ? '<span class="art-card__cover"><img src="' + esc(p.thumb) + '" alt="" width="' + p.tw + '" height="' + p.th +
-'" loading="lazy" decoding="async"></span>'
-: '<span class="art-card__cover art-card__cover--empty">' + U.icon('article', 40) + '</span>') +
-'<span class="art-card__body">' +
-(a.date ? '<span class="art-card__date">' + esc(when(a.date, true)) + '</span>' : '') +
-'<span class="art-card__title">' + esc(typo(T(a.title))) + '</span>' +
-(T(a.description) ? '<span class="art-card__text">' + esc(typo(T(a.description))) + '</span>' : '') +
-'</span></a>';
-}
+sources: 'Собрано из постов моего Telegram-канала «Про ПК»:' },
+en: { title: 'Articles', useful: 'Useful reading', all: 'All articles', more: 'More articles',
+services: 'Related services', min: 'min read',
+source: 'First published on my Telegram channel (in Russian):', post: 'post',
+sources: 'Based on posts from my Telegram channel (in Russian):' }
+}[LANG];
+function articles() { return U.articles(); }
+function artCard(a) { return U.artCard(a); }
 var eagerLeft = 2;
 function card(w, withText) {
 var ph = photosOf(w), cover = ph[0];
@@ -482,13 +552,11 @@ html += '<div class="svc-head fade"><h2 class="links__group">' + esc(UI.reviews)
 '<a class="shelf__all" href="' + PRE + '/reviews/">' + esc(UI.allReviews) + U.icon('arrow', 15) + '</a></div>' +
 '<div class="revs">' + revs.slice(0, 6).join('') + '</div>';
 }
-if (LANG !== 'en') {
 var useful = articles().filter(function (a) { return (a.services || []).indexOf(sp.id) >= 0; });
 if (useful.length) {
 html += '<div class="shelf__head fade"><h2 class="links__group">' + esc(ART_UI.useful) + '</h2>' +
-'<a class="shelf__all" href="/articles/">' + esc(ART_UI.all) + U.icon('arrow', 15) + '</a></div>' +
+'<a class="shelf__all" href="' + PRE + '/articles/">' + esc(ART_UI.all) + U.icon('arrow', 15) + '</a></div>' +
 '<div class="art-grid">' + useful.slice(0, 3).map(artCard).join('') + '</div>';
-}
 }
 if ((sp.faq || []).length) {
 html += head(UI.faq) + '<div class="faq fade">' + sp.faq.map(function (q) {
@@ -565,7 +633,8 @@ var A = articles().filter(function (a) { return a.id === U.art; })[0];
 if (!A) box.innerHTML = '<p class="works__empty fade">' + esc(UI.empty) + '</p>';
 else {
 var aph = photosOf(A), cov = aph[0];
-var words = (A.body || []).map(function (b) {
+var BODY = [].concat(T(A.body) || []);
+var words = BODY.map(function (b) {
 return typeof b === 'string' ? b : [T(b.h), T(b.note), (b.list || []).map(T).join(' '), T(b.caption)].join(' ');
 }).join(' ').split(/\s+/).filter(Boolean).length;
 var mins = Math.max(1, Math.round(words / 170));
@@ -577,7 +646,7 @@ return '<figure class="art__fig">' +
 (eager ? '' : ' loading="lazy"') + ' decoding="async">' +
 (cap ? '<figcaption>' + esc(typo(cap)) + '</figcaption>' : '') + '</figure>';
 };
-var body = (A.body || []).map(function (b) {
+var body = BODY.map(function (b) {
 if (typeof b === 'string' || (b && (b.ru || b.en))) return '<p>' + esc(typo(T(b))) + '</p>';
 if (!b) return '';
 if (b.h) return '<h2>' + esc(typo(T(b.h))) + '</h2>';
@@ -590,7 +659,7 @@ var src = [].concat(A.source || []).filter(Boolean);
 var svcs = ((C.services || {}).pages || []).filter(function (x) { return x && (A.services || []).indexOf(x.id) >= 0; });
 var others = articles().filter(function (a) { return a.id !== A.id; }).slice(0, 2);
 box.innerHTML = '<div class="art-wrap">' +
-crumbs([{ href: '/articles/', label: T((C.articles || {}).title) || ART_UI.title }]) +
+crumbs([{ href: PRE + '/articles/', label: T((C.articles || {}).title) || ART_UI.title }]) +
 '<article class="art fade">' +
 '<header class="art__head">' +
 (meta ? '<p class="art__meta">' + esc(meta) + '</p>' : '') +
@@ -608,13 +677,13 @@ esc(src.length > 1 ? ART_UI.post + ' ' + (i + 1) : ART_UI.post) + '</a>';
 (svcs.length ? '<h2 class="links__group fade">' + esc(ART_UI.services) + '</h2>' +
 '<div class="svc-grid">' + svcs.map(U.svc.card).join('') + '</div>' : '') +
 (others.length ? '<div class="shelf__head fade"><h2 class="links__group">' + esc(ART_UI.more) + '</h2>' +
-'<a class="shelf__all" href="/articles/">' + esc(ART_UI.all) + U.icon('arrow', 15) + '</a></div>' +
+'<a class="shelf__all" href="' + PRE + '/articles/">' + esc(ART_UI.all) + U.icon('arrow', 15) + '</a></div>' +
 '<div class="art-grid art-grid--two">' + others.map(artCard).join('') + '</div>' : '') +
 '</div>';
 }
 }
 box.hidden = false;
-initShelves();
+initShelves(box);
 initGallery();
 initCalc();
 function initCalc() {
@@ -653,80 +722,6 @@ show(n);
 sum.addEventListener('input', fromSum);
 range.addEventListener('input', function () { var n = toSum(+range.value); sum.value = digits(n); show(n); });
 fromSum();
-}
-function initShelves() {
-Array.prototype.forEach.call(box.querySelectorAll('.shelf__wrap'), function (wrap) {
-var row = wrap.querySelector('.shelf__row');
-var prev = wrap.querySelector('.shelf__nav--prev'), next = wrap.querySelector('.shelf__nav--next');
-if (!prev || !next) return;
-wrap.classList.add('has-fade');
-function sync() {
-prev.hidden = row.scrollLeft <= 4;
-next.hidden = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4;
-wrap.classList.toggle('is-start', prev.hidden);
-wrap.classList.toggle('is-end', next.hidden);
-}
-function step(dir) {
-cancelAnimationFrame(glide);
-var r = row.getBoundingClientRect(), k = row.clientWidth / Math.max(1, r.width);
-var target = row.scrollLeft + dir * row.clientWidth * 0.9, best = target, bd = Infinity;
-Array.prototype.forEach.call(row.children, function (c) {
-var x = (c.getBoundingClientRect().left - r.left) * k + row.scrollLeft;
-if (Math.abs(x - target) < bd) { bd = Math.abs(x - target); best = x; }
-});
-row.scrollTo({ left: Math.max(0, best), behavior: 'smooth' });
-}
-prev.addEventListener('click', function () { step(-1); });
-next.addEventListener('click', function () { step(1); });
-var drag = null, moved = false, glide = 0;
-row.addEventListener('pointerdown', function (e) {
-if (e.pointerType !== 'mouse' || e.button !== 0) return;
-cancelAnimationFrame(glide);
-moved = false;
-drag = { id: e.pointerId, x: e.clientX, left: row.scrollLeft, lx: e.clientX, t: e.timeStamp, v: 0,
-k: row.clientWidth / Math.max(1, row.getBoundingClientRect().width) };
-});
-row.addEventListener('pointermove', function (e) {
-if (!drag || e.pointerId !== drag.id) return;
-var dx = e.clientX - drag.x;
-if (!moved) {
-if (Math.abs(dx) < 6) return;
-moved = true;
-try { row.setPointerCapture(e.pointerId); } catch (err) {}
-wrap.classList.add('is-dragging');
-}
-row.scrollLeft = drag.left - dx * drag.k;
-var dt = e.timeStamp - drag.t;
-if (dt > 0) {
-drag.v = .7 * ((e.clientX - drag.lx) * drag.k / dt) + .3 * drag.v;
-drag.t = e.timeStamp; drag.lx = e.clientX;
-}
-});
-function release(e) {
-if (!drag || e.pointerId !== drag.id) return;
-var d = drag, v = -d.v, last = performance.now();
-drag = null;
-wrap.classList.remove('is-dragging');
-if (!moved || e.timeStamp - d.t > 90) return;
-(function roll() {
-glide = requestAnimationFrame(function () {
-var now = performance.now(), dt = Math.min(32, now - last), max = row.scrollWidth - row.clientWidth;
-last = now;
-row.scrollLeft += v * dt;
-v *= Math.pow(.996, dt);
-if (Math.abs(v) > .03 && row.scrollLeft > 0 && row.scrollLeft < max) roll();
-});
-})();
-}
-row.addEventListener('pointerup', release);
-row.addEventListener('pointercancel', release);
-row.addEventListener('click', function (e) {
-if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
-}, true);
-row.addEventListener('scroll', sync, { passive: true });
-window.addEventListener('resize', sync);
-sync();
-});
 }
 function lightSlide(img) {
 var GW = 24, GH = 18;

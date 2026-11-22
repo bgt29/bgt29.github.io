@@ -108,7 +108,9 @@ window.SITE_PHOTOS = {
 {"src":"/assets/portfolio/kirillbuldakov/3.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/3-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/3.jpg"},
 {"src":"/assets/portfolio/kirillbuldakov/4.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/4-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/4.jpg"},
 {"src":"/assets/portfolio/kirillbuldakov/5.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/5-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/5.jpg"},
-{"src":"/assets/portfolio/kirillbuldakov/6.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/6-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/6.jpg"}
+{"src":"/assets/portfolio/kirillbuldakov/6.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/6-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/6.jpg"},
+{"src":"/assets/portfolio/kirillbuldakov/7.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/7-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/7.jpg"},
+{"src":"/assets/portfolio/kirillbuldakov/8.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov/8-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov/8.jpg"}
 ],
 "kirillbuldakov-en": [
 {"src":"/assets/portfolio/kirillbuldakov-en/1.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/1-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/1.jpg"},
@@ -116,7 +118,9 @@ window.SITE_PHOTOS = {
 {"src":"/assets/portfolio/kirillbuldakov-en/3.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/3-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/3.jpg"},
 {"src":"/assets/portfolio/kirillbuldakov-en/4.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/4-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/4.jpg"},
 {"src":"/assets/portfolio/kirillbuldakov-en/5.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/5-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/5.jpg"},
-{"src":"/assets/portfolio/kirillbuldakov-en/6.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/6-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/6.jpg"}
+{"src":"/assets/portfolio/kirillbuldakov-en/6.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/6-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/6.jpg"},
+{"src":"/assets/portfolio/kirillbuldakov-en/7.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/7-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/7.jpg"},
+{"src":"/assets/portfolio/kirillbuldakov-en/8.webp","w":1440,"h":900,"thumb":"/assets/portfolio/kirillbuldakov-en/8-s.webp","tw":640,"th":400,"jpg":"/assets/portfolio/kirillbuldakov-en/8.jpg"}
 ],
 "kogda-obsluzhivat-videokartu": [
 {"src":"/assets/portfolio/kogda-obsluzhivat-videokartu/1.webp","w":800,"h":600,"thumb":"/assets/portfolio/kogda-obsluzhivat-videokartu/1-s.webp","tw":640,"th":480,"jpg":"/assets/portfolio/kogda-obsluzhivat-videokartu/1.jpg"},
