@@ -1,13 +1,13 @@
 window.SITE_CONFIG = {
 meta: {
 ogTheme: 'light',
-title: { ru: 'Кирилл Булдаков · Багет',
-en: 'Kirill Buldakov · Baget' },
+title: { ru: 'Кирилл Булдаков · Багет — сборка ПК, сайты и фото в Череповце',
+en: 'Kirill Buldakov · Baget — PC builds, websites and photo in Cherepovets' },
 description: {
-ru: 'Кирилл Булдаков, он же Багет — сборка ПК, сайты, нейросети, ' +
-'фото и видео. Telegram, ВК, Авито, проекты и каналы.',
-en: 'Kirill Buldakov, aka Baget — PC builds, websites, AI, ' +
-'photo and video. Telegram, VK, Avito, projects and channels.',
+ru: 'Кирилл Булдаков (Багет) — сборка и обслуживание ПК в Череповце, ' +
+'сайты, нейросети, фото и видео. Цены, отзывы 5,0 на Авито, портфолио и контакты.',
+en: 'Kirill Buldakov (Baget) — PC builds and servicing in Cherepovets, Russia, ' +
+'websites, AI, photo and video. Prices, 5.0 reviews on Avito, portfolio and contacts.',
 },
 image: 'assets/img/og.jpg',
 favicon: '',
@@ -715,6 +715,7 @@ badges: [
 ],
 pages: [
 { id: 'pc-build', icon: 'cpu', cat: 'pc', links: 'pc', kit: true, reviews: 'Сборка',
+seoTitle: { ru: 'Сборка ПК на заказ в Череповце от 1 000 ₽', en: 'Custom PC builds in Cherepovets, Russia' },
 ask: { ru: 'Здравствуйте! Хочу заказать сборку ПК. Бюджет и для чего нужен: ', en: 'Hi! I’d like to order a PC build. Budget and what it’s for: ' },
 title: { ru: 'Сборка ПК на заказ', en: 'Custom PC builds' },
 short: { ru: 'Подбор конфигурации, сборка, Windows и полное тестирование. Отправляю по России и в СНГ.',
@@ -808,6 +809,7 @@ a: { ru: 'На мою работу: на сборки из полностью н
 en: 'On my work: 1 year for builds from all-new parts, by agreement with used parts. The parts themselves are covered by the maker’s and the store’s warranty.' } },
 ] },
 { id: 'upgrade', icon: 'fan', cat: 'service', links: 'pc', kit: true, reviews: 'Обслуживание|Ремонт|видеокарт',
+seoTitle: { ru: 'Чистка, обслуживание и апгрейд ПК в Череповце', en: 'PC cleaning, servicing and upgrades in Cherepovets' },
 ask: { ru: 'Здравствуйте! Нужно обслуживание или апгрейд. Что за устройство и что беспокоит: ', en: 'Hi! I need servicing or an upgrade. The device and what’s wrong: ' },
 title: { ru: 'Обслуживание, апгрейд, диагностика и настройка', en: 'Servicing, upgrades, diagnostics and setup' },
 short: { ru: 'ПК, ноутбуки, видеокарты и асики: диагностика, обслуживание, ремонт, замена комплектующих и настройка.',
@@ -865,6 +867,7 @@ en: 'Tell me what’s happening: I’ll run diagnostics, find the cause and name
 a: { ru: 'Часто да: что можно заменить или добавить — зависит от модели. Подскажу, когда узнаю какая.', en: 'Often, yes: what can be replaced or added depends on the model. Tell me which one and I’ll advise.' } },
 ] },
 { id: 'shooting', icon: 'camera', cat: 'photo', links: 'photo',
+seoTitle: { ru: 'Фотограф и видеосъёмка в Череповце от 2 000 ₽/час', en: 'Photographer and videographer in Cherepovets, Russia' },
 ask: { ru: 'Здравствуйте! Интересует съёмка. Что снимаем, где и когда: ', en: 'Hi! I’m interested in a shoot. What, where and when: ' },
 kit: {
 title: { ru: 'Чем снимаю', en: 'What I shoot with' },
@@ -934,6 +937,7 @@ a: { ru: 'В Череповце — место выбираем вместе: н
 a: { ru: 'От 2 000 ₽ за час. Точную цену называю, когда обсудим задачу, место и объём.', en: 'From 2,000 ₽ per hour. I name the exact price once we discuss the task, location and volume.' } },
 ] },
 { id: 'editing', icon: 'video', cat: 'video', links: 'video',
+seoTitle: { ru: 'Монтаж видео и рилс на заказ от 1 000 ₽', en: 'Video and reels editing' },
 ask: { ru: 'Здравствуйте! Нужен монтаж. Что за ролики и сколько: ', en: 'Hi! I need video editing. What videos and how many: ' },
 title: { ru: 'Монтаж видео', en: 'Video editing' },
 short: { ru: 'Рилсы, короткие ролики и видео для YouTube — из вашего материала или после моей съёмки.',
@@ -946,7 +950,7 @@ price: { ru: 'от 1 000 ₽', en: 'from 1,000 ₽' } },
 price: { ru: 'от 3 000 ₽', en: 'from 3,000 ₽' } },
 ],
 description: {
-ru: 'Монтаж видео: рилсы, короткие ролики и видео для YouTube и соцсетей — из вашего материала или после моей съёмки.',
+ru: 'Монтаж видео на заказ: рилсы, короткие ролики и видео для YouTube и соцсетей — из вашего материала или после моей съёмки. Рилс — от 1 000 ₽, видео для YouTube — от 3 000 ₽.',
 en: 'Video editing: reels, short videos and videos for YouTube and social media — from your footage or after my shoot.',
 },
 lead: {
@@ -978,6 +982,7 @@ faq: [
 a: { ru: 'Рилс — от 1 000 ₽, видео для YouTube — от 3 000 ₽. Точную цену называю, когда посмотрю материал.', en: 'A reel is from 1,000 ₽, a YouTube video from 3,000 ₽. I name the exact price once I see the footage.' } },
 ] },
 { id: 'smm', icon: 'megaphone', links: ['video', 'sites'],
+seoTitle: { ru: 'Ведение соцсетей и сайтов (SMM) от 15 000 ₽/мес', en: 'Social media and website management' },
 ask: { ru: 'Здравствуйте! Интересует ведение соцсетей или сайта. Какие площадки: ', en: 'Hi! I’m interested in social media or website management. Which platforms: ' },
 title: { ru: 'Ведение соцсетей и сайтов', en: 'Social media and website management' },
 short: { ru: 'Под ключ: посты, рилсы, новости и статьи на сайте — от идеи и съёмки до публикации.',
@@ -1022,6 +1027,7 @@ a: { ru: 'ВКонтакте, Instagram, YouTube, Telegram — те, что ну
 a: { ru: 'От 15 000 ₽ в месяц. Точную цену называю, когда обсудим площадки и объём.', en: 'From 15,000 ₽ a month. I name the exact price once we discuss the platforms and volume.' } },
 ] },
 { id: 'sites', icon: 'browser', cat: 'sites', links: 'sites',
+seoTitle: { ru: 'Создание и доработка сайтов в Череповце, лендинг от 15 000 ₽', en: 'Website development in Cherepovets, Russia' },
 ask: { ru: 'Здравствуйте! Нужен сайт или доработка сайта. Задача: ', en: 'Hi! I need a website or improvements to one. The task: ' },
 title: { ru: 'Сайты', en: 'Websites' },
 short: { ru: 'Новые сайты и доработка готовых: разделы, страницы, функции.',
@@ -1036,7 +1042,7 @@ price: { ru: 'от 15 000 ₽', en: 'from 15,000 ₽' } },
 price: { ru: 'по договорённости', en: 'by agreement' } },
 ],
 description: {
-ru: 'Разработка и доработка сайтов: новые сайты, новые разделы и функции на готовых. Делаю сам и в команде «Онлайн-Сервис».',
+ru: 'Разработка и доработка сайтов в Череповце и удалённо: новые сайты, разделы и функции на готовых. Лендинг — от 15 000 ₽, доработка — от 2 000 ₽.',
 en: 'Website development and improvements: new sites, new sections and features on existing ones. On my own and with the Online-Service team.',
 },
 lead: {
@@ -1068,6 +1074,7 @@ a: { ru: 'Да, дорабатываю и готовые сайты.', en: 'Yes,
 a: { ru: 'Доработка — от 2 000 ₽, лендинг — от 15 000 ₽. Точную цену называю, когда обсудим задачу.', en: 'Improvements start at 2,000 ₽, a landing page at 15,000 ₽. I name the exact price once we discuss the task.' } },
 ] },
 { id: 'ai', icon: 'sparkle', cat: 'ai',
+seoTitle: { ru: 'Внедрение нейросетей и автоматизация для бизнеса от 5 000 ₽', en: 'AI and automation for business' },
 ask: { ru: 'Здравствуйте! Хочу автоматизировать работу. Задача: ', en: 'Hi! I’d like to automate some work. The task: ' },
 title: { ru: 'Внедрение ИИ и автоматизация', en: 'AI and automation' },
 short: { ru: 'Учёт, отчёты и рутина бизнеса — на ИИ, Python и Google Таблицах.',

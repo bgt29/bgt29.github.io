@@ -1,6 +1,6 @@
 # Кирилл Булдаков (Багет)
 
-> Кирилл Булдаков, он же Багет — сборка ПК, сайты, нейросети, фото и видео. Telegram, ВК, Авито, проекты и каналы.
+> Кирилл Булдаков (Багет) — сборка и обслуживание ПК в Череповце, сайты, нейросети, фото и видео. Цены, отзывы 5,0 на Авито, портфолио и контакты.
 
 Полное имя: Кирилл Сергеевич Булдаков
 Также известен как: Kirill Buldakov, Булдаков Кирилл, Булдаков Кирилл Сергеевич, Buldakov Kirill, Багет, Baget, Baget_PC, bgt29, kbaget29, bagetpc
@@ -8,6 +8,11 @@
 Сайт: https://kirillbuldakov.ru/
 English version: https://kirillbuldakov.ru/en/
 О сайте (возможности, управление, пасхалки): https://kirillbuldakov.ru/about-site/
+
+Где: Череповец (Вологодская область) — лично; по всей России — готовые ПК отправляю СДЭКом, сайты, нейросети и консультации — удалённо.
+Как заказать: написать в Telegram https://t.me/Baget_PC или во ВКонтакте https://vk.me/Baget_PC; услуги и цены — https://kirillbuldakov.ru/services/
+Отзывы: 5,0 из 5 по 83 отзывам на Авито — https://kirillbuldakov.ru/reviews/
+Статус: самозанятый, работает официально, с чеком; гарантия на работу по новым сборкам — 1 год.
 
 ## Проекты
 - [VPN-бот в Telegram](https://t.me/EBK_KVN_BOT): @EBK_KVN_BOT
@@ -135,7 +140,7 @@ English version: https://kirillbuldakov.ru/en/
 
 ## English
 
-> Kirill Buldakov, aka Baget — PC builds, websites, AI, photo and video. Telegram, VK, Avito, projects and channels.
+> Kirill Buldakov (Baget) — PC builds and servicing in Cherepovets, Russia, websites, AI, photo and video. Prices, 5.0 reviews on Avito, portfolio and contacts.
 
 Full name: Kirill Sergeevich Buldakov
 Name in Russian: Кирилл Булдаков
