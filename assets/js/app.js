@@ -665,7 +665,7 @@ if (!x || !T(x.title)) return '';
 var ex = (x.examples || []).map(function (e) { return T(e); }).filter(Boolean);
 var vkX = C.services.orderVk;
 if (vkX) {
-return '<div class="svc-card svc-card--extra svc-card--btns fade">' +
+return '<div class="svc-card svc-card--extra svc-card--static fade">' +
 '<span class="svc-card__ic">' + icon('more', 24) + '</span>' +
 '<span class="svc-card__body"><span class="svc-card__title">' + esc(T(x.title)) + '</span>' +
 '<span class="svc-card__text">' + esc(typo(T(x.text))) + '</span>' +
@@ -673,11 +673,7 @@ return '<div class="svc-card svc-card--extra svc-card--btns fade">' +
 return '<span>' + esc(typo(e)) + '</span>';
 }).join('') + '</span>' : '') +
 (T(x.note) ? '<span class="svc-card__text">' + esc(typo(T(x.note))) + '</span>' : '') +
-'<span class="svc-card__price svc-card__price--deal">' + esc(UI.deal) + '</span>' +
-'<span class="more__btns svc-card__btns">' +
-'<a class="more__btn more__btn--tg" href="' + esc(url) + '" target="_blank" rel="noopener">' + icon('telegram', 16) + 'Telegram</a>' +
-'<a class="more__btn more__btn--vk" href="' + esc(vkX) + '" target="_blank" rel="noopener">' + icon('vk', 16) + (LANG === 'en' ? 'VK' : 'ВК') + '</a>' +
-'</span></span>' +
+'<span class="svc-card__price svc-card__price--deal">' + esc(UI.deal) + '</span></span>' +
 '</div>';
 }
 return '<a class="svc-card svc-card--extra fade" href="' + esc(url || '#') + '" target="_blank" rel="noopener">' +
