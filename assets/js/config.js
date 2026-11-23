@@ -1302,7 +1302,7 @@ en: 'The consumables, cleaning fluids, tools and diagnostic gear I use when buil
 services: ['pc-build', 'upgrade'],
 source: ['https://t.me/ShizaBageta/1317', 'https://t.me/ShizaBageta/1321'],
 body: { ru: [
-'Здесь — что я использую при сборке компьютеров и почему. Можете считать это гайдом: эти вещи облегчают работу над сборками, улучшают их качество и расширяют возможности диагностики. На фото — далеко не всё, чем я пользуюсь.',
+'Можете считать это гайдом: эти вещи облегчают работу над сборками, улучшают их качество и расширяют возможности диагностики. На фото — далеко не всё, чем я пользуюсь.',
 { h: 'Расходники' },
 { list: [
 'Термопаста с фазовым переходом — Honeywell PTM7950 SP. Превосходно отводит тепло — лучше только жидкий металл. В отличие от обычной термопасты, её не выдавливает, она хорошо закрывает микроцарапины и микротрещины на поверхностях и очень долго служит.',
@@ -1350,7 +1350,7 @@ body: { ru: [
 'Мультиметр — цифровой автоматический: не нужно ломать голову, какой режим измерения поставить.',
 ] },
 ], en: [
-'Here’s what I use when building computers, and why. Think of it as a guide: these things make the work easier, improve the quality of the builds and give more ways to diagnose problems. The photo shows far from everything I use.',
+'Think of it as a guide: these things make the work easier, improve the quality of the builds and give more ways to diagnose problems. The photo shows far from everything I use.',
 { h: 'Consumables' },
 { list: [
 'Phase-change thermal paste — Honeywell PTM7950 SP. It transfers heat superbly — only liquid metal does better. Unlike regular paste, it doesn’t get pumped out, fills micro-scratches and micro-cracks on the surfaces well and lasts a very long time.',
@@ -1401,8 +1401,8 @@ body: { ru: [
 { id: 'palit-peregrev-bolty', date: '2025-01-26',
 title: { ru: 'Почему греются видеокарты Palit и как это исправить',
 en: 'Why Palit graphics cards run hot and how to fix it' },
-description: { ru: 'Hot Spot под 105 °C, плавающее энергопотребление и шум — типичная проблема Palit и похожих брендов. Причина — в болтах охлаждения, и её можно исправить.',
-en: 'A Hot Spot near 105 °C, fluctuating power draw and noise are a typical problem with Palit and similar brands. The cause is the cooler screws, and it can be fixed.' },
+description: { ru: 'Что не так с креплением охлаждения, как это видно по отпечатку термопасты и что помогло — с замерами до и после.',
+en: 'What’s wrong with how the cooler is mounted, how the paste imprint gives it away and what helped — with before-and-after measurements.' },
 services: ['upgrade'],
 source: ['https://t.me/ShizaBageta/894', 'https://t.me/ShizaBageta/1321'],
 body: { ru: [
@@ -1450,7 +1450,7 @@ en: 'How to tell that your graphics card needs new thermal paste and pads, and w
 services: ['upgrade'],
 source: ['https://t.me/ShizaBageta/1167', 'https://t.me/ShizaBageta/961', 'https://t.me/ShizaBageta/1222', 'https://t.me/ShizaBageta/1364', 'https://t.me/ShizaBageta/247'],
 body: { ru: [
-'Термопаста и термопрокладки в видеокарте со временем высыхают и теряют свойства, а пасту может просто выдавить. Карта начинает сильнее греться и шуметь. Вот по каким признакам это видно — на примерах карт, которые я обслуживал.',
+'Термопаста и термопрокладки в видеокарте со временем высыхают и теряют свойства, а пасту может просто выдавить. Карта начинает сильнее греться и шуметь.',
 { h: 'Признаки' },
 { list: [
 'Высокая температура в играх. RTX 3070 EVGA FTW3 клиента в играх грелась до 90 °C.',
@@ -1459,7 +1459,7 @@ body: { ru: [
 'Громкие вентиляторы: чтобы удержать температуру, им приходится крутиться быстрее.',
 'Карту давно не обслуживали. У RTX 3060 Ti с момента покупки термопасту просто выдавило.',
 ] },
-{ photo: 2, caption: 'RTX 3060 Ti: термопасту выдавило' },
+{ photo: 2, caption: 'RTX 3060 Ti от HP: чип, очищенный от старой пасты' },
 { h: 'Что я делаю' },
 'Разбираю карту, снимаю старую пасту и прокладки, отмываю плату и радиатор. Ставлю термопасту с фазовым переходом Honeywell PTM7950 и термопрокладки Fehonda, на некоторые элементы — жидкие прокладки Laird Tputty 607. Если на металлическом бэкплейте нет прокладок, а у этой модели они могут там стоять, — по согласованию с клиентом добавляю. При необходимости меняю подшипник вентилятора.',
 { h: 'Что это даёт' },
@@ -1477,7 +1477,7 @@ body: { ru: [
 { photo: 5, caption: 'RTX 3070 после сервиса: термопасты слишком много' },
 { photo: 6 },
 ], en: [
-'Thermal paste and pads in a graphics card dry out and lose their properties over time, and the paste can simply get pumped out. The card starts running hotter and louder. Here are the signs — with examples from cards I’ve serviced.',
+'Thermal paste and pads in a graphics card dry out and lose their properties over time, and the paste can simply get pumped out. The card starts running hotter and louder.',
 { h: 'The signs' },
 { list: [
 'High temperatures in games. A customer’s RTX 3070 EVGA FTW3 reached 90 °C in games.',
@@ -1486,7 +1486,7 @@ body: { ru: [
 'Loud fans: they have to spin faster to keep the temperature down.',
 'The card hasn’t been serviced for a long time. On the RTX 3060 Ti, the thermal paste had simply been pumped out since the day it was bought.',
 ] },
-{ photo: 2, caption: 'RTX 3060 Ti: the thermal paste got pumped out' },
+{ photo: 2, caption: 'HP RTX 3060 Ti: the chip cleaned of the old paste' },
 { h: 'What I do' },
 'I take the card apart, remove the old paste and pads, and clean the board and the heatsink. I apply Honeywell PTM7950 phase-change paste and Fehonda thermal pads, and Laird Tputty 607 liquid pads on some components. If the metal backplate has no pads where this model can have them, I add them after agreeing with the customer. If needed, I replace the fan bearing.',
 { h: 'What it gives you' },
@@ -1512,7 +1512,7 @@ en: 'A story from an order: the customer kept their old power supply on a friend
 services: ['pc-build', 'upgrade'],
 source: ['https://t.me/ShizaBageta/931', 'https://t.me/ShizaBageta/949', 'https://t.me/ShizaBageta/903'],
 body: { ru: [
-'Расскажу случай с одного заказа. Мы с клиентом около трёх месяцев выбирали конфигурацию и перебрали огромное количество вариантов. Остановились на Ryzen 5 8400F, RTX 3080 EVGA FTW3 Ultra на 12 ГБ, 32 ГБ DDR5 6000 МГц, материнской плате Maxsun B650M Challenger и корпусе Powercase Byteflow.',
+'Мы с клиентом около трёх месяцев выбирали конфигурацию и перебрали огромное количество вариантов. Остановились на Ryzen 5 8400F, RTX 3080 EVGA FTW3 Ultra на 12 ГБ, 32 ГБ DDR5 6000 МГц, материнской плате Maxsun B650M Challenger и корпусе Powercase Byteflow.',
 { h: 'Старый блок питания' },
 'Блок питания клиент хотел поставить свой — старый Thermaltake Toughpower XT Platinum на 1275 Вт. Я сразу сказал, что тогда не смогу дать гарантию на компьютер: старый блок может учудить. Заказали новый 1stPlayer NGDP Gold на 850 Вт. Он приехал, но через пару дней клиент попросил его вернуть — «шарящий друг» убедил, что старый ещё послужит. Переубедить не получилось.',
 'Собрали, протестировали у меня под нагрузкой — всё работало. Своих 8-пиновых кабелей для видеокарты у блока не хватило, пришлось добавить свой кабель. Сам блок я почистил и смазал ему вентилятор.',
@@ -1530,7 +1530,7 @@ body: { ru: [
 'На той же сборке с Ryzen 5 8400F клиент захотел собирать вместе со мной. Пока я чистил старый блок, он полез сортировать кабели ARGB-контроллера, а руки после еды вытер плохо. При первом запуске появился резкий запах гари, подсветка моргнула и погасла. Контроллер пришлось менять. С тех пор я собираю компьютеры только один — без клиентов и знакомых рядом.',
 { photo: 2, caption: 'Сгоревший ARGB-контроллер' },
 ], en: [
-'Here’s a story from one order. The customer and I spent about three months choosing the configuration and went through a huge number of options. We settled on a Ryzen 5 8400F, a 12 GB RTX 3080 EVGA FTW3 Ultra, 32 GB of DDR5 at 6000 MHz, a Maxsun B650M Challenger motherboard and a Powercase Byteflow case.',
+'The customer and I spent about three months choosing the configuration and went through a huge number of options. We settled on a Ryzen 5 8400F, a 12 GB RTX 3080 EVGA FTW3 Ultra, 32 GB of DDR5 at 6000 MHz, a Maxsun B650M Challenger motherboard and a Powercase Byteflow case.',
 { h: 'The old power supply' },
 'The customer wanted to use their own power supply — an old 1275 W Thermaltake Toughpower XT Platinum. I said right away that in that case I couldn’t give a warranty on the computer: an old PSU can act up. We ordered a new 850 W 1stPlayer NGDP Gold. It arrived, but a couple of days later the customer asked to return it — a “tech-savvy friend” had convinced them the old one still had plenty of life in it. I couldn’t change their mind.',
 'We built the PC and tested it under load at my place — everything worked. The PSU didn’t have enough 8-pin cables for the graphics card, so I had to add my own cable. I also cleaned the PSU itself and lubricated its fan.',
@@ -1556,7 +1556,6 @@ en: 'A new computer for gaming and work for 57,000 ₽ including assembly: which
 services: ['pc-build'],
 source: ['https://t.me/ShizaBageta/1300'],
 body: { ru: [
-'Бюджетный новый компьютер — базовый минимум в 2025 году, чтобы поиграть или поработать. Вместе с моей работой он вышел в 57 000 ₽ (цены на октябрь 2025 года).',
 { h: 'Комплектующие' },
 { list: [
 'Процессор — Intel Core i3-12100F',
@@ -1578,7 +1577,6 @@ body: { ru: [
 'С тех пор комплектующие подорожали, так что такой же компьютер сейчас выйдет дороже. А корпус в этой сборке приехал с небольшим заводским дефектом — клиента я предупредил.',
 { photo: 4, caption: 'Дефект корпуса, с которым он приехал' },
 ], en: [
-'A new budget computer — the basic minimum in 2025 for gaming or work. Together with my work, it came to 57,000 ₽ (prices as of October 2025).',
 { h: 'The parts' },
 { list: [
 'CPU — Intel Core i3-12100F',
