@@ -366,16 +366,18 @@ return ((C.articles || {}).items || []).filter(function (a) {
 return a && /^[a-z0-9][a-z0-9-]*$/.test(a.id || '') && (LANG !== 'en' || artHasEn(a));
 }).slice().sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
 }
-function artCard(a) {
+function artCard(a, compact) {
 var p = ((window.SITE_PHOTOS || {})[a.id] || [])[0];
-return '<a class="art-card fade" href="' + (LANG === 'en' ? '/en' : '') + '/articles/' + esc(a.id) + '/">' +
-(p ? '<span class="art-card__cover"><img src="' + esc(p.thumb) + '" alt="" width="' + p.tw + '" height="' + p.th +
-'" loading="lazy" decoding="async"></span>'
-: '<span class="art-card__cover art-card__cover--empty">' + icon('article', 40) + '</span>') +
-'<span class="art-card__body">' +
-(a.date ? '<span class="art-card__date">' + esc(month(a.date)) + '</span>' : '') +
-'<span class="art-card__title">' + esc(typo(T(a.title))) + '</span>' +
-(T(a.description) ? '<span class="art-card__text">' + esc(typo(T(a.description))) + '</span>' : '') +
+var cls = compact ? 'work' : 'art-card', description = compact ? '' : T(a.description);
+var dateCls = compact ? 'work__meta' : 'art-card__date';
+return '<a class="' + cls + ' fade" href="' + (LANG === 'en' ? '/en' : '') + '/articles/' + esc(a.id) + '/">' +
+'<span class="' + cls + '__cover' + (!p && !compact ? ' art-card__cover--empty' : '') + '">' +
+(p ? '<img src="' + esc(p.thumb) + '" alt="" width="' + p.tw + '" height="' + p.th + '" loading="lazy" decoding="async">'
+: icon('article', 40)) +
+'</span><span class="' + cls + '__body">' +
+(a.date ? '<span class="' + dateCls + '">' + esc(month(a.date)) + '</span>' : '') +
+'<span class="' + cls + '__title">' + esc(typo(T(a.title))) + '</span>' +
+(description ? '<span class="art-card__text">' + esc(typo(description)) + '</span>' : '') +
 '</span></a>';
 }
 function homeArticles() {
@@ -385,7 +387,8 @@ var en = LANG === 'en';
 return '<div class="shelf__head fade"><h2 class="links__group">' + esc(T((C.articles || {}).title) || (en ? 'Articles' : 'Статьи')) + '</h2>' +
 '<a class="shelf__all" href="' + (en ? '/en' : '') + '/articles/">' + (en ? 'All articles' : 'Все статьи') +
 '<span>' + list.length + '</span>' + icon('arrow', 15) + '</a></div>' +
-'<div class="shelf__wrap fade"><div class="shelf__row shelf__row--art">' + list.slice(0, 8).map(artCard).join('') + '</div>' +
+'<div class="shelf__wrap fade"><div class="shelf__row">' +
+list.slice(0, 8).map(function (a) { return artCard(a, true); }).join('') + '</div>' +
 shelfArrow('prev', en ? 'Scroll back' : 'Пролистать назад') + shelfArrow('next', en ? 'Scroll forward' : 'Пролистать вперёд') + '</div>';
 }
 function shelfArrow(dir, label) {
@@ -608,6 +611,10 @@ function svcPath(id) { return (LANG === 'en' ? '/en' : '') + '/services/' + id +
 function keepNum(s) {
 return String(s || '').replace(/(\d) (?=\d)/g, '$1 ').replace(/ (₽|%)/g, ' $1');
 }
+function svcPrice(p) {
+var price = T(p.price), label = T(p.priceLabel);
+return price ? keepNum(label ? label + ' ' + price : price) : '';
+}
 function sellerName() {
 var h = C.hero || {}, parts = String(T(h.name) || '').trim().split(/\s+/), pat = T(h.patronymic);
 return parts.length === 2 ? parts[1] + ' ' + parts[0] + (pat ? ' ' + pat : '') : parts.join(' ');
@@ -703,12 +710,14 @@ return '<p class="svc__seller fade">' + esc(UI.seller) + ': ' + esc(who) +
 ' · <a href="/offer/' + (LANG === 'en' ? '?lang=en' : '') + '">' + esc(UI.offer) + '</a></p>';
 }
 function svcCard(p) {
-var price = keepNum(T(p.price));
+var price = svcPrice(p), note = keepNum(T(p.priceNote)), includes = T(p.priceIncludes);
 return '<a class="svc-card fade" href="' + svcPath(p.id) + '">' +
 '<span class="svc-card__ic">' + icon(p.icon || 'check', 24) + '</span>' +
 '<span class="svc-card__body"><span class="svc-card__title">' + esc(typo(T(p.title))) + '</span>' +
 (T(p.short) ? '<span class="svc-card__text">' + esc(keepNum(typo(T(p.short)))) + '</span>' : '') +
-'<span class="svc-card__price' + (price ? '' : ' svc-card__price--deal') + '">' + esc(price || UI.deal) + '</span></span>' +
+'<span class="svc-card__price' + (price ? '' : ' svc-card__price--deal') + '">' + esc(price || UI.deal) +
+(note ? '<span class="svc-card__price-note">' + esc(note) + '</span>' : '') +
+(includes ? '<span class="svc-price-includes">' + esc(includes) + '</span>' : '') + '</span></span>' +
 icon('arrow', 18, 'svc-card__go') + '</a>';
 }
 function renderServices() {
@@ -1229,7 +1238,7 @@ window.SITE_UTIL = { esc: esc, typo: typo, asset: asset, icon: icon, brand: BRAN
 articles: artItems, artCard: artCard,
 page: PAGE, cat: CAT, work: WORK, svcId: SVC, art: ART,
 svc: { rows: svcRows, notes: svcNotes, order: svcOrder, seller: svcSeller, card: svcCard,
-path: svcPath, keep: keepNum, review: reviewCard, deal: UI.deal } };
+path: svcPath, keep: keepNum, price: svcPrice, review: reviewCard, deal: UI.deal } };
 if (PAGE !== 'home' && window.SITE_RENDER_WORKS) window.SITE_RENDER_WORKS();
 initFade();
 initSwitch();

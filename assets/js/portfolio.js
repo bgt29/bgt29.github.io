@@ -323,24 +323,26 @@ return '<div class="works-end fade">' +
 U.cta(o.ask) +
 '</div>';
 }
-function shelf(id, list, title, allHref, total, cat) {
-var more = linksOf(cat || id);
+function shelfRow(id, title, allHref, allLabel, cards, sub) {
 return '<section class="shelf fade" aria-labelledby="shelf-' + esc(id) + '">' +
 '<div class="shelf__head">' +
 '<h2 class="shelf__title" id="shelf-' + esc(id) + '">' +
 (allHref ? '<a href="' + allHref + '">' + esc(title) + '</a>' : esc(title)) + '</h2>' +
 (allHref
-? '<a class="shelf__all" href="' + allHref + '">' + esc(UI.all) +
-' <span>' + (total || list.length) + '</span>' + U.icon('arrow', 15) + '</a>'
+? '<a class="shelf__all" href="' + allHref + '">' + allLabel + U.icon('arrow', 15) + '</a>'
 : '') +
 '</div>' +
-(cat ? '' : subLine(id)) +
+(sub || '') +
 '<div class="shelf__wrap">' +
-'<div class="shelf__row">' + list.map(function (w) { return card(w, false); }).join('') +
-more.map(moreCard).join('') + '</div>' +
+'<div class="shelf__row">' + cards + '</div>' +
 arrow('prev', UI.prev, 'shelf__nav') + arrow('next', UI.next, 'shelf__nav') +
 '</div>' +
 '</section>';
+}
+function shelf(id, list, title, allHref, total, cat) {
+var allLabel = esc(UI.all) + ' <span>' + (total || list.length) + '</span>';
+var cards = list.map(function (w) { return card(w, false); }).join('') + linksOf(cat || id).map(moreCard).join('');
+return shelfRow(id, title, allHref, allLabel, cards, cat ? '' : subLine(id));
 }
 function crumbs(trail) {
 var h = C.hero || {};
@@ -510,16 +512,65 @@ var pages = (SV.pages || []).filter(function (x) { return x && x.id; });
 var sp = pages.filter(function (x) { return x.id === U.svcId; })[0];
 if (!sp) { box.innerHTML = '<p class="works__empty fade">' + esc(UI.empty) + '</p>'; box.hidden = false; return; }
 var head = function (t) { return '<h2 class="links__group fade">' + esc(t) + '</h2>'; };
-var price = S2.keep(T(sp.price));
-var html = crumbs([{ href: PRE + '/services/', label: T(SV.title) || UI.services }]) +
+var price = S2.price(sp), priceNote = S2.keep(T(sp.heroPriceNote || sp.priceNote)), priceIncludes = T(sp.priceIncludes);
+var priceBadge = '<p class="svc-hero__price' + (price ? '' : ' svc-hero__price--deal') + '">' + esc(price || S2.deal) + '</p>';
+if (priceNote) {
+priceBadge = '<div class="svc-hero__pricing">' + priceBadge +
+'<p class="svc-hero__price svc-hero__price--note">' + esc(priceNote) + '</p></div>';
+}
+var K = sp.calc;
+var hasCalc = K && K.fixed && K.threshold;
+var topEstimate = sp.id === 'pc-build' && hasCalc;
+var lead = String(T(sp.lead) || '').split(/\n+/).filter(function (x) { return x.trim(); })
+.map(function (x) { return '<p>' + esc(typo(x.trim())) + '</p>'; }).join('');
+var brief = topEstimate ? T(sp.heroLead || sp.short) : '';
+var summary = brief ? '<p>' + esc(typo(brief)) + '</p>' : lead;
+var hero =
 '<header class="svc-hero fade">' +
 '<span class="svc-hero__ic">' + U.icon(sp.icon || 'check', 28) + '</span>' +
 '<h1 class="svc-hero__title">' + esc(typo(T(sp.title))) + '</h1>' +
-'<p class="svc-hero__price' + (price ? '' : ' svc-hero__price--deal') + '">' + esc(price || S2.deal) + '</p>' +
-'<div class="svc-hero__lead">' + String(T(sp.lead) || '').split(/\n+/).filter(function (x) { return x.trim(); })
-.map(function (x) { return '<p>' + esc(typo(x.trim())) + '</p>'; }).join('') + '</div>' +
-U.cta(sp.id) +
+priceBadge +
+(priceIncludes ? '<p class="svc-price-includes">' + esc(priceIncludes) + '</p>' : '') +
+'<div class="svc-hero__lead">' + summary + '</div>' +
+U.cta(sp.id, null, topEstimate ? 'svc-estimate__go' : '') +
 '</header>';
+var notes = S2.notes(sp.notes), prices = '';
+if ((sp.prices || []).length) {
+prices = head(UI.prices) + '<div class="svc fade"><ul class="svc__list">' + S2.rows(sp.prices) + '</ul>' +
+(notes ? '<div class="svc__foot">' + notes + '</div>' : '') + '</div>';
+} else if (notes) {
+prices = head(UI.terms) + '<div class="svc fade"><div class="svc__foot svc__foot--only">' + notes + '</div></div>';
+}
+var calc = '';
+if (hasCalc) {
+var lab = esc(T(K.label)), calcTitle = head(T(K.title));
+calc = (topEstimate ? '' : calcTitle) +
+'<div class="svc-calc fade" data-calc="' + esc(sp.id) + '">' +
+(topEstimate ? calcTitle : '') +
+'<div class="svc-calc__in">' +
+'<label class="svc-calc__label" for="calc-sum">' + lab + '</label>' +
+'<span class="svc-calc__field"><input id="calc-sum" class="svc-calc__sum" type="text" inputmode="numeric" autocomplete="off" size="1"' +
+' value="' + esc(String(K.value || K.threshold)) + '"><span class="svc-calc__cur">₽</span></span>' +
+'<input class="svc-calc__range" type="range" aria-label="' + lab + '" min="0" max="1000" step="1" value="500">' +
+'</div>' +
+'<div class="svc-calc__out" aria-live="polite">' +
+'<span class="svc-calc__label">' + esc(T(K.result)) + '</span>' +
+'<span class="svc-calc__price"></span>' +
+'<span class="svc-calc__note"></span>' +
+(topEstimate ? '' : U.cta(sp.id, T(K.button), 'svc-calc__go', T(K.buttonVk))) +
+'</div>' +
+(T(K.hint) ? '<p class="svc-calc__hint">' + esc(typo(T(K.hint))) + '</p>' : '') +
+'</div>';
+}
+var html = crumbs([{ href: PRE + '/services/', label: T(SV.title) || UI.services }]);
+if (topEstimate) {
+html += '<div class="svc-estimate">' + hero + calc + '</div>' + prices;
+if (lead && summary !== lead) {
+html += '<div class="svc svc-lead svc-estimate__description fade"><div class="svc-hero__lead">' + lead + '</div></div>';
+}
+} else {
+html += hero;
+}
 var nums = (sp.stats || []).filter(function (x) { return x && T(x.value); });
 if (nums.length) {
 html += '<ul class="stats svc-stats fade" style="--n:' + Math.min(nums.length, 4) + ';--m:' + (nums.length > 3 ? 2 : nums.length) + '">' +
@@ -552,33 +603,7 @@ return '<li><span class="svc-feat__ic">' + U.icon(k.icon || 'check', 20) + '</sp
 '<span class="svc-kit__text">' + esc(typo(T(k.text))) + '</span></span></li>';
 }).join('') + '</ul></div>';
 }
-var notes = S2.notes(sp.notes);
-if ((sp.prices || []).length) {
-html += head(UI.prices) + '<div class="svc fade"><ul class="svc__list">' + S2.rows(sp.prices) + '</ul>' +
-(notes ? '<div class="svc__foot">' + notes + '</div>' : '') + '</div>';
-} else if (notes) {
-html += head(UI.terms) + '<div class="svc fade"><div class="svc__foot svc__foot--only">' + notes + '</div></div>';
-}
-var K = sp.calc;
-if (K && K.fixed && K.threshold) {
-var lab = esc(T(K.label));
-html += head(T(K.title)) +
-'<div class="svc-calc fade" data-calc="' + esc(sp.id) + '">' +
-'<div class="svc-calc__in">' +
-'<label class="svc-calc__label" for="calc-sum">' + lab + '</label>' +
-'<span class="svc-calc__field"><input id="calc-sum" class="svc-calc__sum" type="text" inputmode="numeric" autocomplete="off" size="1"' +
-' value="' + esc(String(K.value || K.threshold)) + '"><span class="svc-calc__cur">₽</span></span>' +
-'<input class="svc-calc__range" type="range" aria-label="' + lab + '" min="0" max="1000" step="1" value="500">' +
-'</div>' +
-'<div class="svc-calc__out" aria-live="polite">' +
-'<span class="svc-calc__label">' + esc(T(K.result)) + '</span>' +
-'<span class="svc-calc__price"></span>' +
-'<span class="svc-calc__note"></span>' +
-U.cta(sp.id, T(K.button), 'svc-calc__go', T(K.buttonVk)) +
-'</div>' +
-(T(K.hint) ? '<p class="svc-calc__hint">' + esc(typo(T(K.hint))) + '</p>' : '') +
-'</div>';
-}
+if (!topEstimate) html += prices + calc;
 var list = sp.cat ? inCat(sp.cat) : [];
 var chans = [].concat(sp.links || []).reduce(function (all, id) { return all.concat(linksOf(id)); }, []);
 if (list.length) {
@@ -603,9 +628,8 @@ html += '<div class="svc-head fade"><h2 class="links__group">' + esc(UI.reviews)
 }
 var useful = articles().filter(function (a) { return (a.services || []).indexOf(sp.id) >= 0; });
 if (useful.length) {
-html += '<div class="shelf__head fade"><h2 class="links__group">' + esc(ART_UI.useful) + '</h2>' +
-'<a class="shelf__all" href="' + PRE + '/articles/">' + esc(ART_UI.all) + U.icon('arrow', 15) + '</a></div>' +
-'<div class="art-grid">' + useful.slice(0, 3).map(artCard).join('') + '</div>';
+var related = useful.slice(0, 3).map(function (a) { return U.artCard(a, true); }).join('');
+html += shelfRow('useful', ART_UI.useful, PRE + '/articles/', esc(ART_UI.all), related);
 }
 if ((sp.faq || []).length) {
 html += head(UI.faq) + '<div class="faq fade">' + sp.faq.map(function (q) {
@@ -741,17 +765,18 @@ var K = sp && sp.calc;
 if (!K) return;
 var sum = el.querySelector('.svc-calc__sum'), range = el.querySelector('.svc-calc__range');
 var out = el.querySelector('.svc-calc__price'), note = el.querySelector('.svc-calc__note');
-var go = el.querySelector('.svc-calc__go');
+var calcGo = el.querySelector('.svc-calc__go');
+var go = calcGo || box.querySelector('.svc-estimate__go');
 var EN = document.documentElement.lang === 'en';
 var fmt = function (n) { return EN ? n.toLocaleString('en-US') + '\u00a0₽' : n.toLocaleString('ru-RU').replace(/\s/g, '\u00a0') + '\u00a0₽'; };
 var digits = function (n) { return EN ? n.toLocaleString('en-US') : n.toLocaleString('ru-RU').replace(/\s/g, '\u00a0'); };
-function show(n) {
+function show(n, changed) {
 var low = K.min && n < K.min;
 if (low) n = K.min;
 var price = n <= K.threshold ? K.fixed : Math.round(n * K.percent / 100);
 out.textContent = fmt(price);
 note.textContent = T(low && K.minNote ? K.minNote : n <= K.threshold ? K.fixedNote : K.percentNote);
-if (go) {
+if (go && (calcGo || changed)) {
 var t = String(T(K.ask) || '').replace('{budget}', fmt(n)).replace('{price}', fmt(price));
 go.href = U.askUrl((C.services || {}).orderUrl, { ru: t, en: t });
 }
@@ -762,19 +787,19 @@ var v = lo * Math.exp(span * pos / 1000), st = v < 100000 ? 1000 : v < 500000 ? 
 return Math.round(v / st) * st;
 }
 function toPos(n) { return n <= lo ? 0 : n >= hi ? 1000 : Math.round(1000 * Math.log(n / lo) / span); }
-function fromSum() {
+function fromSum(changed) {
 var n = parseInt(String(sum.value).replace(/\D/g, '').slice(0, 15), 10) || 0;
 sum.value = n ? digits(n) : '';
 range.value = toPos(n);
-show(n);
+show(n, changed);
 }
-sum.addEventListener('input', fromSum);
+sum.addEventListener('input', function () { fromSum(true); });
 sum.addEventListener('change', function () {
 var n = parseInt(String(sum.value).replace(/\D/g, '').slice(0, 15), 10) || 0;
-if (K.min && n < K.min) { sum.value = digits(K.min); fromSum(); }
+if (K.min && n < K.min) { sum.value = digits(K.min); fromSum(true); }
 });
-range.addEventListener('input', function () { var n = toSum(+range.value); sum.value = digits(n); show(n); });
-fromSum();
+range.addEventListener('input', function () { var n = toSum(+range.value); sum.value = digits(n); show(n, true); });
+fromSum(false);
 }
 function lightSlide(img) {
 var GW = 24, GH = 18;
