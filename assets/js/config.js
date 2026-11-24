@@ -627,7 +627,7 @@ ru: 'Что пишут покупатели и клиенты: сборка ПК
 en: 'What buyers and clients say: custom PC builds, servicing, parts and electronics. Reviews are translated from Russian.',
 },
 rating: {
-score: '5,0', count: 84,
+score: '5,0', count: 85,
 where: { ru: 'на Авито', en: 'on Avito' },
 url: '/avito',
 badges: [
