@@ -175,12 +175,12 @@ return '<button class="' + cls + ' ' + cls + '--' + dir + '" type="button" aria-
 }
 var ART_UI = {
 ru: { title: 'Статьи', useful: 'Полезное', all: 'Все статьи', more: 'Ещё статьи',
-services: 'Услуги по теме', min: 'мин чтения',
-source: 'Впервые — в моём Telegram-канале «Про ПК»:', post: 'пост',
+services: 'Услуги по теме', min: 'мин чтения', calculate: 'Рассчитать стоимость сборки',
+source: 'Материал из моего Telegram-канала «Про ПК» ·', post: 'пост',
 sources: 'Собрано из постов моего Telegram-канала «Про ПК»:' },
 en: { title: 'Articles', useful: 'Useful reading', all: 'All articles', more: 'More articles',
-services: 'Related services', min: 'min read',
-source: 'First published on my Telegram channel (in Russian):', post: 'post',
+services: 'Related services', min: 'min read', calculate: 'Calculate the build fee',
+source: 'From my Telegram channel (in Russian) ·', post: 'post',
 sources: 'Based on posts from my Telegram channel (in Russian):' }
 }[LANG];
 function articles() { return U.articles(); }
@@ -302,9 +302,9 @@ if (C.services && C.services.enabled !== false) {
 (C.services.pages || []).forEach(function (s) { if (s && s.id) SVC_IDS[s.id] = 1; });
 }
 function linked(m) { return m.offer && SVC_IDS[m.ask]; }
-function orderLink(id) {
+function orderLink(id, classes) {
 var o = offersOf(id).filter(linked)[0];
-return o ? '<a class="shelf__order" href="' + PRE + '/services/' + esc(o.ask) + '/">' +
+return o ? '<a class="' + (classes || 'shelf__order') + '" href="' + U.svc.path(o.ask) + '">' +
 esc(UI.order) + U.icon('arrow', 14) + '</a>' : '';
 }
 function subLine(id) {
@@ -450,6 +450,14 @@ return s && s.part ? { part: PARTS[s.part] ? s.part : '', name: T(s.name) } : { 
 }).filter(function (s) { return s.name; });
 var stats = (w.stats || []).filter(function (s) { return s && T(s.value); });
 var url = T(w.url);
+var order = orderLink(w.category, 'cta-btn work-page__order');
+var paired = order && url;
+var external = url && url.charAt(0) !== '/';
+var project = url
+? '<a class="cta-btn' + (paired ? ' work-page__project--secondary' : '') +
+'" href="' + esc(external ? url : PRE + url) + '"' + (external ? ' target="_blank" rel="noopener"' : '') + '>' +
+esc(T(w.cta) || ctaFor(url, w.category)) + U.icon(paired && external ? 'out' : 'arrow', 16) + '</a>'
+: '';
 var others = inCat(w.category).filter(function (x) { return x.id !== w.id; });
 box.innerHTML = crumbs([
 { href: urlPortfolio(), label: portfolioName },
@@ -490,14 +498,11 @@ return '<li class="stats__item"><span class="stats__num">' + esc(T(s.value)) + '
 String(T(w.text) || '').split(/\n+/).filter(function (s) { return s.trim(); })
 .map(function (s) { return '<p>' + esc(typo(s.trim())) + '</p>'; }).join('') +
 '</div>' +
+(paired ? '' : order) +
 specsBlock(specs) +
+(paired ? '<div class="work-page__actions">' + order + project + '</div>' : '') +
 reviewBlock(w.review) +
-(url
-? (url.charAt(0) === '/'
-? '<a class="cta-btn" href="' + esc(PRE + url) + '">'
-: '<a class="cta-btn" href="' + esc(url) + '" target="_blank" rel="noopener">') +
-esc(T(w.cta) || ctaFor(url, w.category)) + U.icon('arrow', 16) + '</a>'
-: '') +
+(paired ? '' : project) +
 (catMore[w.category] || []).map(moreBanner).join('') +
 '</article>' +
 (others.length
@@ -511,6 +516,9 @@ var SV = C.services || {}, S2 = U.svc;
 var pages = (SV.pages || []).filter(function (x) { return x && x.id; });
 var sp = pages.filter(function (x) { return x.id === U.svcId; })[0];
 if (!sp) { box.innerHTML = '<p class="works__empty fade">' + esc(UI.empty) + '</p>'; box.hidden = false; return; }
+var choices = (sp.choices || []).map(function (id) {
+return pages.find(function (page) { return page.id === id; });
+}).filter(Boolean);
 var head = function (t) { return '<h2 class="links__group fade">' + esc(t) + '</h2>'; };
 var price = S2.price(sp), priceNote = S2.keep(T(sp.heroPriceNote || sp.priceNote)), priceIncludes = T(sp.priceIncludes);
 var priceBadge = '<p class="svc-hero__price' + (price ? '' : ' svc-hero__price--deal') + '">' + esc(price || S2.deal) + '</p>';
@@ -545,7 +553,7 @@ var calc = '';
 if (hasCalc) {
 var lab = esc(T(K.label)), calcTitle = head(T(K.title));
 calc = (topEstimate ? '' : calcTitle) +
-'<div class="svc-calc fade" data-calc="' + esc(sp.id) + '">' +
+'<div id="calculator" class="svc-calc fade" data-calc="' + esc(sp.id) + '">' +
 (topEstimate ? calcTitle : '') +
 '<div class="svc-calc__in">' +
 '<label class="svc-calc__label" for="calc-sum">' + lab + '</label>' +
@@ -570,6 +578,9 @@ html += '<div class="svc svc-lead svc-estimate__description fade"><div class="sv
 }
 } else {
 html += hero;
+}
+if (choices.length) {
+html += '<div class="svc-grid">' + choices.map(S2.card).join('') + '</div>';
 }
 var nums = (sp.stats || []).filter(function (x) { return x && T(x.value); });
 if (nums.length) {
@@ -639,7 +650,7 @@ U.icon('arrow', 16, 'faq__mark') + '</summary>' +
 }).join('') + '</div>';
 }
 html += S2.order(sp.ask);
-var rest = pages.filter(function (x) { return x.id !== sp.id; });
+var rest = pages.filter(function (x) { return x.id !== sp.id && x.listed !== false && choices.indexOf(x) < 0; });
 if (rest.length) {
 html += head(UI.otherSvc) + '<div class="svc-links fade">' + rest.map(function (x) {
 return '<a class="svc-links__item" href="' + S2.path(x.id) + '">' + U.icon(x.icon || 'check', 18) +
@@ -647,6 +658,32 @@ return '<a class="svc-links__item" href="' + S2.path(x.id) + '">' + U.icon(x.ico
 }).join('') + '</div>';
 }
 box.innerHTML = html + S2.seller();
+}
+if (U.page === 'contacts' && C.contacts) {
+var contact = C.contacts;
+var contactPlace = [T(contact.city), T(contact.region)].filter(Boolean).join(', ');
+var mail = (C.links || []).find(function (link) { return link && /^mailto:/i.test(T(link.url)); });
+box.innerHTML = crumbs([]) +
+'<header class="svc-hero svc-hero--compact fade">' +
+'<span class="svc-hero__ic">' + U.icon('pin', 28) + '</span>' +
+'<h1 class="svc-hero__title">' + esc(T(contact.title)) + '</h1>' +
+'<div class="svc-hero__lead"><p>' + esc(contactPlace) + '</p>' +
+'<p>' + esc(typo(T((C.services || {}).order))) + '</p></div>' +
+U.cta((C.services || {}).ask) +
+'</header>' +
+'<div class="svc-feats contact-areas">' + contact.areas.map(function (area) {
+return '<section class="svc-feat fade"><span class="svc-feat__ic">' + U.icon(area.icon, 22) + '</span>' +
+'<h2 class="svc-feat__title">' + esc(T(area.title)) + '</h2>' +
+'<p class="svc-feat__text">' + esc(typo(T(area.text))) + '</p></section>';
+}).join('') + '</div>' +
+'<div class="svc-links contact-links fade">' +
+'<a class="svc-links__item" href="' + PRE + '/services/">' + U.icon('arrow', 18) +
+esc(LANG === 'en' ? 'Services and prices' : 'Услуги и цены') + '</a>' +
+(mail ? '<a class="svc-links__item" href="' + esc(T(mail.url)) + '">' + U.icon('email', 18) +
+esc(T(mail.label)) + '</a>' : '') +
+(contact.mapUrl ? '<a class="svc-links__item" href="' + esc(contact.mapUrl) + '" target="_blank" rel="noopener">' +
+U.icon('out', 18) + esc(LANG === 'en' ? '2GIS listing' : 'Карточка в 2ГИС') + '</a>' : '') +
+'</div>';
 }
 if (U.page === 'site') {
 var SI = C.siteInfo || {};
@@ -728,6 +765,9 @@ return '';
 }).join('');
 var src = [].concat(A.source || []).filter(Boolean);
 var svcs = ((C.services || {}).pages || []).filter(function (x) { return x && (A.services || []).indexOf(x.id) >= 0; });
+var calcService = U.svc && svcs.find(function (x) {
+return x.id === A.calculator && x.calc && x.calc.fixed && x.calc.threshold;
+});
 var others = articles().filter(function (a) { return a.id !== A.id; }).slice(0, 2);
 box.innerHTML = '<div class="art-wrap">' +
 crumbs([{ href: PRE + '/articles/', label: T((C.articles || {}).title) || ART_UI.title }]) +
@@ -736,6 +776,8 @@ crumbs([{ href: PRE + '/articles/', label: T((C.articles || {}).title) || ART_UI
 (meta ? '<p class="art__meta">' + esc(meta) + '</p>' : '') +
 '<h1 class="art__title">' + esc(typo(T(A.title))) + '</h1>' +
 (T(A.description) ? '<p class="art__lead">' + esc(typo(T(A.description))) + '</p>' : '') +
+(calcService ? '<a class="cta-btn art__calculator" href="' + U.svc.path(calcService.id) + '#calculator">' +
+esc(ART_UI.calculate) + U.icon('arrow', 16) + '</a>' : '') +
 '</header>' +
 (cov ? figure(cov, '', true) : '') +
 '<div class="art__body">' + body + '</div>' +

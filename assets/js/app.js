@@ -10,7 +10,7 @@ var LANG = window.SITE_LANG || 'ru';
 var T = window.SITE_T || function (v) { return v && typeof v === 'object' ? (v.ru || '') : (v || ''); };
 var B = document.body;
 var PAGE = B.getAttribute('data-page') || 'home';
-if (!/^(portfolio|category|work|reviews|services|service|site|articles|article)$/.test(PAGE)) PAGE = 'home';
+if (!/^(portfolio|category|work|reviews|services|service|contacts|site|articles|article)$/.test(PAGE)) PAGE = 'home';
 var ART = B.getAttribute('data-article') || '';
 var CAT = B.getAttribute('data-cat') || '', WORK = B.getAttribute('data-work') || '';
 var SVC = B.getAttribute('data-svc') || '';
@@ -22,6 +22,7 @@ else if (page === 'work') p = '/portfolio/' + CAT + '/' + WORK + '/';
 else if (page === 'reviews') p = '/reviews/';
 else if (page === 'services') p = '/services/';
 else if (page === 'service') p = '/services/' + SVC + '/';
+else if (page === 'contacts') p = '/contacts/';
 else if (page === 'site') p = '/about-site/';
 else if (page === 'articles' || page === 'article') {
 var arts = (C.articles || {}).items || [];
@@ -44,7 +45,7 @@ var k = n % 10, h = n % 100;
 return n + (k === 1 && h !== 11 ? ' отзыв' : k >= 2 && k <= 4 && (h < 12 || h > 14) ? ' отзыва' : ' отзывов');
 },
 tabLinks: 'Ссылки', tabWorks: 'Портфолио', tabs: 'Разделы сайта', qr: 'QR-код сайта', aboutSite: 'О сайте',
-services: 'Услуги', deal: 'по договорённости', works: 'Работы', order: 'Как заказать',
+services: 'Услуги', servicesHeading: 'Услуги и цены', deal: 'по договорённости', works: 'Работы', order: 'Как заказать',
 write: 'Написать в Telegram', writeVk: 'Написать в ВК', seller: 'Исполнитель', inn: 'ИНН', offer: 'Договор-оферта',
 other: { code: 'EN', lang: 'en', title: 'English version' } },
 en: { page: 'Personal page', links: 'My links', now: 'Now',
@@ -56,7 +57,7 @@ bugTo: 'Found a bug? Message me on', bugOr: 'or',
 reviews: 'Reviews', reviewsAll: 'All reviews', reviewsMore: 'All reviews', path: 'You are here',
 reviewCase: 'See the work', reviewProjects: 'Projects', reviewsCount: function (n) { return n + (n === 1 ? ' review' : ' reviews'); },
 tabLinks: 'Links', tabWorks: 'Portfolio', tabs: 'Site sections', qr: 'QR code of the site', aboutSite: 'About this site',
-services: 'Services', deal: 'by agreement', works: 'Works', order: 'How to order',
+services: 'Services', servicesHeading: 'Services and prices', deal: 'by agreement', works: 'Works', order: 'How to order',
 write: 'Message me on Telegram', writeVk: 'Message me on VK', seller: 'Contractor', inn: 'TIN', offer: 'Public offer (in Russian)',
 other: { code: 'RU', lang: 'ru', title: 'Русская версия' } }
 }[LANG];
@@ -179,9 +180,13 @@ var parts = String(name || '').trim().split(/\s+/).slice(0, 2);
 return parts.map(function (p) { return p.charAt(0); }).join('').toUpperCase() || '·';
 }
 function renderHero() {
+var intro = document.querySelector('.intro');
+if (!intro) return;
 var h = C.hero || {};
 var name = T(h.name);
 var photo = asset(h.avatar);
+var compact = PAGE !== 'home';
+intro.classList.toggle('intro--compact', compact);
 var ready = slot('avatar') && slot('avatar').querySelector('img');
 if (!(photo && ready && ready.getAttribute('src') === photo)) {
 fill('avatar', photo
@@ -191,7 +196,20 @@ fill('avatar', photo
 var box = slot('avatar');
 var img = box && box.querySelector('img');
 if (img) {
-img.addEventListener('error', function () { box.textContent = initials(name); });
+img.alt = compact ? '' : name;
+img.onerror = function () { box.textContent = initials(name); };
+if (img.complete && !img.naturalWidth) img.onerror();
+}
+qrButton();
+renderHeroRating(intro);
+if (compact) {
+var heading = PAGE === 'services' ? UI.servicesHeading
+: PAGE === 'portfolio' ? (T(P.title) || UI.tabWorks)
+: (T((C.reviews || {}).title) || UI.reviews);
+fill('name', esc(heading));
+fill('status', esc(name));
+['nick', 'about', 'role', 'bio'].forEach(function (key) { fill(key, ''); });
+return;
 }
 fill('status', esc(T(h.status)));
 fill('name', String(name).trim().split(/\s+/).map(function (w) {
@@ -199,7 +217,6 @@ return '<span class="name__line">' + esc(w) + '</span>';
 }).join(' '));
 fill('nick', esc(T(h.nick)));
 fill('role', esc(T(h.role)));
-qrButton();
 fill('bio', String(T(h.bio)).split('\n').filter(function (s) { return s.trim(); })
 .map(function (s) {
 s = s.trim();
@@ -210,12 +227,15 @@ return '<span class="chip">' + (ic ? icon(ic, 16) : '') + esc(typo(c)) + '</span
 }).join('') + '</span>';
 }
 return '<span class="bio__line">' + esc(typo(s)) + '</span>';
-}).join(''));
+}).join('') + (HAS_SERVICES
+? '<a class="cta-btn intro__services" href="' + pathFor(LANG, 'services') + '">' +
+esc(UI.servicesHeading) + icon('arrow', 16) + '</a>'
+: ''));
 fill('about', aboutFacts(h));
 }
 function aboutFacts(h) {
 var items = [];
-if (T(h.city)) items.push(['pin', T(h.city)]);
+if (T(h.city)) items.push(['pin', T(h.city), C.contacts ? pathFor(LANG, 'contacts') : '']);
 var m = String(h.born || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
 if (m) {
 var y = +m[1], mo = +m[2], d = +m[3], now = new Date();
@@ -228,7 +248,9 @@ items.push(['cake', date + ' · ' + age + ' ' + yw]);
 if (T(h.education)) items.push(['cap', T(h.education)]);
 if (T(h.work)) items.push(['work', T(h.work)]);
 return items.map(function (it) {
-return '<span class="about__item">' + icon(it[0], 15) + '<span>' + esc(typo(it[1])) + '</span></span>';
+var text = icon(it[0], 15) + '<span>' + esc(typo(it[1])) + '</span>';
+return it[2] ? '<a class="about__item about__item--link" href="' + it[2] + '">' + text + '</a>'
+: '<span class="about__item">' + text + '</span>';
 }).join('');
 }
 var QR_ICON = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" ' +
@@ -538,6 +560,20 @@ return m ? MONTHS[+m[2] - 1] + ' ' + m[1] : (d || '');
 var STAR = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="currentColor">' +
 '<path d="M12 2.6l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.3l-5.9 3.2 1.3-6.5L2.5 9.4l6.6-.8z"/></svg>';
 function stars(n) { return '<span class="stars" aria-hidden="true">' + new Array((n || 5) + 1).join(STAR) + '</span>'; }
+function renderHeroRating(intro) {
+var old = intro.querySelector('.intro__rating');
+if (old) old.remove();
+if (PAGE !== 'reviews') return;
+var r = (C.reviews || {}).rating || {};
+if (!r.score) return;
+var score = LANG === 'en' ? String(r.score).replace(',', '.') : r.score;
+var count = [UI.reviewsCount(r.count), T(r.where)].filter(Boolean).join(' ');
+var inner = STAR + '<strong>' + esc(score) + '</strong><span>' + esc(count) + '</span>';
+var url = T(r.url);
+intro.insertAdjacentHTML('beforeend', url
+? '<a class="intro__rating" href="' + esc(url) + '" target="_blank" rel="noopener">' + inner + '</a>'
+: '<p class="intro__rating">' + inner + '</p>');
+}
 function reviewCard(i, link) {
 var meta = [T(i.what), month(i.date)].filter(Boolean).join(' · ');
 return '<figure class="rev fade">' + stars(5) +
@@ -557,16 +593,19 @@ var full = PAGE === 'reviews';
 var pre = LANG === 'en' ? '/en' : '';
 var r = R.rating || {}, url = T(r.url);
 var title = T(R.title) || UI.reviews;
-var head = r.score
+var badges = (r.badges || []).map(function (b) {
+return '<li>' + (b && b.icon ? icon(b.icon, 16) : '') + esc(T(b)) + '</li>';
+}).join('');
+var head = full
+? (badges ? '<ul class="rating__badges reviews__badges fade">' + badges + '</ul>' : '')
+: r.score
 ? '<div class="rating fade">' +
 '<div class="rating__score">' +
 '<span class="rating__num">' + esc(r.score) + '</span>' +
 '<span class="rating__stars">' + stars(5) +
 '<span class="rating__count">' + esc(UI.reviewsCount(r.count) + ' ' + T(r.where)) + '</span></span>' +
 '</div>' +
-'<ul class="rating__badges">' + (r.badges || []).map(function (b) {
-return '<li>' + (b && b.icon ? icon(b.icon, 16) : '') + esc(T(b)) + '</li>';
-}).join('') + '</ul>' +
+'<ul class="rating__badges">' + badges + '</ul>' +
 (url ? '<a class="rating__all" href="' + esc(url) + '" target="_blank" rel="noopener">' +
 esc(T(R.all) || UI.reviewsAll) + icon('out', 16) + '</a>' : '') +
 '</div>'
@@ -606,7 +645,7 @@ function countAll(R) {
 var n = R.items.length + ((C.portfolio || {}).items || []).filter(function (w) { return w && w.review; }).length;
 return '(' + n + ')';
 }
-var SVC_PAGES = HAS_SERVICES ? C.services.pages.filter(function (p) { return p && p.id; }) : [];
+var SVC_PAGES = HAS_SERVICES ? C.services.pages.filter(function (p) { return p && p.id && p.listed !== false; }) : [];
 function svcPath(id) { return (LANG === 'en' ? '/en' : '') + '/services/' + id + '/'; }
 function keepNum(s) {
 return String(s || '').replace(/(\d) (?=\d)/g, '$1 ').replace(/ (₽|%)/g, ' $1');
@@ -723,8 +762,16 @@ icon('arrow', 18, 'svc-card__go') + '</a>';
 function renderServices() {
 var box = document.querySelector('[data-section="services"]');
 if (!box || !HAS_SERVICES) return;
+var sections = C.services.sections || [];
+var sectionIds = sections.map(function (s) { return s.id; });
+var groups = sections.map(function (s) {
+var cards = SVC_PAGES.filter(function (p) { return p.section === s.id; }).map(svcCard).join('');
+return cards ? '<section class="svc-group"><h2 class="links__group fade">' + esc(T(s.title)) +
+'</h2><div class="svc-grid">' + cards + '</div></section>' : '';
+}).join('');
+var rest = SVC_PAGES.filter(function (p) { return sectionIds.indexOf(p.section) < 0; }).map(svcCard).join('');
 box.innerHTML = svcBadges() +
-'<div class="svc-grid">' + SVC_PAGES.map(svcCard).join('') + svcExtra() + '</div>' +
+groups + '<div class="svc-grid">' + rest + svcExtra() + '</div>' +
 svcOrder() + svcSeller();
 box.hidden = false;
 }
@@ -762,6 +809,9 @@ esc(UI.bugOr) + ' <a href="' + esc(vkBug) + '" target="_blank" rel="noopener">' 
 icon('bug', 15) + esc(UI.bug) + '</a>') + line;
 }
 var more = [];
+if (C.contacts) {
+more.push('<a class="footer__contacts" href="' + pathFor(LANG, 'contacts') + '">' + esc(T(C.contacts.title)) + '</a>');
+}
 if (artItems().length) {
 more.push('<a class="footer__articles" href="' + (LANG === 'en' ? '/en' : '') + '/articles/">' +
 esc(T((C.articles || {}).title) || (LANG === 'en' ? 'Articles' : 'Статьи')) + '</a>');
@@ -792,7 +842,7 @@ a.textContent = o.code;
 function renderTabs() {
 var nav = slot('tabs');
 if (!nav) return;
-if (!(HAS_WORKS || HAS_REVIEWS || HAS_SERVICES) || PAGE === 'category' || PAGE === 'work' || PAGE === 'service' || PAGE === 'site' ||
+if (!(HAS_WORKS || HAS_REVIEWS || HAS_SERVICES) || PAGE === 'category' || PAGE === 'work' || PAGE === 'service' || PAGE === 'contacts' || PAGE === 'site' ||
 PAGE === 'articles' || PAGE === 'article') { nav.hidden = true; nav.innerHTML = ''; return; }
 var tab = function (key, label) {
 var on = key === PAGE;
@@ -837,33 +887,36 @@ function place(el) {
 pill.style.setProperty('--x', el.offsetLeft + 'px');
 pill.style.setProperty('--w', el.offsetWidth + 'px');
 }
+function snap(el) {
+nav.classList.add('no-anim');
+place(el);
+pill.getBoundingClientRect();
+nav.classList.remove('no-anim');
+}
 place(on);
 nav.classList.add('has-pill');
 function indexOf(url) {
-var p;
-try { p = new URL(url, location.href).pathname; } catch (e) { return -1; }
-for (var k = 0; k < items.length; k++) if (items[k].pathname === p) return k;
+if (!url) return -1;
+var from;
+try { from = new URL(url); } catch (e) { return -1; }
+if (from.origin !== location.origin) return -1;
+for (var k = 0; k < items.length; k++) if (items[k].pathname === from.pathname) return k;
 return -1;
 }
 function cameFrom() {
-var i = -1, mark = null;
 try {
 var a = window.navigation && window.navigation.activation;
-if (a && a.from && a.navigationType !== 'reload') i = indexOf(a.from.url);
+if (a && a.navigationType === 'reload') return -1;
+if (a && a.from && a.navigationType === 'traverse') return indexOf(a.from.url);
 } catch (e) {}
-try { mark = sessionStorage.getItem('site-tab-from'); sessionStorage.removeItem('site-tab-from'); } catch (e) {}
-if (i < 0 && mark !== null && mark !== '') i = +mark;
-return i;
+return indexOf(document.referrer);
 }
 function reveal(e) {
 var i = cameFrom();
 if (i < 0 || i === cur || !items[i]) return;
 if (!document.documentElement.classList.contains('motion')) return;
 if (e && e.viewTransition) slideIn(i < cur ? 'tab-forward' : 'tab-back');
-nav.classList.add('no-anim');
-place(items[i]);
-pill.getBoundingClientRect();
-nav.classList.remove('no-anim');
+snap(items[i]);
 nav.classList.add('is-sliding');
 var go = function () {
 place(on);
@@ -874,16 +927,10 @@ else go();
 }
 if ('onpagereveal' in window) window.addEventListener('pagereveal', reveal);
 else reveal(null);
-nav.addEventListener('click', function (e) {
-var a = e.target.closest && e.target.closest('.tabs__item');
-var now = nav.querySelector('.tabs__item.is-on');
-if (!a || a === now) return;
-try { sessionStorage.setItem('site-tab-from', String([].indexOf.call(items, now))); } catch (e2) {}
-});
 var again = function () {
 fitTabs();
 var now = nav.querySelector('.tabs__item.is-on');
-if (now && !nav.classList.contains('is-sliding')) place(now);
+if (now && !nav.classList.contains('is-sliding')) snap(now);
 };
 window.addEventListener('resize', again);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(again);
@@ -903,7 +950,7 @@ function titleFor(page) {
 var name = T((C.hero || {}).name);
 if (page === 'home') return T((C.meta || {}).title) || name || UI.page;
 var label = page === 'portfolio' ? (T(P.title) || UI.tabWorks)
-: page === 'services' ? (T((C.services || {}).title) || UI.services)
+: page === 'services' ? (T((C.services || {}).seoTitle) || T((C.services || {}).title) || UI.services)
 : (T((C.reviews || {}).title) || UI.reviews);
 return label + ' — ' + name;
 }
@@ -921,6 +968,7 @@ function showPage(page) {
 PAGE = page;
 if (page === 'home') B.removeAttribute('data-page'); else B.setAttribute('data-page', page);
 if (window.SITE_UTIL) window.SITE_UTIL.page = page;
+renderHero();
 var works = document.querySelector('[data-section="works"]');
 if (works) {
 works.classList.remove('is-warming');
@@ -1179,7 +1227,7 @@ else window.addEventListener('load', function () { setTimeout(go, 800); }, { onc
 function clearHomeBlocks() {
 var list = ['[data-section="projects"]', '[data-bind="links"]', '[data-section="now"]'];
 if (PAGE !== 'reviews') list.push('[data-section="reviews"]');
-if (PAGE === 'category' || PAGE === 'work' || PAGE === 'service' || PAGE === 'site' ||
+if (PAGE === 'category' || PAGE === 'work' || PAGE === 'service' || PAGE === 'contacts' || PAGE === 'site' ||
 PAGE === 'articles' || PAGE === 'article') list.push('.intro');
 list.forEach(function (s) {
 var el = document.querySelector(s);
